@@ -1,0 +1,59 @@
+{
+  "app": {
+    "name": "Spot",
+    "tagline": "Your business, your place",
+    "description": "All-in-one platform for local businesses"
+  },
+  "nav": {
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "dashboard": "Dashboard",
+    "settings": "Settings"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "login_title": "Welcome to Spot",
+    "login_subtitle": "Access your business",
+    "register_title": "Create your Spot",
+    "register_subtitle": "Set up your business in minutes",
+    "forgot_password": "Forgot your password?",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "login_button": "Log in",
+    "register_button": "Sign up"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "orders": "Orders",
+    "catalog": "Catalog",
+    "inventory": "Inventory",
+    "finance": "Finance",
+    "team": "Team",
+    "contacts": "Contacts",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "loading": "Loading...",
+    "no_results": "No results",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "total": "Total",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive"
+  }
+}

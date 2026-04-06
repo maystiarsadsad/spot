@@ -1,0 +1,59 @@
+{
+  "app": {
+    "name": "Spot",
+    "tagline": "Seu negócio, seu lugar",
+    "description": "Plataforma completa para negócios locais"
+  },
+  "nav": {
+    "login": "Entrar",
+    "register": "Criar conta",
+    "logout": "Sair",
+    "dashboard": "Painel",
+    "settings": "Configurações"
+  },
+  "auth": {
+    "email": "E-mail",
+    "password": "Senha",
+    "login_title": "Bem-vindo ao Spot",
+    "login_subtitle": "Acesse seu negócio",
+    "register_title": "Crie seu Spot",
+    "register_subtitle": "Configure seu negócio em minutos",
+    "forgot_password": "Esqueceu sua senha?",
+    "no_account": "Não tem conta?",
+    "has_account": "Já tem conta?",
+    "login_button": "Entrar",
+    "register_button": "Criar conta"
+  },
+  "sidebar": {
+    "dashboard": "Painel",
+    "orders": "Pedidos",
+    "catalog": "Catálogo",
+    "inventory": "Inventário",
+    "finance": "Finanças",
+    "team": "Equipe",
+    "contacts": "Clientes",
+    "reports": "Relatórios",
+    "settings": "Configurações"
+  },
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "loading": "Carregando...",
+    "no_results": "Sem resultados",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "total": "Total",
+    "status": "Status",
+    "actions": "Ações",
+    "active": "Ativo",
+    "inactive": "Inativo"
+  }
+}
