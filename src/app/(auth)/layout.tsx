@@ -7,13 +7,22 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (user) {
-    redirect("/d");
+    if (user) {
+      redirect("/d");
+    }
+  } catch (e: any) {
+    // If redirect was called inside try, Next.js throws a special error — rethrow it
+    if (e?.digest?.startsWith("NEXT_REDIRECT")) {
+      throw e;
+    }
+    // Otherwise Supabase is unreachable — just render the login form
+    console.error("Auth check failed (Supabase unreachable):", e?.message);
   }
 
   return (
