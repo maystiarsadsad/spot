@@ -1,0 +1,40 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@tailwind",
+      "description": "Tailwind CSS directive for injecting base, components, and utilities styles.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs" }]
+    },
+    {
+      "name": "@apply",
+      "description": "Tailwind CSS directive to apply utility classes inline.",
+      "references": [{ "name": "Tailwind Docs", "url": "https://tailwindcss.com/docs" }]
+    },
+    {
+      "name": "@theme",
+      "description": "Tailwind CSS v4 directive to define design tokens and theme values.",
+      "references": [{ "name": "Tailwind v4 Docs", "url": "https://tailwindcss.com/docs/theme" }]
+    },
+    {
+      "name": "@custom-variant",
+      "description": "Tailwind CSS v4 directive to define custom variants (e.g., dark mode).",
+      "references": [{ "name": "Tailwind v4 Docs", "url": "https://tailwindcss.com/docs/hover-focus-and-other-states" }]
+    },
+    {
+      "name": "@source",
+      "description": "Tailwind CSS v4 directive to specify content source paths.",
+      "references": [{ "name": "Tailwind v4 Docs", "url": "https://tailwindcss.com/docs" }]
+    },
+    {
+      "name": "@variant",
+      "description": "Tailwind CSS v4 directive to define variants.",
+      "references": [{ "name": "Tailwind v4 Docs", "url": "https://tailwindcss.com/docs" }]
+    },
+    {
+      "name": "@plugin",
+      "description": "Tailwind CSS v4 directive to load plugins.",
+      "references": [{ "name": "Tailwind v4 Docs", "url": "https://tailwindcss.com/docs" }]
+    }
+  ]
+}

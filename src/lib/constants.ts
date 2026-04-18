@@ -1,4 +1,18 @@
-import type { BusinessType } from '@/types/database'
+export type BusinessType =
+  | 'restaurant'
+  | 'fast_food'
+  | 'supermarket'
+  | 'barbershop'
+  | 'tattoo'
+  | 'bar'
+  | 'hotel'
+  | 'hostel'
+  | 'cafe'
+  | 'gym'
+  | 'laundry'
+  | 'clothing'
+  | 'veterinary'
+  | 'custom';
 
 export const APP_NAME = 'Spot'
 export const APP_TAGLINE = 'Tu negocio, tu lugar'
@@ -23,6 +37,7 @@ export const BUSINESS_TYPES: Record<BusinessType, { label: string; icon: string;
 
 export const MODULES = {
   catalog: { key: 'catalog', defaultLabel: 'Catálogo', icon: 'Package' },
+  reservations: { key: 'reservations', defaultLabel: 'Reservas', icon: 'CalendarDays' },
   transactions: { key: 'transactions', defaultLabel: 'Transacciones', icon: 'ShoppingCart' },
   inventory: { key: 'inventory', defaultLabel: 'Inventario', icon: 'Warehouse' },
   finance: { key: 'finance', defaultLabel: 'Finanzas', icon: 'DollarSign' },
@@ -33,18 +48,18 @@ export const MODULES = {
 
 // Default modules enabled per business type
 export const DEFAULT_MODULES_BY_TYPE: Record<BusinessType, string[]> = {
-  restaurant: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
+  restaurant: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
   fast_food: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
   supermarket: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
-  barbershop: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
-  tattoo: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
-  bar: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
-  hotel: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
-  hostel: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
+  barbershop: ['catalog', 'transactions', 'reservations', 'finance', 'team', 'contacts', 'reports'],
+  tattoo: ['catalog', 'transactions', 'reservations', 'finance', 'team', 'contacts', 'reports'],
+  bar: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
+  hotel: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
+  hostel: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
   cafe: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
-  gym: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
+  gym: ['catalog', 'transactions', 'reservations', 'finance', 'team', 'contacts', 'reports'],
   laundry: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
   clothing: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
-  veterinary: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
-  custom: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
+  veterinary: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
+  custom: ['catalog', 'transactions', 'reservations', 'finance', 'team', 'contacts', 'reports'],
 }
