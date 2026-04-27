@@ -17,13 +17,8 @@ export interface ActiveBusiness {
  * Reads the active business context from cookies and validates
  * the user has access to it. Returns null if no business is selected
  * or the user doesn't have access.
- *
- * Usage in any Server Component:
- * ```ts
- * const business = await getActiveBusiness();
- * if (!business) return <NoBusiness />;
- * // Now use business.id to filter all queries
- * ```
+ * 
+ * Optimized: single auth call + single business query (RLS handles access).
  */
 export async function getActiveBusiness(): Promise<ActiveBusiness | null> {
   const cookieStore = await cookies();
@@ -38,7 +33,8 @@ export async function getActiveBusiness(): Promise<ActiveBusiness | null> {
 
   if (!user) return null;
 
-  // Verify the user has access: either they own it or are a member
+  // RLS policies already enforce that the user can only read businesses
+  // they own or are a member of — no need for extra owner/member checks
   const { data: business } = await supabase
     .from("businesses")
     .select("id, name, slug, type, logo_url, currency, timezone")
@@ -47,29 +43,5 @@ export async function getActiveBusiness(): Promise<ActiveBusiness | null> {
 
   if (!business) return null;
 
-  // Check access: owner OR active member
-  const isOwner = await supabase
-    .from("businesses")
-    .select("id")
-    .eq("id", businessId)
-    .eq("owner_id", user.id)
-    .single();
-
-  if (isOwner.data) {
-    return business as ActiveBusiness;
-  }
-
-  const isMember = await supabase
-    .from("business_members")
-    .select("id")
-    .eq("business_id", businessId)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
-
-  if (isMember.data) {
-    return business as ActiveBusiness;
-  }
-
-  return null;
+  return business as ActiveBusiness;
 }

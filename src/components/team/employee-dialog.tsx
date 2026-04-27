@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createEmployee, updateEmployee } from "@/lib/actions/team";
+import { ROLES_BY_TYPE, DEPARTMENTS_BY_TYPE, type BusinessType } from "@/lib/constants";
 
 const employeeSchema = z.object({
   full_name: z.string().min(2, "El nombre completo es requerido"),
@@ -32,15 +33,19 @@ type EmployeeFormValues = z.infer<typeof employeeSchema>;
 
 interface EmployeeDialogProps {
   businessId: string;
+  businessType: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   employeeToEdit?: any;
 }
 
-export function EmployeeDialog({ businessId, open, onOpenChange, employeeToEdit }: EmployeeDialogProps) {
+export function EmployeeDialog({ businessId, businessType, open, onOpenChange, employeeToEdit }: EmployeeDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const isEditing = !!employeeToEdit;
+
+  const roles = ROLES_BY_TYPE[(businessType as BusinessType)] || ROLES_BY_TYPE.custom;
+  const departments = DEPARTMENTS_BY_TYPE[(businessType as BusinessType)] || DEPARTMENTS_BY_TYPE.custom;
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeSchema) as any,
@@ -165,9 +170,26 @@ export function EmployeeDialog({ businessId, open, onOpenChange, employeeToEdit 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cargo *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej. Cocinero, Recepcionista..." {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione un cargo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role} value={role}>{role}</SelectItem>
+                        ))}
+                        <SelectItem value="__other">Otro (personalizado)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {field.value === "__other" && (
+                      <Input
+                        className="mt-2"
+                        placeholder="Escribe el cargo..."
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -179,9 +201,27 @@ export function EmployeeDialog({ businessId, open, onOpenChange, employeeToEdit 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Departamento / Área</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej. Cocina, Administración..." {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione un área" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Sin asignar</SelectItem>
+                        {departments.map((dept) => (
+                          <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                        ))}
+                        <SelectItem value="__other">Otro (personalizado)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {field.value === "__other" && (
+                      <Input
+                        className="mt-2"
+                        placeholder="Escribe el departamento..."
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

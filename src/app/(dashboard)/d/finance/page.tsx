@@ -5,6 +5,8 @@ import { FinanceClient } from "@/components/finance/finance-client";
 import { getExpenses, getDailyCash } from "@/lib/actions/finance";
 import { format } from "date-fns";
 
+import { DollarSign } from "lucide-react";
+
 export default async function FinancePage() {
   const business = await getActiveBusiness();
 
@@ -67,10 +69,15 @@ export default async function FinancePage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Finanzas</h1>
-        <p className="text-muted-foreground mt-1">
+    <div className="space-y-6">
+      <div className="dash-header">
+        <h1 className="flex items-center gap-3">
+          <div className="section-header-icon">
+            <DollarSign className="h-5 w-5" />
+          </div>
+          Finanzas
+        </h1>
+        <p>
           Gestiona los gastos, caja diaria y estado financiero de {business.name}.
         </p>
       </div>

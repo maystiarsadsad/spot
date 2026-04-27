@@ -80,10 +80,10 @@ export function OrdersTable({ transactions, currency }: Props) {
             <TableRow className="bg-muted/50">
               <TableHead>Orden</TableHead>
               <TableHead>Cliente</TableHead>
-              <TableHead>Fecha</TableHead>
+              <TableHead className="hidden sm:table-cell">Fecha</TableHead>
               <TableHead>Total</TableHead>
-              <TableHead>Estado Pago</TableHead>
-              <TableHead>Estado Orden</TableHead>
+              <TableHead className="hidden md:table-cell">Estado Pago</TableHead>
+              <TableHead>Estado</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -108,11 +108,11 @@ export function OrdersTable({ transactions, currency }: Props) {
                       </div>
                     </TableCell>
                     <TableCell>{txn.customer_name || <span className="text-muted-foreground italic">Consumidor Final</span>}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {txn.created_at ? new Date(txn.created_at).toLocaleString() : "N/A"}
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">
+                      {txn.created_at ? new Date(txn.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "short" }) : "N/A"}
                     </TableCell>
                     <TableCell className="font-semibold">{formatCurrency(txn.total, currency)}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <span className={`text-sm font-medium ${ps.color}`}>
                         {ps.label}
                       </span>

@@ -145,7 +145,7 @@ export function CatalogTable({ businessId, businessType, items, categories, curr
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[40%]">Producto</TableHead>
-                <TableHead>Categoría</TableHead>
+                <TableHead className="hidden sm:table-cell">Categoría</TableHead>
                 <TableHead className="text-right">Precio</TableHead>
                 <TableHead className="text-center">Activo</TableHead>
                 <TableHead className="w-10"></TableHead>
@@ -182,7 +182,7 @@ export function CatalogTable({ businessId, businessType, items, categories, curr
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <span className="text-sm text-muted-foreground">
                       {getCategoryName(item.category_id) || "—"}
                     </span>

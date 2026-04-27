@@ -3,9 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/get-active-business";
 import { NoBusinessSelected } from "@/components/dashboard/no-business-selected";
 import { OrdersTable } from "@/components/orders/orders-table";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, ShoppingCart } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Pedidos e Historial",
@@ -20,7 +21,6 @@ export default async function OrdersPage() {
 
   const supabase = await createClient();
 
-  // Fetch Transactions
   const { data: transactions } = await supabase
     .from("transactions")
     .select("*")
@@ -29,10 +29,16 @@ export default async function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Historial de Pedidos</h1>
-          <p className="text-muted-foreground mt-1">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="dash-header" style={{ padding: 0 }}>
+          <h1 className="flex items-center gap-3">
+            <div className="section-header-icon">
+              <ShoppingCart className="h-5 w-5" />
+            </div>
+            Historial de Pedidos
+            <Badge variant="secondary" className="text-xs font-normal ml-1">{transactions?.length ?? 0}</Badge>
+          </h1>
+          <p>
             Gestiona los pedidos y ventas de {business.name}.
           </p>
         </div>

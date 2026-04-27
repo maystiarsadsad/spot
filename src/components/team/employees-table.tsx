@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EmployeeDialog } from "./employee-dialog";
 
-export function EmployeesTable({ businessId, employees }: { businessId: string; employees: any[] }) {
+export function EmployeesTable({ businessId, businessType, employees }: { businessId: string; businessType: string; employees: any[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -179,6 +179,7 @@ export function EmployeesTable({ businessId, employees }: { businessId: string; 
 
       <EmployeeDialog 
         businessId={businessId}
+        businessType={businessType}
         open={dialogOpen} 
         onOpenChange={setDialogOpen}
         employeeToEdit={selectedEmployee}

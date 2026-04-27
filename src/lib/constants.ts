@@ -63,3 +63,40 @@ export const DEFAULT_MODULES_BY_TYPE: Record<BusinessType, string[]> = {
   veterinary: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
   custom: ['catalog', 'transactions', 'reservations', 'finance', 'team', 'contacts', 'reports'],
 }
+
+// ── Standardized Roles (Positions) by Business Type ──────────────
+export const ROLES_BY_TYPE: Record<BusinessType, string[]> = {
+  restaurant: ['Chef', 'Cocinero(a)', 'Auxiliar de Cocina', 'Mesero(a)', 'Barman', 'Cajero(a)', 'Administrador(a)', 'Repartidor(a)', 'Auxiliar de Aseo'],
+  fast_food: ['Cocinero(a)', 'Preparador(a)', 'Cajero(a)', 'Repartidor(a)', 'Administrador(a)', 'Auxiliar de Aseo'],
+  supermarket: ['Cajero(a)', 'Bodeguero(a)', 'Auxiliar de Percha', 'Administrador(a)', 'Carnicero(a)', 'Panadero(a)', 'Guardia de Seguridad'],
+  barbershop: ['Barbero(a)', 'Estilista', 'Recepcionista', 'Auxiliar', 'Administrador(a)'],
+  tattoo: ['Tatuador(a)', 'Piercer', 'Recepcionista', 'Diseñador(a)', 'Administrador(a)'],
+  bar: ['Barman', 'Mesero(a)', 'DJ', 'Cajero(a)', 'Guardia de Seguridad', 'Administrador(a)', 'Auxiliar de Aseo'],
+  hotel: ['Recepcionista', 'Botones', 'Camarero(a) de Pisos', 'Cocinero(a)', 'Mesero(a)', 'Conserje', 'Guardia de Seguridad', 'Mantenimiento', 'Administrador(a)', 'Gerente'],
+  hostel: ['Recepcionista', 'Auxiliar de Limpieza', 'Guía Turístico(a)', 'Administrador(a)', 'Cocinero(a)'],
+  cafe: ['Barista', 'Pastelero(a)', 'Cajero(a)', 'Mesero(a)', 'Administrador(a)'],
+  gym: ['Entrenador(a) Personal', 'Instructor(a) de Clases', 'Recepcionista', 'Nutricionista', 'Administrador(a)', 'Mantenimiento'],
+  laundry: ['Operador(a) de Máquinas', 'Planchador(a)', 'Recepcionista', 'Repartidor(a)', 'Administrador(a)'],
+  clothing: ['Vendedor(a)', 'Cajero(a)', 'Visual Merchandiser', 'Bodeguero(a)', 'Administrador(a)'],
+  veterinary: ['Veterinario(a)', 'Auxiliar Veterinario(a)', 'Peluquero(a) Canino', 'Recepcionista', 'Administrador(a)'],
+  custom: ['Administrador(a)', 'Asistente', 'Operario(a)', 'Vendedor(a)', 'Cajero(a)', 'Recepcionista', 'Repartidor(a)', 'Gerente'],
+}
+
+// ── Standardized Departments by Business Type ────────────────────
+export const DEPARTMENTS_BY_TYPE: Record<BusinessType, string[]> = {
+  restaurant: ['Cocina', 'Salón', 'Barra', 'Caja', 'Administración', 'Domicilios', 'Aseo y Mantenimiento'],
+  fast_food: ['Cocina', 'Caja', 'Domicilios', 'Administración', 'Aseo'],
+  supermarket: ['Cajas', 'Bodega', 'Góndolas', 'Carnes', 'Panadería', 'Administración', 'Seguridad'],
+  barbershop: ['Corte y Estilo', 'Recepción', 'Administración'],
+  tattoo: ['Tatuaje', 'Piercing', 'Diseño', 'Recepción', 'Administración'],
+  bar: ['Barra', 'Salón', 'Cabina DJ', 'Caja', 'Seguridad', 'Administración', 'Aseo'],
+  hotel: ['Recepción', 'Pisos', 'Cocina', 'Restaurante', 'Conserjería', 'Seguridad', 'Mantenimiento', 'Administración', 'Gerencia'],
+  hostel: ['Recepción', 'Limpieza', 'Cocina', 'Tours', 'Administración'],
+  cafe: ['Barra', 'Repostería', 'Caja', 'Salón', 'Administración'],
+  gym: ['Piso de Entrenamiento', 'Clases Grupales', 'Recepción', 'Nutrición', 'Administración', 'Mantenimiento'],
+  laundry: ['Lavado', 'Planchado', 'Recepción', 'Domicilios', 'Administración'],
+  clothing: ['Ventas', 'Caja', 'Exhibición', 'Bodega', 'Administración'],
+  veterinary: ['Consulta', 'Cirugía', 'Peluquería', 'Recepción', 'Administración'],
+  custom: ['Operaciones', 'Ventas', 'Administración', 'Recepción', 'Logística'],
+}
+

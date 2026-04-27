@@ -77,12 +77,12 @@ export function InventoryTable({ businessId, items }: { businessId: string; item
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Producto</TableHead>
-              <TableHead>Categoría</TableHead>
-              <TableHead className="text-right">Stock Actual</TableHead>
-              <TableHead className="text-right">Costo Unit</TableHead>
-              <TableHead className="text-right">Valor Total</TableHead>
+              <TableHead className="hidden sm:table-cell">Categoría</TableHead>
+              <TableHead className="text-right">Stock</TableHead>
+              <TableHead className="hidden md:table-cell text-right">Costo Unit</TableHead>
+              <TableHead className="hidden md:table-cell text-right">Valor Total</TableHead>
               <TableHead className="text-center">Estado</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
+              <TableHead className="w-[60px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -105,7 +105,7 @@ export function InventoryTable({ businessId, items }: { businessId: string; item
                       {item.name}
                       <div className="text-xs text-muted-foreground">{item.unit || "N/A"}</div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {item.category ? (
                         <Badge variant="outline" className="font-normal opacity-80">{item.category}</Badge>
                       ) : (
@@ -115,10 +115,10 @@ export function InventoryTable({ businessId, items }: { businessId: string; item
                     <TableCell className="text-right font-medium">
                       {stockVal} {item.unit}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="hidden md:table-cell text-right">
                       {formatCurrency(item.cost_per_unit || 0)}
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="hidden md:table-cell text-right font-medium">
                       {formatCurrency((item.cost_per_unit || 0) * stockVal)}
                     </TableCell>
                     <TableCell className="text-center">

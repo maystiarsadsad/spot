@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/get-active-business";
 import { NoBusinessSelected } from "@/components/dashboard/no-business-selected";
 import { ReservationsCalendar } from "@/components/reservations/reservations-calendar";
+import { CalendarDays } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Reservas",
@@ -13,12 +14,10 @@ export default async function ReservationsPage() {
 
   if (!business) {
     return (
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reservas</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestiona la agenda y citas de tu negocio.
-          </p>
+      <div className="space-y-6">
+        <div className="dash-header">
+          <h1>Reservas</h1>
+          <p>Gestiona la agenda y citas de tu negocio.</p>
         </div>
         <NoBusinessSelected />
       </div>
@@ -27,7 +26,6 @@ export default async function ReservationsPage() {
 
   const supabase = await createClient();
 
-  // Fetch reservations with the catalog item joined
   const { data: reservations } = await supabase
     .from("reservations")
     .select(`
@@ -39,7 +37,6 @@ export default async function ReservationsPage() {
     .eq("business_id", business.id)
     .order("reservation_time", { ascending: true });
 
-  // Fetch items for the dialog dropdown
   const { data: catalogItems } = await supabase
     .from("catalog_items")
     .select("id, name, type")
@@ -48,10 +45,15 @@ export default async function ReservationsPage() {
     .order("name");
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Reservas</h1>
-        <p className="text-muted-foreground mt-1">
+    <div className="space-y-6">
+      <div className="dash-header">
+        <h1 className="flex items-center gap-3">
+          <div className="section-header-icon">
+            <CalendarDays className="h-5 w-5" />
+          </div>
+          Reservas
+        </h1>
+        <p>
           Gestiona las reservas, citas o alojamientos de {business.name}.
         </p>
       </div>

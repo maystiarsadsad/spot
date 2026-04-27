@@ -17,6 +17,7 @@ import {
   Loader2,
   ShieldCheck,
   CalendarDays,
+  Globe,
 } from "lucide-react";
 import {
   Sidebar,
@@ -63,6 +64,7 @@ const navItems = [
   { label: "Equipo", href: "/d/team", icon: Users, moduleKey: 'team' },
   { label: "Clientes", href: "/d/contacts", icon: Contact, moduleKey: 'contacts' },
   { label: "Reportes", href: "/d/reports", icon: BarChart3, moduleKey: 'reports' },
+  { label: "Mi Página", href: "/d/webpage", icon: Globe },
 ];
 
 import { useState } from "react";

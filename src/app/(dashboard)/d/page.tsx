@@ -251,47 +251,98 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+      <div className="dash-header">
+        <h1>
           {greeting}, {name} 👋
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p>
           Resumen de <span className="font-semibold text-foreground">{business.name}</span>
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Pedidos hoy"
-          value={String(ordersToday ?? 0)}
-          change={calcChange(ordersToday ?? 0, ordersYesterday ?? 0)}
-          icon={ShoppingCart}
-          trend={getTrend(ordersToday ?? 0, ordersYesterday ?? 0)}
-        />
-        <StatCard
-          title="Ingresos hoy"
-          value={formatCurrency(revenueToday)}
-          change={calcChange(revenueToday, revenueYesterday)}
-          icon={DollarSign}
-          trend={getTrend(revenueToday, revenueYesterday)}
-        />
-        <StatCard
-          title="Clientes nuevos"
-          value={String(contactsToday ?? 0)}
-          change={calcChange(contactsToday ?? 0, contactsYesterday ?? 0)}
-          icon={Users}
-          trend={getTrend(contactsToday ?? 0, contactsYesterday ?? 0)}
-        />
-        <StatCard
-          title="Productos activos"
-          value={String(catalogCount ?? 0)}
-          change=""
-          icon={Package}
-          trend="neutral"
-        />
+        <Card className="stat-card-gradient stat-purple">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Pedidos hoy</p>
+                <p className="text-3xl font-extrabold tracking-tight">{ordersToday ?? 0}</p>
+              </div>
+              <div className="stat-icon-ring ring-purple">
+                <ShoppingCart className="h-5 w-5" />
+              </div>
+            </div>
+            {(ordersYesterday ?? 0) > 0 || (ordersToday ?? 0) > 0 ? (
+              <div className="mt-3">
+                <span className={`trend-badge ${getTrend(ordersToday ?? 0, ordersYesterday ?? 0) === 'up' ? 'trend-up' : getTrend(ordersToday ?? 0, ordersYesterday ?? 0) === 'down' ? 'trend-down' : 'trend-neutral'}`}>
+                  <TrendingUp className="h-3 w-3" />
+                  {calcChange(ordersToday ?? 0, ordersYesterday ?? 0)} vs ayer
+                </span>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card className="stat-card-gradient stat-green">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Ingresos hoy</p>
+                <p className="text-3xl font-extrabold tracking-tight">{formatCurrency(revenueToday)}</p>
+              </div>
+              <div className="stat-icon-ring ring-green">
+                <DollarSign className="h-5 w-5" />
+              </div>
+            </div>
+            {revenueYesterday > 0 || revenueToday > 0 ? (
+              <div className="mt-3">
+                <span className={`trend-badge ${getTrend(revenueToday, revenueYesterday) === 'up' ? 'trend-up' : getTrend(revenueToday, revenueYesterday) === 'down' ? 'trend-down' : 'trend-neutral'}`}>
+                  <TrendingUp className="h-3 w-3" />
+                  {calcChange(revenueToday, revenueYesterday)} vs ayer
+                </span>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card className="stat-card-gradient stat-blue">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Clientes nuevos</p>
+                <p className="text-3xl font-extrabold tracking-tight">{contactsToday ?? 0}</p>
+              </div>
+              <div className="stat-icon-ring ring-blue">
+                <Users className="h-5 w-5" />
+              </div>
+            </div>
+            {(contactsYesterday ?? 0) > 0 || (contactsToday ?? 0) > 0 ? (
+              <div className="mt-3">
+                <span className={`trend-badge ${getTrend(contactsToday ?? 0, contactsYesterday ?? 0) === 'up' ? 'trend-up' : getTrend(contactsToday ?? 0, contactsYesterday ?? 0) === 'down' ? 'trend-down' : 'trend-neutral'}`}>
+                  <TrendingUp className="h-3 w-3" />
+                  {calcChange(contactsToday ?? 0, contactsYesterday ?? 0)} vs ayer
+                </span>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card className="stat-card-gradient stat-amber">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Productos activos</p>
+                <p className="text-3xl font-extrabold tracking-tight">{catalogCount ?? 0}</p>
+              </div>
+              <div className="stat-icon-ring ring-amber">
+                <Package className="h-5 w-5" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts */}
@@ -303,74 +354,95 @@ export default async function DashboardPage() {
 
       {/* Recent Orders + Quick Info */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Pedidos recientes</CardTitle>
+        <Card className="card-interactive">
+          <CardHeader className="pb-3">
+            <div className="section-header">
+              <div className="section-header-title">
+                <div className="section-header-icon">
+                  <ShoppingCart className="h-4 w-4" />
+                </div>
+                Pedidos recientes
+              </div>
+              <Badge variant="secondary" className="text-xs">{recentOrders?.length ?? 0}</Badge>
+            </div>
           </CardHeader>
           <CardContent>
             {recentOrders && recentOrders.length > 0 ? (
-              <div className="space-y-3">
-                {recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between py-2 border-b last:border-0"
-                  >
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-medium">
-                        {order.customer_name || order.code || "Sin nombre"}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {new Date(order.created_at ?? Date.now()).toLocaleString("es-CO", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "2-digit",
-                          month: "short",
-                        })}
+              <div className="space-y-1">
+                {recentOrders.map((order) => {
+                  const statusDot = order.status === 'completed' ? 'dot-green'
+                    : order.status === 'cancelled' ? 'dot-red'
+                    : order.status === 'pending' ? 'dot-yellow'
+                    : 'dot-blue';
+                  return (
+                    <div key={order.id} className="activity-row">
+                      <div className={`activity-dot ${statusDot}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">
+                          {order.customer_name || order.code || "Sin nombre"}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                          <Clock className="h-3 w-3" />
+                          {new Date(order.created_at ?? Date.now()).toLocaleString("es-CO", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            day: "2-digit",
+                            month: "short",
+                          })}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={statusVariant(order.status ?? "pending")} className="text-[10px] px-2">
+                          {statusLabels[order.status ?? "pending"] || order.status}
+                        </Badge>
+                        <span className="text-sm font-bold tabular-nums whitespace-nowrap">
+                          {formatCurrency(Number(order.total))}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={statusVariant(order.status ?? "pending")}>
-                        {statusLabels[order.status ?? "pending"] || order.status}
-                      </Badge>
-                      <span className="text-sm font-semibold tabular-nums">
-                        {formatCurrency(Number(order.total))}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <ShoppingCart className="h-12 w-12 mb-3 opacity-30" />
-                <p>No hay pedidos aún</p>
-                <p className="text-sm">Los pedidos aparecerán aquí</p>
+              <div className="empty-state">
+                <div className="empty-state-icon">
+                  <ShoppingCart className="h-7 w-7" />
+                </div>
+                <h3>No hay pedidos aún</h3>
+                <p>Los pedidos aparecerán aquí</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Info del negocio</CardTitle>
+        <Card className="card-interactive">
+          <CardHeader className="pb-3">
+            <div className="section-header">
+              <div className="section-header-title">
+                <div className="section-header-icon">
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+                Info del negocio
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1">Tipo</p>
-                <p className="font-medium capitalize">{business.type.replace("_", " ")}</p>
+              <div className="p-3 rounded-lg bg-accent/50">
+                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1.5">Tipo</p>
+                <p className="font-semibold capitalize">{business.type.replace("_", " ")}</p>
               </div>
-              <div>
-                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1">Slug</p>
+              <div className="p-3 rounded-lg bg-accent/50">
+                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1.5">Slug</p>
                 <Badge variant="secondary" className="font-mono text-xs">/{business.slug}</Badge>
               </div>
-              <div>
-                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1">Moneda</p>
-                <p className="font-medium">{business.currency || "COP"}</p>
+              <div className="p-3 rounded-lg bg-accent/50">
+                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1.5">Moneda</p>
+                <p className="font-semibold">{business.currency || "COP"}</p>
               </div>
-              <div>
-                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1">Zona horaria</p>
-                <p className="font-medium text-xs">{business.timezone || "America/Bogota"}</p>
+              <div className="p-3 rounded-lg bg-accent/50">
+                <p className="text-muted-foreground text-xs uppercase font-semibold mb-1.5">Zona horaria</p>
+                <p className="font-semibold text-xs">{business.timezone || "America/Bogota"}</p>
               </div>
             </div>
           </CardContent>
@@ -380,55 +452,10 @@ export default async function DashboardPage() {
   );
 }
 
-function StatCard({
-  title,
-  value,
-  change,
-  icon: Icon,
-  trend,
-}: {
-  title: string;
-  value: string;
-  change: string;
-  icon: React.ComponentType<{ className?: string }>;
-  trend: "up" | "down" | "neutral";
-}) {
-  return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold">{value}</p>
-          </div>
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Icon className="h-5 w-5 text-primary" />
-          </div>
-        </div>
-        {change && (
-          <div className="mt-3">
-            <Badge
-              variant={
-                trend === "up"
-                  ? "default"
-                  : trend === "down"
-                  ? "destructive"
-                  : "secondary"
-              }
-              className="text-xs"
-            >
-              {change} vs ayer
-            </Badge>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return "Buenos días";
   if (hour < 18) return "Buenas tardes";
   return "Buenas noches";
 }
+

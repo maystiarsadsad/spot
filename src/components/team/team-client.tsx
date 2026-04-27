@@ -8,11 +8,12 @@ import { PayrollTable } from "./payroll-table";
 
 interface TeamClientProps {
   businessId: string;
+  businessType: string;
   initialEmployees: any[];
   initialPayroll: any[];
 }
 
-export function TeamClient({ businessId, initialEmployees, initialPayroll }: TeamClientProps) {
+export function TeamClient({ businessId, businessType, initialEmployees, initialPayroll }: TeamClientProps) {
   return (
     <Tabs defaultValue="employees" className="space-y-6">
       <TabsList className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-1 border">
@@ -35,7 +36,7 @@ export function TeamClient({ businessId, initialEmployees, initialPayroll }: Tea
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <EmployeesTable businessId={businessId} employees={initialEmployees} />
+            <EmployeesTable businessId={businessId} businessType={businessType} employees={initialEmployees} />
           </CardContent>
         </Card>
       </TabsContent>

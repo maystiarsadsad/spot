@@ -195,6 +195,9 @@ export type Database = {
         Row: {
           active: boolean | null
           address: string | null
+          ai_agent_enabled: boolean | null
+          ai_agent_greeting: string | null
+          ai_agent_prompt: string | null
           assigned_to: string | null
           business_hours: Json | null
           city: string | null
@@ -235,6 +238,9 @@ export type Database = {
         Insert: {
           active?: boolean | null
           address?: string | null
+          ai_agent_enabled?: boolean | null
+          ai_agent_greeting?: string | null
+          ai_agent_prompt?: string | null
           assigned_to?: string | null
           business_hours?: Json | null
           city?: string | null
@@ -275,6 +281,9 @@ export type Database = {
         Update: {
           active?: boolean | null
           address?: string | null
+          ai_agent_enabled?: boolean | null
+          ai_agent_greeting?: string | null
+          ai_agent_prompt?: string | null
           assigned_to?: string | null
           business_hours?: Json | null
           city?: string | null

@@ -5,6 +5,9 @@ import { NoBusinessSelected } from "@/components/dashboard/no-business-selected"
 import { CatalogTable } from "@/components/catalog/catalog-table";
 import { CategoriesTable } from "@/components/catalog/categories-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Package, FolderOpen } from "lucide-react";
+
 export const metadata: Metadata = {
   title: "Catálogo",
 };
@@ -14,12 +17,10 @@ export default async function CatalogPage() {
 
   if (!business) {
     return (
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Catálogo</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestiona los productos y servicios de tu negocio
-          </p>
+      <div className="space-y-6">
+        <div className="dash-header">
+          <h1>Catálogo</h1>
+          <p>Gestiona los productos y servicios de tu negocio</p>
         </div>
         <NoBusinessSelected />
       </div>
@@ -34,7 +35,6 @@ export default async function CatalogPage() {
     .eq("business_id", business.id)
     .order("name");
 
-  // Fetch Items
   const { data: items } = await supabase
     .from("catalog_items")
     .select("*")
@@ -42,18 +42,30 @@ export default async function CatalogPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Catálogo</h1>
-        <p className="text-muted-foreground mt-1">
+    <div className="space-y-6">
+      <div className="dash-header">
+        <h1 className="flex items-center gap-3">
+          <div className="section-header-icon">
+            <Package className="h-5 w-5" />
+          </div>
+          Catálogo
+          <Badge variant="secondary" className="text-xs font-normal ml-1">{items?.length ?? 0} items</Badge>
+        </h1>
+        <p>
           Gestiona los productos, servicios o habitaciones de {business.name}.
         </p>
       </div>
 
       <Tabs defaultValue="items" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="items">Artículos</TabsTrigger>
-          <TabsTrigger value="categories">Categorías</TabsTrigger>
+          <TabsTrigger value="items" className="gap-1.5">
+            <Package className="h-3.5 w-3.5" />
+            Artículos
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="gap-1.5">
+            <FolderOpen className="h-3.5 w-3.5" />
+            Categorías
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="items" className="mt-0">
           <CatalogTable
