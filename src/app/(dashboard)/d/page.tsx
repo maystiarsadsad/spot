@@ -202,6 +202,7 @@ export default async function DashboardPage() {
     // Aggregate revenue by category
     const catMap: Record<string, number> = {};
     for (const item of txItems || []) {
+      if (!item.catalog_item_id) continue;
       const catName = itemCatMap[item.catalog_item_id] || "Sin categoría";
       catMap[catName] = (catMap[catName] || 0) + Number(item.total_price || 0);
     }
