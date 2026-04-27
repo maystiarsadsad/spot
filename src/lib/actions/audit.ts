@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/types/database";
 
 /**
  * Logs an action to the audit_log table.
@@ -17,7 +18,7 @@ export async function logAudit({
   entityType: string;
   entityId?: string;
   businessId?: string;
-  changes?: Record<string, unknown>;
+  changes?: Record<string, Json | undefined>;
 }) {
   const supabase = await createClient();
   const {
@@ -32,7 +33,7 @@ export async function logAudit({
     action,
     entity_type: entityType,
     entity_id: entityId || null,
-    changes: changes || {},
+    changes: (changes || null) as Json | null,
   });
 
   if (error) {

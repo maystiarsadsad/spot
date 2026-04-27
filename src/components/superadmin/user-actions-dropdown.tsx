@@ -128,7 +128,7 @@ export function UserActionsDropdown({
 
           <div className="space-y-3 py-4">
             <label className="text-sm font-medium">Nuevo Rol</label>
-            <Select value={selectedRole} onValueChange={setSelectedRole}>
+            <Select value={selectedRole} onValueChange={(v) => v && setSelectedRole(v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
