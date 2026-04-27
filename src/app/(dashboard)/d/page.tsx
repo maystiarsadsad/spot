@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/get-active-business";
 import { NoBusinessSelected } from "@/components/dashboard/no-business-selected";
+import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -127,6 +128,89 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(5);
 
+  // ── 7-day sales data for chart ──────────────────────────────
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+  const { data: weekTransactions } = await supabase
+    .from("transactions")
+    .select("total, created_at, status")
+    .eq("business_id", business.id)
+    .in("status", ["completed", "confirmed", "in_progress"])
+    .gte("created_at", sevenDaysAgo.toISOString())
+    .order("created_at", { ascending: true });
+
+  const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const salesByDay: Record<string, { revenue: number; orders: number }> = {};
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sevenDaysAgo);
+    d.setDate(d.getDate() + i);
+    const key = d.toISOString().split("T")[0];
+    const label = `${dayNames[d.getDay()]} ${d.getDate()}`;
+    salesByDay[key] = { revenue: 0, orders: 0 };
+  }
+
+  for (const t of weekTransactions || []) {
+    const key = new Date(t.created_at!).toISOString().split("T")[0];
+    if (salesByDay[key]) {
+      salesByDay[key].revenue += Number(t.total || 0);
+      salesByDay[key].orders += 1;
+    }
+  }
+
+  const salesData = Object.entries(salesByDay).map(([dateKey, data]) => {
+    const d = new Date(dateKey + "T12:00:00");
+    return {
+      day: `${dayNames[d.getDay()]} ${d.getDate()}`,
+      revenue: data.revenue,
+      orders: data.orders,
+    };
+  });
+
+  // ── Category breakdown ──────────────────────────────────────
+  // Step 1: Get all completed transaction items for this business
+  const { data: bizTransactions } = await supabase
+    .from("transactions")
+    .select("id")
+    .eq("business_id", business.id)
+    .in("status", ["completed", "confirmed", "in_progress"]);
+
+  const txIds = (bizTransactions || []).map((t) => t.id);
+
+  let categoryData: { name: string; value: number; color: string }[] = [];
+
+  if (txIds.length > 0) {
+    const { data: txItems } = await supabase
+      .from("transaction_items")
+      .select("catalog_item_id, total_price")
+      .in("transaction_id", txIds);
+
+    // Step 2: Get catalog items with their categories
+    const { data: catalogItems } = await supabase
+      .from("catalog_items")
+      .select("id, category_id, catalog_categories(name)")
+      .eq("business_id", business.id);
+
+    // Build item -> category map
+    const itemCatMap: Record<string, string> = {};
+    for (const ci of catalogItems || []) {
+      const catName = (ci as any).catalog_categories?.name || "Sin categoría";
+      itemCatMap[ci.id] = catName;
+    }
+
+    // Aggregate revenue by category
+    const catMap: Record<string, number> = {};
+    for (const item of txItems || []) {
+      const catName = itemCatMap[item.catalog_item_id] || "Sin categoría";
+      catMap[catName] = (catMap[catName] || 0) + Number(item.total_price || 0);
+    }
+
+    categoryData = Object.entries(catMap)
+      .map(([name, value]) => ({ name, value, color: "" }))
+      .sort((a, b) => b.value - a.value);
+  }
+
   // ── Helpers ──────────────────────────────────────────────────
   const greeting = getGreeting();
   const name = profile?.display_name ?? "Usuario";
@@ -208,6 +292,13 @@ export default async function DashboardPage() {
           trend="neutral"
         />
       </div>
+
+      {/* Charts */}
+      <DashboardCharts
+        salesData={salesData}
+        categoryData={categoryData}
+        currency={business.currency || "COP"}
+      />
 
       {/* Recent Orders + Quick Info */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">

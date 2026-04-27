@@ -1,9 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { 
   Users, 
-  ShieldCheck, 
-  UserCog, 
-  MoreVertical, 
   Search,
   Mail,
   Calendar,
@@ -18,22 +15,19 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuGroup,
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserActionsDropdown } from "@/components/superadmin/user-actions-dropdown";
 
 export default async function UsersPage() {
   const supabase = await createClient();
+
+  // Get current user for self-detection
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Fetch all profiles
   const { data: profiles, error } = await supabase
@@ -49,8 +43,8 @@ export default async function UsersPage() {
     switch (role) {
       case 'superadmin':
         return <Badge className="bg-purple-500 hover:bg-purple-600">SuperAdmin</Badge>;
-      case 'admin':
-        return <Badge className="bg-blue-500 hover:bg-blue-600">Admin</Badge>;
+      case 'support':
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Soporte</Badge>;
       default:
         return <Badge variant="secondary">Usuario</Badge>;
     }
@@ -132,31 +126,12 @@ export default async function UsersPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger 
-                        className={buttonVariants({ variant: "ghost", className: "h-8 w-8 p-0 opacity-0 group-hover:opacity-100" })}
-                      >
-                         <MoreVertical className="h-4 w-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-[200px]">
-                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-b border-border/50 mb-1">
-                          Acciones de Usuario
-                        </div>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer">
-                          <UserCog className="mr-2 h-4 w-4" />
-                          Cambiar Rol
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer">
-                          <ShieldCheck className="mr-2 h-4 w-4" />
-                          Auditar Actividad
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600 focus:text-red-600 cursor-pointer">
-                          Suspender Acceso
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <UserActionsDropdown
+                      userId={profile.id}
+                      currentRole={profile.platform_role}
+                      displayName={profile.display_name}
+                      isSelf={profile.id === user?.id}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

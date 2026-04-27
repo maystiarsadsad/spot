@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { DEFAULT_MODULES_BY_TYPE, type BusinessType } from "@/lib/constants";
+import { logAudit } from "./audit";
 
 export async function createBusiness(formData: FormData) {
   const supabase = await createClient();
@@ -105,6 +106,13 @@ export async function createBusiness(formData: FormData) {
   }
 
 
+  await logAudit({
+    action: "create_business",
+    entityType: "business",
+    entityId: business.id,
+    changes: { name, slug, type, owner_id: ownerId },
+  });
+
   revalidatePath("/sa/businesses");
   return { success: true };
 }
@@ -148,6 +156,13 @@ export async function toggleBusinessModule(
   if (error) {
     throw new Error(`Error al actualizar módulo: ${error.message}`);
   }
+
+  await logAudit({
+    action: enabled ? "enable_module" : "disable_module",
+    entityType: "business_module",
+    entityId: businessId,
+    changes: { module_key: moduleKey, enabled },
+  });
 
   revalidatePath(`/sa/businesses/${businessId}`);
 }
