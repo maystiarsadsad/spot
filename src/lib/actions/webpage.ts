@@ -154,7 +154,7 @@ export async function testAiAgent(
         }
       }
 
-      aiResponse = response.text || null;
+      aiResponse = response?.text || null;
     } catch (e: any) {
       aiResponse = `⚠️ Error de Gemini: ${e.message || "Error desconocido"}`;
     }
