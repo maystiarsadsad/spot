@@ -40,6 +40,7 @@ export default async function FinancePage() {
   // Expenses this month
   const monthExpenses = (expenses || [])
     .filter((e) => {
+      if (!e.date) return false;
       const d = new Date(e.date);
       return d >= new Date(monthStart) && d <= new Date(monthEnd);
     })
@@ -48,6 +49,7 @@ export default async function FinancePage() {
   // Expense breakdown by category
   const expenseByCategory: Record<string, number> = {};
   for (const e of expenses || []) {
+    if (!e.date) continue;
     const d = new Date(e.date);
     if (d >= new Date(monthStart) && d <= new Date(monthEnd)) {
       expenseByCategory[e.category] =
