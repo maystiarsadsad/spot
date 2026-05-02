@@ -3,6 +3,7 @@ import { getActiveBusiness } from "@/lib/get-active-business";
 import { NoBusinessSelected } from "@/components/dashboard/no-business-selected";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { createClient } from "@/lib/supabase/server";
+import { Settings2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Configuración del Negocio",
@@ -34,9 +35,14 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Configuración General</h1>
-        <p className="text-muted-foreground mt-1">
+      <div className="dash-header">
+        <h1 className="flex items-center gap-3">
+          <div className="section-header-icon">
+            <Settings2 className="h-5 w-5" />
+          </div>
+          Configuración General
+        </h1>
+        <p>
           Actualiza los datos, diseño y preferencias de tu negocio en la plataforma.
         </p>
       </div>

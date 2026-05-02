@@ -40,17 +40,17 @@ export default async function SuperAdminLayout({
         }}
       />
       <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-orange-500/10">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-dashed border-[var(--line)] bg-[var(--background)]/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-6" />
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-block rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight text-orange-600 dark:bg-orange-950 dark:text-orange-400 border border-orange-200 dark:border-orange-800 shadow-sm transition-all duration-300 hover:scale-105 active:scale-95 leading-relaxed">
-              SuperAdmin Active
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white font-mono shadow-[var(--shadow-stamp)] transition-all duration-300 hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_var(--ink)]">
+              ★ SuperAdmin
             </span>
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-4 sm:p-6 bg-muted/20 dark:bg-muted/5 min-h-[calc(100vh-3.5rem)]">{children}</main>
+        <main className="flex-1 overflow-auto p-4 sm:p-6 min-h-[calc(100vh-3.5rem)]">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

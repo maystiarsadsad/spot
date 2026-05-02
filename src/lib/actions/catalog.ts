@@ -87,9 +87,13 @@ export async function createItem(businessId: string, formData: FormData) {
   if (!name?.trim()) return { error: "El nombre es obligatorio" };
   if (price < 0) return { error: "El precio no puede ser negativo" };
 
-  const { error } = await supabase.from("catalog_items").insert({
+  const inventoryIdRaw = formData.get("inventory_id") as string;
+  const inventoryId = inventoryIdRaw && inventoryIdRaw !== "none" ? inventoryIdRaw : null;
+
+  const { data, error } = await supabase.from("catalog_items").insert({
     business_id: businessId,
     category_id: categoryId || null,
+    inventory_id: inventoryId,
     name: name.trim(),
     description,
     price,
@@ -97,12 +101,12 @@ export async function createItem(businessId: string, formData: FormData) {
     compare_price: comparePrice,
     sku,
     type,
-  });
+  }).select("id").single();
 
   if (error) return { error: "Error al crear producto: " + error.message };
 
   revalidatePath("/d/catalog");
-  return { success: true };
+  return { success: true, itemId: data.id };
 }
 
 export async function updateItem(itemId: string, formData: FormData) {
@@ -123,10 +127,14 @@ export async function updateItem(itemId: string, formData: FormData) {
 
   if (!name?.trim()) return { error: "El nombre es obligatorio" };
 
+  const inventoryIdRaw = formData.get("inventory_id") as string;
+  const inventoryId = inventoryIdRaw && inventoryIdRaw !== "none" ? inventoryIdRaw : null;
+
   const { error } = await supabase
     .from("catalog_items")
     .update({
       category_id: categoryId || null,
+      inventory_id: inventoryId,
       name: name.trim(),
       description,
       price,
@@ -171,6 +179,62 @@ export async function toggleItemActive(itemId: string, active: boolean) {
     .eq("id", itemId);
 
   if (error) return { error: "Error al cambiar estado" };
+
+  revalidatePath("/d/catalog");
+  return { success: true };
+}
+
+// ── Ingredients (Recipe) ──────────────────────────────────
+
+export async function getItemIngredients(catalogItemId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("catalog_item_ingredients")
+    .select("*, inventory(name, unit)")
+    .eq("catalog_item_id", catalogItemId)
+    .order("created_at");
+
+  if (error) return [];
+  return data || [];
+}
+
+export async function upsertIngredient(data: {
+  catalog_item_id: string;
+  inventory_id: string;
+  quantity: number;
+  unit?: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autorizado" };
+
+  const { error } = await supabase
+    .from("catalog_item_ingredients")
+    .upsert({
+      catalog_item_id: data.catalog_item_id,
+      inventory_id: data.inventory_id,
+      quantity: data.quantity,
+      unit: data.unit,
+    }, { onConflict: "catalog_item_id,inventory_id" });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/d/catalog");
+  return { success: true };
+}
+
+export async function removeIngredient(catalogItemId: string, inventoryId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autorizado" };
+
+  const { error } = await supabase
+    .from("catalog_item_ingredients")
+    .delete()
+    .eq("catalog_item_id", catalogItemId)
+    .eq("inventory_id", inventoryId);
+
+  if (error) return { error: error.message };
 
   revalidatePath("/d/catalog");
   return { success: true };

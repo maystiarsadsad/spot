@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserActionsDropdown } from "@/components/superadmin/user-actions-dropdown";
+import { CreateUserDialog } from "@/components/superadmin/create-user-dialog";
 
 export default async function UsersPage() {
   const supabase = await createClient();
@@ -54,16 +55,17 @@ export default async function UsersPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Usuarios de Plataforma</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-display">Usuarios de Plataforma</h1>
           <p className="text-muted-foreground">Gestiona los accesos y roles de todos los usuarios.</p>
         </div>
+        <CreateUserDialog />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-orange-100 dark:border-orange-950 bg-orange-50/10 dark:bg-orange-950/20">
+        <Card className="border-[var(--line)] shadow-[var(--shadow-stamp)]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
-            <Users className="h-4 w-4 text-orange-600" />
+            <Users className="h-4 w-4 text-[var(--accent)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{profiles.length}</div>
@@ -71,7 +73,7 @@ export default async function UsersPage() {
         </Card>
       </div>
 
-      <Card className="border-orange-100 dark:border-orange-950 overflow-hidden">
+      <Card className="border-[var(--line)] shadow-[var(--shadow-stamp)] overflow-hidden">
         <div className="p-4 border-b bg-muted/30 flex items-center justify-between gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

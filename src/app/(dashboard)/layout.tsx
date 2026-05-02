@@ -71,6 +71,23 @@ export default async function DashboardLayout({
     activeBusinessId = businesses[0].id;
   }
 
+  // Fetch user's member role for the active business (for module permissions)
+  let memberRole: string | null = null;
+  let memberPermissions: any = null;
+  if (activeBusinessId) {
+    const { data: membership } = await supabase
+      .from("business_members")
+      .select("role, permissions")
+      .eq("business_id", activeBusinessId)
+      .eq("user_id", user.id)
+      .single();
+    
+    if (membership) {
+      memberRole = membership.role;
+      memberPermissions = membership.permissions;
+    }
+  }
+
   return (
     <AuthProvider initialUser={user} initialProfile={profile}>
       <SidebarProvider>
@@ -83,9 +100,11 @@ export default async function DashboardLayout({
           }}
           businesses={businesses}
           initialActiveBusinessId={activeBusinessId}
+          memberRole={memberRole}
+          memberPermissions={memberPermissions}
         />
         <SidebarInset>
-          <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-dashed border-[var(--line)] bg-[var(--background)]/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="h-6" />
             <div className="flex-1" />

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/get-active-business";
 import { redirect } from "next/navigation";
 import { WebpageEditor } from "@/components/webpage/webpage-editor";
+import { Globe } from "lucide-react";
 
 export default async function WebpagePage() {
   const business = await getActiveBusiness();
@@ -32,9 +33,14 @@ export default async function WebpagePage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Mi Página Web</h1>
-        <p className="text-muted-foreground text-sm mt-1">
+      <div className="dash-header">
+        <h1 className="flex items-center gap-3">
+          <div className="section-header-icon">
+            <Globe className="h-5 w-5" />
+          </div>
+          Mi Página Web
+        </h1>
+        <p>
           Configura y publica tu página pública para que tus clientes vean tu catálogo.
         </p>
       </div>

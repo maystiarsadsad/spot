@@ -4,36 +4,28 @@
    ═══════════════════════════════════════════════════════ */
 
 .public-store {
-  --store-primary: hsl(24, 95%, 53%);
-  --store-primary-hover: hsl(24, 95%, 45%);
-  --store-bg: hsl(0, 0%, 100%);
-  --store-surface: hsl(0, 0%, 98%);
-  --store-card-bg: hsl(0, 0%, 100%);
-  --store-text: hsl(0, 0%, 10%);
-  --store-muted: hsl(0, 0%, 45%);
-  --store-border: hsl(0, 0%, 90%);
-  --store-radius: 12px;
-  --store-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
-  --store-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --store-primary: var(--accent);
+  --store-primary-hover: #e04d15;
+  --store-bg: var(--background);
+  --store-surface: var(--background-2);
+  --store-card-bg: var(--card);
+  --store-text: var(--foreground);
+  --store-muted: var(--ink-3);
+  --store-border: var(--line);
+  --store-radius: calc(var(--radius) * 1.2);
+  --store-shadow: var(--shadow-stamp);
+  --store-shadow-lg: var(--shadow-stamp-lg);
   --store-max-w: 1100px;
 
   min-height: 100vh;
   background: var(--store-bg);
   color: var(--store-text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  .public-store {
-    --store-bg: hsl(0, 0%, 7%);
-    --store-surface: hsl(0, 0%, 11%);
-    --store-card-bg: hsl(0, 0%, 13%);
-    --store-text: hsl(0, 0%, 92%);
-    --store-muted: hsl(0, 0%, 55%);
-    --store-border: hsl(0, 0%, 20%);
-    --store-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --store-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
-  }
+.dark .public-store {
+  --store-primary: var(--accent);
+  --store-primary-hover: #ff7a4a;
 }
 
 /* ── Hero ────────────────────────────────────────────── */
@@ -41,7 +33,7 @@
 .store-hero {
   position: relative;
   padding: 3rem 1.5rem 2rem;
-  background: linear-gradient(135deg, hsl(240, 15%, 12%), hsl(260, 20%, 18%));
+  background: color-mix(in srgb, var(--store-primary) 20%, #15140f);
   overflow: hidden;
 }
 
@@ -94,10 +86,11 @@
 
 .store-name {
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 700;
   color: white;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1.1;
+  font-family: var(--font-display);
 }
 
 .store-tagline {
@@ -158,7 +151,7 @@
   top: 0;
   z-index: 30;
   background: var(--store-bg);
-  border-bottom: 1px solid var(--store-border);
+  border-bottom: 1px dashed var(--store-border);
   backdrop-filter: blur(12px);
 }
 
@@ -241,6 +234,7 @@
   background: var(--store-primary);
   border-color: var(--store-primary);
   color: white;
+  font-weight: 700;
 }
 
 /* ── Main Content ────────────────────────────────────── */
@@ -258,20 +252,24 @@
 .store-section-title {
   font-size: 1.25rem;
   font-weight: 700;
+  font-family: var(--font-display);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
   gap: 8px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .store-section-count {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
   color: var(--store-muted);
   background: var(--store-surface);
   padding: 2px 8px;
   border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .store-grid {
@@ -290,9 +288,10 @@
 /* ── Product Card ────────────────────────────────────── */
 
 .store-card {
-  background: var(--store-card-bg);
+  background: var(--store-card-bg, color-mix(in srgb, var(--store-bg) 85%, white));
   border-radius: var(--store-radius);
   border: 1px solid var(--store-border);
+  color: var(--store-text);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -300,7 +299,7 @@
 
 .store-card:hover {
   box-shadow: var(--store-shadow-lg);
-  transform: translateY(-2px);
+  transform: translate(-2px, -2px);
   border-color: var(--store-primary);
 }
 
@@ -358,6 +357,7 @@
   font-weight: 600;
   line-height: 1.3;
   margin-bottom: 4px;
+  color: var(--store-text);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -472,6 +472,8 @@
 .store-modal-title {
   font-size: 1.5rem;
   font-weight: 700;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
 }
 
@@ -584,6 +586,7 @@
 }
 .store-drawer-header h2 {
   font-size: 1.1rem; font-weight: 700;
+  font-family: var(--font-display);
   display: flex; align-items: center; gap: 8px;
 }
 .store-drawer-header button {
@@ -637,6 +640,195 @@
 }
 .store-checkout-btn:hover { background: var(--store-primary-hover); }
 
+/* ── Checkout Modal ─────────────────────────────────── */
+
+.store-checkout-modal {
+  position: relative;
+  background: var(--store-card-bg);
+  border-radius: var(--store-radius) var(--store-radius) 0 0;
+  max-height: 90vh;
+  width: 100%;
+  max-width: 440px;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .store-checkout-modal {
+    border-radius: var(--store-radius);
+  }
+}
+
+.store-checkout-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  color: var(--store-primary);
+}
+
+.store-checkout-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--store-text);
+  letter-spacing: -0.02em;
+}
+
+.store-checkout-header p {
+  font-size: 0.85rem;
+  color: var(--store-muted);
+  font-weight: 500;
+}
+
+.store-checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.store-checkout-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--store-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.store-checkout-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--store-border);
+  background: var(--store-surface);
+  color: var(--store-text);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.store-checkout-field input:focus {
+  border-color: var(--store-primary);
+}
+
+.store-checkout-field input::placeholder {
+  color: var(--store-muted);
+}
+
+.store-checkout-delivery-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.store-delivery-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: 2px solid var(--store-border);
+  background: var(--store-surface);
+  color: var(--store-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.store-delivery-option:hover {
+  border-color: var(--store-primary);
+  color: var(--store-primary);
+}
+
+.store-delivery-option.active {
+  border-color: var(--store-primary);
+  background: color-mix(in srgb, var(--store-primary) 10%, transparent);
+  color: var(--store-primary);
+}
+
+.store-checkout-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--store-primary);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+
+.store-checkout-submit:hover:not(:disabled) {
+  background: var(--store-primary-hover);
+}
+
+.store-checkout-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.store-checkout-success {
+  text-align: center;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.store-checkout-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: color-mix(in srgb, hsl(142, 70%, 40%) 15%, transparent);
+  color: hsl(142, 70%, 40%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.store-checkout-success h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.store-checkout-success p {
+  font-size: 0.9rem;
+  color: var(--store-muted);
+  line-height: 1.5;
+}
+
+.store-checkout-code {
+  font-size: 1rem !important;
+  color: var(--store-text) !important;
+  background: var(--store-surface);
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+}
+
+@keyframes storeSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.store-spin {
+  animation: storeSpin 1s linear infinite;
+}
+
 /* ── Chat Widget ─────────────────────────────────────── */
 
 .store-chat {
@@ -650,8 +842,8 @@
 .store-chat-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, hsl(240,15%,18%), hsl(260,20%,22%));
-  color: white;
+  background: var(--ink);
+  color: var(--sun);
 }
 .store-chat-header-info {
   display: flex; align-items: center; gap: 10px;
@@ -717,7 +909,7 @@
 .store-fab:hover { transform: scale(1.08); }
 .store-fab-cart { background: var(--store-primary); color: white; }
 .store-fab-chat {
-  background: linear-gradient(135deg, hsl(240,15%,18%), hsl(260,20%,28%));
+  background: color-mix(in srgb, var(--store-primary) 30%, #15140f);
   color: white;
 }
 .store-fab-badge {

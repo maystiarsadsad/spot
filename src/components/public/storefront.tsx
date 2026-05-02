@@ -17,9 +17,15 @@ import {
   Send,
   ShoppingCart,
   Bot,
+  Truck,
+  Store,
+  CheckCircle,
+  ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import type { Database } from "@/types/database";
 import { publicChatMessage } from "@/lib/actions/public-chat";
+import { createPublicOrder } from "@/lib/actions/orders";
 
 type Business = Database["public"]["Tables"]["businesses"]["Row"];
 type Category = Database["public"]["Tables"]["catalog_categories"]["Row"];
@@ -59,6 +65,16 @@ export function PublicStorefront({
     },
   ]);
   const [chatInput, setChatInput] = useState("");
+
+  // ── Checkout state (separate from chat) ──
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<'form' | 'success'>('form');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutName, setCheckoutName] = useState("");
+  const [checkoutPhone, setCheckoutPhone] = useState("");
+  const [checkoutDelivery, setCheckoutDelivery] = useState<'pickup' | 'delivery'>('pickup');
+  const [checkoutAddress, setCheckoutAddress] = useState("");
+  const [checkoutOrderCode, setCheckoutOrderCode] = useState("");
 
   const currency = business.currency || "COP";
 
@@ -130,6 +146,44 @@ export function PublicStorefront({
       !categories.find((c) => c.id === item.category_id)
   );
 
+  // ── Checkout handler ──
+  const handleCheckout = async () => {
+    if (!checkoutName.trim() || !checkoutPhone.trim()) return;
+    if (checkoutDelivery === 'delivery' && !checkoutAddress.trim()) return;
+    setCheckoutLoading(true);
+
+    const result = await createPublicOrder(business.id, {
+      customer_name: checkoutName.trim(),
+      customer_phone: checkoutPhone.trim(),
+      delivery_type: checkoutDelivery,
+      address: checkoutDelivery === 'delivery' ? checkoutAddress.trim() : undefined,
+      items: cart.map((c) => ({
+        catalog_item_id: c.item.id,
+        name: c.item.name,
+        quantity: c.quantity,
+        unit_price: c.item.price,
+        total_price: c.item.price * c.quantity,
+      })),
+      subtotal: cartTotal,
+      total: cartTotal,
+    });
+
+    setCheckoutLoading(false);
+
+    if (result.success && result.transaction) {
+      setCheckoutOrderCode(result.transaction.code || '');
+      setCheckoutStep('success');
+      setCart([]);
+    } else {
+      alert(result.error || 'Error al crear el pedido');
+    }
+  };
+
+  // Build cart context string for AI
+  const cartContext = cart.length > 0
+    ? `\n[CONTEXTO DEL CARRITO DEL CLIENTE: ${cart.map((c) => `${c.item.name} x${c.quantity} ($${c.item.price * c.quantity})`).join(', ')}. Total: $${cartTotal}]`
+    : '\n[CONTEXTO: El carrito del cliente está vacío]';
+
   // Chat handler — uses Gemini AI when enabled, falls back to keyword logic
   const handleSendChat = async () => {
     if (!chatInput.trim() || chatLoading) return;
@@ -138,10 +192,11 @@ export function PublicStorefront({
     setChatMessages((prev) => [...prev, { role: "user", text: userMsg }]);
     setChatLoading(true);
 
-    // Try AI first
+    // Try AI first — include cart context
     if (aiEnabled) {
       try {
-        const result = await publicChatMessage(business.id, userMsg);
+        const msgWithContext = userMsg + cartContext;
+        const result = await publicChatMessage(business.id, msgWithContext);
         if (result.success && result.response) {
           setChatMessages((prev) => [...prev, { role: "assistant", text: result.response! }]);
           setChatLoading(false);
@@ -172,12 +227,12 @@ export function PublicStorefront({
       } else {
         response = `¡Claro! ¿Qué te gustaría pedir? Puedes decirme el nombre del producto o navegar el catálogo.`;
       }
-    } else if (lower.includes("carrito") || lower.includes("pedido") || lower.includes("total")) {
+    } else if (lower.includes("carrito") || lower.includes("pedido") || lower.includes("total") || lower.includes("carro")) {
       if (cart.length === 0) {
         response = `Tu carrito está vacío. Explora nuestro catálogo y agrega lo que te guste. 🛒`;
       } else {
         const summary = cart.map((c) => `• ${c.item.name} x${c.quantity} — ${formatPrice(c.item.price * c.quantity)}`).join("\n");
-        response = `Tu pedido actual:\n${summary}\n\n💰 Total: ${formatPrice(cartTotal)}`;
+        response = `Tu pedido actual:\n${summary}\n\n💰 Total: ${formatPrice(cartTotal)}\n\nPara confirmar, usa el botón del carrito 🛒`;
       }
     } else if (lower.includes("hola") || lower.includes("hi") || lower.includes("buenas")) {
       response = `¡Hola! 👋 ¿En qué puedo ayudarte?`;
@@ -189,8 +244,40 @@ export function PublicStorefront({
     setChatLoading(false);
   };
 
+  // ── Theme: apply business-level design customization ──
+  const themeData = (business.theme as Record<string, any>) || {};
+  const FONT_MAP: Record<string, string> = {
+    inter: "'Inter', system-ui, sans-serif",
+    roboto: "'Roboto', system-ui, sans-serif",
+    poppins: "'Poppins', system-ui, sans-serif",
+    playfair: "'Playfair Display', serif",
+    outfit: "'Outfit', system-ui, sans-serif",
+    system: "system-ui, -apple-system, sans-serif",
+  };
+
+  const storeThemeStyle: React.CSSProperties & Record<string, string> = {};
+  if (themeData.primary_color) {
+    storeThemeStyle["--store-primary"] = themeData.primary_color;
+  }
+  if (themeData.bg_color) {
+    storeThemeStyle["--store-bg"] = themeData.bg_color;
+    storeThemeStyle["--store-surface"] = `color-mix(in srgb, ${themeData.bg_color} 92%, white)`;
+    storeThemeStyle["--store-card-bg"] = `color-mix(in srgb, ${themeData.bg_color} 85%, white)`;
+  }
+  if (themeData.text_color) {
+    storeThemeStyle["--store-text"] = themeData.text_color;
+    storeThemeStyle["--store-muted"] = `color-mix(in srgb, ${themeData.text_color} 55%, transparent)`;
+    storeThemeStyle["--store-border"] = `color-mix(in srgb, ${themeData.text_color} 15%, transparent)`;
+  }
+  if (themeData.font_family && FONT_MAP[themeData.font_family]) {
+    storeThemeStyle.fontFamily = FONT_MAP[themeData.font_family];
+  }
+  if (themeData.border_radius) {
+    storeThemeStyle["--store-radius"] = `${themeData.border_radius}px`;
+  }
+
   return (
-    <div className="public-store">
+    <div className="public-store" style={storeThemeStyle}>
       {/* Hero Header */}
       <header className="store-hero">
         {business.cover_url && (
@@ -494,20 +581,123 @@ export function PublicStorefront({
                     className="store-checkout-btn"
                     onClick={() => {
                       setCartOpen(false);
-                      setChatOpen(true);
-                      setChatMessages((prev) => [
-                        ...prev,
-                        {
-                          role: "assistant",
-                          text: `¡Perfecto! Tienes ${cartCount} producto${cartCount > 1 ? "s" : ""} en tu carrito por un total de ${formatPrice(cartTotal)}.\n\nPara completar tu pedido necesito:\n• 📱 Tu nombre\n• 📞 Tu teléfono\n• 📍 ¿Recoges en tienda o envío a domicilio?\n\nDime tus datos y confirmo el pedido.`,
-                        },
-                      ]);
+                      setCheckoutStep('form');
+                      setCheckoutOpen(true);
                     }}
                   >
                     Confirmar pedido
                   </button>
                 </div>
               </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Checkout Modal ═══ */}
+      {checkoutOpen && (
+        <div className="store-modal-overlay" onClick={() => setCheckoutOpen(false)}>
+          <div className="store-checkout-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="store-modal-close" onClick={() => setCheckoutOpen(false)}>
+              <X size={16} />
+            </button>
+
+            {checkoutStep === 'form' ? (
+              <>
+                <div className="store-checkout-header">
+                  <ShoppingBag size={24} />
+                  <div>
+                    <h2>Confirmar pedido</h2>
+                    <p>{cartCount} producto{cartCount > 1 ? 's' : ''} · {formatPrice(cartTotal)}</p>
+                  </div>
+                </div>
+
+                <div className="store-checkout-form">
+                  <div className="store-checkout-field">
+                    <label>Nombre *</label>
+                    <input
+                      type="text"
+                      placeholder="Tu nombre completo"
+                      value={checkoutName}
+                      onChange={(e) => setCheckoutName(e.target.value)}
+                    />
+                  </div>
+                  <div className="store-checkout-field">
+                    <label>Teléfono *</label>
+                    <input
+                      type="tel"
+                      placeholder="Tu número de teléfono"
+                      value={checkoutPhone}
+                      onChange={(e) => setCheckoutPhone(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="store-checkout-field">
+                    <label>Tipo de entrega</label>
+                    <div className="store-checkout-delivery-options">
+                      <button
+                        className={`store-delivery-option ${checkoutDelivery === 'pickup' ? 'active' : ''}`}
+                        onClick={() => setCheckoutDelivery('pickup')}
+                      >
+                        <Store size={20} />
+                        <span>Recoger en tienda</span>
+                      </button>
+                      <button
+                        className={`store-delivery-option ${checkoutDelivery === 'delivery' ? 'active' : ''}`}
+                        onClick={() => setCheckoutDelivery('delivery')}
+                      >
+                        <Truck size={20} />
+                        <span>Envío a domicilio</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {checkoutDelivery === 'delivery' && (
+                    <div className="store-checkout-field">
+                      <label>Dirección de entrega *</label>
+                      <input
+                        type="text"
+                        placeholder="Tu dirección completa"
+                        value={checkoutAddress}
+                        onChange={(e) => setCheckoutAddress(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    className="store-checkout-submit"
+                    onClick={handleCheckout}
+                    disabled={checkoutLoading || !checkoutName.trim() || !checkoutPhone.trim() || (checkoutDelivery === 'delivery' && !checkoutAddress.trim())}
+                  >
+                    {checkoutLoading ? (
+                      <><Loader2 size={18} className="store-spin" /> Procesando...</>
+                    ) : (
+                      <><Send size={18} /> Enviar pedido</>
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="store-checkout-success">
+                <div className="store-checkout-success-icon">
+                  <CheckCircle size={48} />
+                </div>
+                <h2>¡Pedido enviado!</h2>
+                <p className="store-checkout-code">Código: <strong>{checkoutOrderCode}</strong></p>
+                <p>Te contactaremos al <strong>{checkoutPhone}</strong> para confirmar tu pedido.</p>
+                <button
+                  className="store-checkout-submit"
+                  onClick={() => {
+                    setCheckoutOpen(false);
+                    setCheckoutName('');
+                    setCheckoutPhone('');
+                    setCheckoutAddress('');
+                    setCheckoutDelivery('pickup');
+                  }}
+                >
+                  Listo
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -596,7 +786,7 @@ export function PublicStorefront({
         </p>
         <p className="store-footer-powered">
           Creado con{" "}
-          <Link href="/" className="store-footer-link">
+          <Link href="/" className="store-footer-link font-display italic">
             Spot
           </Link>
         </p>

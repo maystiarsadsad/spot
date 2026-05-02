@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -375,6 +375,48 @@ export type Database = {
           },
         ]
       }
+      catalog_item_ingredients: {
+        Row: {
+          catalog_item_id: string
+          created_at: string | null
+          id: string
+          inventory_id: string
+          quantity: number
+          unit: string | null
+        }
+        Insert: {
+          catalog_item_id: string
+          created_at?: string | null
+          id?: string
+          inventory_id: string
+          quantity?: number
+          unit?: string | null
+        }
+        Update: {
+          catalog_item_id?: string
+          created_at?: string | null
+          id?: string
+          inventory_id?: string
+          quantity?: number
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_item_ingredients_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_item_ingredients_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalog_items: {
         Row: {
           active: boolean | null
@@ -390,6 +432,7 @@ export type Database = {
           id: string
           image_url: string | null
           images: Json | null
+          inventory_id: string | null
           metadata: Json | null
           name: string
           options: Json | null
@@ -413,6 +456,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: Json | null
+          inventory_id?: string | null
           metadata?: Json | null
           name: string
           options?: Json | null
@@ -436,6 +480,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: Json | null
+          inventory_id?: string | null
           metadata?: Json | null
           name?: string
           options?: Json | null
@@ -458,6 +503,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "catalog_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_items_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "inventory"
             referencedColumns: ["id"]
           },
         ]
@@ -526,6 +578,130 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_accounts: {
+        Row: {
+          business_id: string
+          contact_id: string
+          created_at: string | null
+          credit_limit: number
+          current_balance: number
+          guarantor_document: string | null
+          guarantor_id: string | null
+          guarantor_name: string | null
+          guarantor_phone: string | null
+          guarantor_relationship: string | null
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          business_id: string
+          contact_id: string
+          created_at?: string | null
+          credit_limit?: number
+          current_balance?: number
+          guarantor_document?: string | null
+          guarantor_id?: string | null
+          guarantor_name?: string | null
+          guarantor_phone?: string | null
+          guarantor_relationship?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          contact_id?: string
+          created_at?: string | null
+          credit_limit?: number
+          current_balance?: number
+          guarantor_document?: string | null
+          guarantor_id?: string | null
+          guarantor_name?: string | null
+          guarantor_phone?: string | null
+          guarantor_relationship?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_accounts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_accounts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_accounts_guarantor_id_fkey"
+            columns: ["guarantor_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          credit_account_id: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          recorded_by: string | null
+          transaction_id: string | null
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          credit_account_id: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          recorded_by?: string | null
+          transaction_id?: string | null
+          type?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          credit_account_id?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          recorded_by?: string | null
+          transaction_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_payments_credit_account_id_fkey"
+            columns: ["credit_account_id"]
+            isOneToOne: false
+            referencedRelation: "credit_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_payments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
@@ -719,6 +895,7 @@ export type Database = {
       inventory: {
         Row: {
           active: boolean | null
+          barcode: string | null
           business_id: string
           category: string | null
           cost_per_unit: number | null
@@ -736,6 +913,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          barcode?: string | null
           business_id: string
           category?: string | null
           cost_per_unit?: number | null
@@ -753,6 +931,7 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          barcode?: string | null
           business_id?: string
           category?: string | null
           cost_per_unit?: number | null
@@ -1405,7 +1584,60 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_business_as_superadmin: {
+        Args: { business_id: string }
+        Returns: {
+          active: boolean | null
+          address: string | null
+          ai_agent_enabled: boolean | null
+          ai_agent_greeting: string | null
+          ai_agent_prompt: string | null
+          assigned_to: string | null
+          business_hours: Json | null
+          city: string | null
+          country: string | null
+          cover_url: string | null
+          created_at: string | null
+          currency: string | null
+          custom_domain: string | null
+          description: string | null
+          email: string | null
+          favicon_url: string | null
+          id: string
+          internal_notes: string | null
+          layout: Json | null
+          locale: string | null
+          logo_url: string | null
+          name: string
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
+          owner_id: string
+          phone: string | null
+          slug: string
+          social_links: Json | null
+          subscription_plan: string | null
+          subscription_started_at: string | null
+          subscription_status: string | null
+          suspended: boolean | null
+          suspended_reason: string | null
+          tagline: string | null
+          theme: Json | null
+          timezone: string | null
+          trial_ends_at: string | null
+          type: string
+          updated_at: string | null
+          webpage_published: boolean | null
+          whatsapp: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "businesses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       is_business_member: { Args: { b_id: string }; Returns: boolean }
+      is_business_owner_or_admin: { Args: { b_id: string }; Returns: boolean }
       is_superadmin: { Args: never; Returns: boolean }
     }
     Enums: {
@@ -1539,3 +1771,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

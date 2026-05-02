@@ -20,6 +20,7 @@ const inventorySchema = z.object({
   min_stock: z.coerce.number().min(0).optional(),
   cost_per_unit: z.coerce.number().min(0).optional(),
   unit: z.string().optional(),
+  barcode: z.string().optional(),
   supplier: z.string().optional(),
   location: z.string().optional(),
   notes: z.string().optional()
@@ -48,6 +49,7 @@ export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: 
       min_stock: 0,
       cost_per_unit: 0,
       unit: "Unidades",
+      barcode: "",
       supplier: "",
       location: "",
       notes: ""
@@ -64,6 +66,7 @@ export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: 
           min_stock: itemToEdit.min_stock || 0,
           cost_per_unit: itemToEdit.cost_per_unit || 0,
           unit: itemToEdit.unit || "Unidades",
+          barcode: itemToEdit.barcode || "",
           supplier: itemToEdit.supplier || "",
           location: itemToEdit.location || "",
           notes: itemToEdit.notes || ""
@@ -76,6 +79,7 @@ export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: 
           min_stock: 0,
           cost_per_unit: 0,
           unit: "Unidades",
+          barcode: "",
           supplier: "",
           location: "",
           notes: ""
@@ -230,6 +234,20 @@ export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: 
                     <FormLabel>Proveedor principal</FormLabel>
                     <FormControl>
                       <Input placeholder="Ej. Distribuidora S.A." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="barcode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Código de barras</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ej. 7702004001214" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

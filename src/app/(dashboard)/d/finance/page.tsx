@@ -2,7 +2,9 @@ import { getActiveBusiness } from "@/lib/get-active-business";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FinanceClient } from "@/components/finance/finance-client";
-import { getExpenses, getDailyCash } from "@/lib/actions/finance";
+import { getExpenses, getDailyCash, getDailyCashHistory } from "@/lib/actions/finance";
+import { getCreditAccounts, getCreditStats } from "@/lib/actions/credits";
+import { getContacts } from "@/lib/actions/contacts";
 import { format } from "date-fns";
 
 import { DollarSign } from "lucide-react";
@@ -16,10 +18,17 @@ export default async function FinancePage() {
 
   const supabase = await createClient();
   const today = format(new Date(), "yyyy-MM-dd");
+  const currency = business.currency || "COP";
   
   // Fetch initial data
-  const expenses = await getExpenses(business.id);
-  const dailyCash = await getDailyCash(business.id, today);
+  const [expenses, dailyCash, cashHistory, creditAccounts, creditStats, allContacts] = await Promise.all([
+    getExpenses(business.id),
+    getDailyCash(business.id, today),
+    getDailyCashHistory(business.id, 30),
+    getCreditAccounts(business.id),
+    getCreditStats(business.id),
+    getContacts(business.id),
+  ]);
 
   // Month boundaries
   const now = new Date();
@@ -64,7 +73,7 @@ export default async function FinancePage() {
     monthExpenses,
     netProfit: monthRevenue - monthExpenses,
     expenseByCategory,
-    currency: business.currency || "COP",
+    currency,
     monthLabel: now.toLocaleDateString("es-CO", { month: "long", year: "numeric" }),
   };
 
@@ -85,10 +94,14 @@ export default async function FinancePage() {
         businessId={business.id} 
         initialExpenses={expenses || []}
         initialDailyCash={dailyCash || null}
+        cashHistory={cashHistory || []}
         todayDate={today}
         financeStats={financeStats}
+        currency={currency}
+        creditAccounts={creditAccounts || []}
+        creditContacts={(allContacts || []).map((c: any) => ({ id: c.id, full_name: c.full_name, phone: c.phone, email: c.email }))}
+        creditStats={creditStats}
       />
     </div>
   );
 }
-

@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useCallback } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { createOrder } from "@/lib/actions/orders";
+import { chargeToCredit } from "@/lib/actions/credits";
+import { useBarcodeScanner } from "@/hooks/use-barcode-scanner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, Plus, Minus, X, Loader2 } from "lucide-react";
+import { Search, ShoppingCart, Plus, Minus, X, Loader2, Camera, CreditCard } from "lucide-react";
+import { CameraScanner } from "@/components/pos/camera-scanner";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -41,6 +44,7 @@ interface CatalogItem {
   category_id: string | null;
   image_url: string | null;
   active: boolean | null;
+  sku: string | null;
 }
 
 interface CartItem {
@@ -53,9 +57,10 @@ interface Props {
   items: CatalogItem[];
   categories: Category[];
   currency: string;
+  creditAccounts?: { id: string; contact_id: string; contact_name: string; credit_limit: number; current_balance: number }[];
 }
 
-export function POSClient({ businessId, items, categories, currency }: Props) {
+export function POSClient({ businessId, items, categories, currency, creditAccounts = [] }: Props) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -64,6 +69,43 @@ export function POSClient({ businessId, items, categories, currency }: Props) {
 
   const [customerName, setCustomerName] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [selectedCreditAccount, setSelectedCreditAccount] = useState("");
+  const [lastScanned, setLastScanned] = useState<string | null>(null);
+  const [cameraScanOpen, setCameraScanOpen] = useState(false);
+
+  // ── Barcode scanner support ──
+  const handleBarcodeScan = useCallback((barcode: string) => {
+    // Find item by SKU (case-insensitive)
+    const found = items.find(
+      (it) => it.sku && it.sku.toLowerCase() === barcode.toLowerCase() && it.active
+    );
+
+    if (found) {
+      addToCart(found);
+      setLastScanned(found.name);
+      toast.success(`📦 ${found.name} agregado`, { duration: 1500 });
+      // Quick beep feedback
+      try {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 1200;
+        gain.gain.value = 0.1;
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+      } catch {}
+    } else {
+      toast.error(`Código "${barcode}" no encontrado`, { duration: 2000 });
+      setLastScanned(null);
+    }
+  }, [items]);
+
+  useBarcodeScanner({
+    onScan: handleBarcodeScan,
+    enabled: !checkoutOpen,
+  });
 
   const filteredItems = useMemo(() => {
     return items.filter((it) => {
@@ -120,7 +162,7 @@ export function POSClient({ businessId, items, categories, currency }: Props) {
         total_price: c.item.price * c.quantity
       }));
 
-      const result = await createOrder(businessId, {
+      const result: any = await createOrder(businessId, {
         type: 'sale',
         customer_name: customerName,
         payment_method: paymentMethod,
@@ -133,13 +175,31 @@ export function POSClient({ businessId, items, categories, currency }: Props) {
 
       if (result.error) {
         toast.error(result.error);
+        return;
+      }
+
+      // If credit payment, charge to the credit account
+      if (paymentMethod === "credit" && selectedCreditAccount) {
+        const creditResult = await chargeToCredit({
+          credit_account_id: selectedCreditAccount,
+          transaction_id: result.transaction?.id,
+          amount: total,
+          notes: `Venta POS - ${customerName || "Sin nombre"}`,
+        });
+        if (!creditResult.success) {
+          toast.error(`Venta creada pero error de crédito: ${creditResult.error}`);
+        } else {
+          toast.success("Venta a crédito registrada");
+        }
       } else {
         toast.success("Venta completada");
-        setCart([]);
-        setCheckoutOpen(false);
-        setCustomerName("");
-        setPaymentMethod("cash");
       }
+
+      setCart([]);
+      setCheckoutOpen(false);
+      setCustomerName("");
+      setPaymentMethod("cash");
+      setSelectedCreditAccount("");
     });
   }
 
@@ -158,6 +218,15 @@ export function POSClient({ businessId, items, categories, currency }: Props) {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+          <button
+            type="button"
+            className="pos-scan-btn"
+            onClick={() => setCameraScanOpen(true)}
+            title="Escanear con cámara"
+          >
+            <Camera size={16} />
+            <span className="hidden sm:inline">Escanear</span>
+          </button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -301,9 +370,44 @@ export function POSClient({ businessId, items, categories, currency }: Props) {
                   <SelectItem value="cash">Efectivo 💵</SelectItem>
                   <SelectItem value="card">Tarjeta 💳</SelectItem>
                   <SelectItem value="transfer">Transferencia 📲</SelectItem>
+                  <SelectItem value="nequi">Nequi 📱</SelectItem>
+                  {creditAccounts.length > 0 && (
+                    <SelectItem value="credit">Crédito 📋</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
+
+            {paymentMethod === "credit" && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Cuenta de crédito</Label>
+                <Select value={selectedCreditAccount} onValueChange={(v) => setSelectedCreditAccount(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar cuenta..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {creditAccounts.map((ca) => {
+                      const available = ca.credit_limit - ca.current_balance;
+                      return (
+                        <SelectItem key={ca.id} value={ca.id} disabled={available < total}>
+                          {ca.contact_name} — Disponible: {formatCurrency(available, currency)}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                {selectedCreditAccount && (() => {
+                  const ca = creditAccounts.find(a => a.id === selectedCreditAccount);
+                  if (!ca) return null;
+                  const available = ca.credit_limit - ca.current_balance;
+                  return (
+                    <p className={`text-xs ${available >= total ? 'text-muted-foreground' : 'text-destructive'}`}>
+                      Saldo actual: {formatCurrency(ca.current_balance, currency)} / Límite: {formatCurrency(ca.credit_limit, currency)}
+                    </p>
+                  );
+                })()}
+              </div>
+            )}
 
             <div className="rounded-lg bg-muted p-4 space-y-2">
               <div className="flex justify-between text-sm">
@@ -327,6 +431,13 @@ export function POSClient({ businessId, items, categories, currency }: Props) {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Camera barcode scanner */}
+      <CameraScanner
+        open={cameraScanOpen}
+        onClose={() => setCameraScanOpen(false)}
+        onScan={handleBarcodeScan}
+      />
     </div>
   );
 }

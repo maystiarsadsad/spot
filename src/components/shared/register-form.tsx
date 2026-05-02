@@ -40,9 +40,9 @@ export function RegisterForm() {
       {/* Header */}
       <div className="auth-card-header">
         <div className="auth-mobile-logo">
-          <span className="auth-logo-text">Spot</span>
+          <span className="auth-logo-text font-display italic">Spot</span>
         </div>
-        <h1 className="auth-title">Crea tu cuenta</h1>
+        <h1 className="auth-title font-display">Crea tu cuenta</h1>
         <p className="auth-subtitle">Empieza a gestionar tu negocio hoy</p>
       </div>
 

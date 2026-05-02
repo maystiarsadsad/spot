@@ -6,10 +6,11 @@ import { ContactsTable } from "./contacts-table";
 
 interface ContactsClientProps {
   businessId: string;
+  currency: string;
   initialContacts: any[];
 }
 
-export function ContactsClient({ businessId, initialContacts }: ContactsClientProps) {
+export function ContactsClient({ businessId, currency, initialContacts }: ContactsClientProps) {
   return (
     <div className="animate-in fade-in-50 zoom-in-95 duration-300">
       <Card className="border-border/50 shadow-sm">
@@ -27,7 +28,7 @@ export function ContactsClient({ businessId, initialContacts }: ContactsClientPr
           </div>
         </CardHeader>
         <CardContent>
-          <ContactsTable businessId={businessId} contacts={initialContacts} />
+          <ContactsTable businessId={businessId} currency={currency} contacts={initialContacts} />
         </CardContent>
       </Card>
     </div>

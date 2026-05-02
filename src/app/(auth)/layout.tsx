@@ -64,13 +64,13 @@ export default async function AuthLayout({
         {/* Content */}
         <div className="auth-hero-content">
           <div className="auth-logo">
-            <span className="auth-logo-text">Spot</span>
+            <span className="auth-logo-text font-display italic">Spot</span>
           </div>
 
           <div className="auth-tagline">
-            <span className="tagline-line">Gestiona.</span>
-            <span className="tagline-line tagline-gradient">Crece.</span>
-            <span className="tagline-line">Simplifica.</span>
+            <span className="tagline-line font-display">Gestiona.</span>
+            <span className="tagline-line tagline-gradient font-display italic">Crece.</span>
+            <span className="tagline-line font-display">Simplifica.</span>
           </div>
         </div>
       </div>

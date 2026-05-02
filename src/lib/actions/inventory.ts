@@ -46,6 +46,7 @@ export async function createInventoryItem(data: {
   min_stock?: number;
   cost_per_unit?: number;
   unit?: string;
+  barcode?: string;
   supplier?: string;
   location?: string;
   notes?: string;
@@ -92,6 +93,7 @@ export async function updateInventoryItem(
     min_stock?: number;
     cost_per_unit?: number;
     unit?: string;
+    barcode?: string;
     supplier?: string;
     location?: string;
     notes?: string;

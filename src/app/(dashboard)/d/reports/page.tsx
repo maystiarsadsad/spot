@@ -1,6 +1,6 @@
 import { getActiveBusiness } from "@/lib/get-active-business";
 import { redirect } from "next/navigation";
-import { getOverviewStats, getExpensesByCategory, getRevenueMockData } from "@/lib/actions/reports";
+import { getOverviewStats, getExpensesByCategory, getWeeklyFinancialFlow, getMonthlyRevenue } from "@/lib/actions/reports";
 import { ReportsClient } from "@/components/reports/reports-client";
 import { Metadata } from "next";
 import { BarChart3 } from "lucide-react";
@@ -16,10 +16,11 @@ export default async function ReportsPage() {
     redirect("/d/getting-started");
   }
 
-  const [stats, expensesByCategory, revenueData] = await Promise.all([
+  const [stats, expensesByCategory, weeklyFlow, monthlyRevenue] = await Promise.all([
     getOverviewStats(business.id),
     getExpensesByCategory(business.id),
-    getRevenueMockData()
+    getWeeklyFinancialFlow(business.id),
+    getMonthlyRevenue(business.id),
   ]);
 
   return (
@@ -38,9 +39,11 @@ export default async function ReportsPage() {
       
       <ReportsClient 
         businessId={business.id}
+        currency={business.currency || "COP"}
         stats={stats}
         expensesByCategory={expensesByCategory}
-        revenueData={revenueData}
+        weeklyFlow={weeklyFlow}
+        monthlyRevenue={monthlyRevenue}
       />
     </div>
   );

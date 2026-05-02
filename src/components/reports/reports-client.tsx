@@ -1,167 +1,198 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
-import { DollarSign, Users, Package, FileText, TrendingUp } from "lucide-react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
+  DollarSign, Users, Package, FileText, TrendingUp, TrendingDown,
+  ShoppingCart, ArrowUpRight, ArrowDownRight, Minus,
+} from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip as RechartsTooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend,
 } from "recharts";
 
 interface ReportsClientProps {
   businessId: string;
+  currency: string;
   stats: {
     totalContacts: number;
     totalExpenses: number;
     totalItems: number;
     totalEmployees: number;
+    totalRevenue: number;
+    totalTransactions: number;
   };
   expensesByCategory: { name: string; value: number }[];
-  revenueData: any[];
+  weeklyFlow: { name: string; revenue: number; expenses: number }[];
+  monthlyRevenue: {
+    current: number;
+    previous: number;
+    percentChange: number;
+  };
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#ff7300'];
+const COLORS = ["#ff5b1f", "#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
+export function ReportsClient({
+  businessId,
+  currency,
+  stats,
+  expensesByCategory,
+  weeklyFlow,
+  monthlyRevenue,
+}: ReportsClientProps) {
+  const fmt = (n: number) => formatCurrency(n, currency);
+
+  const ChangeIcon =
+    monthlyRevenue.percentChange > 0 ? ArrowUpRight :
+    monthlyRevenue.percentChange < 0 ? ArrowDownRight : Minus;
+
+  const changeColor =
+    monthlyRevenue.percentChange > 0 ? "#10b981" :
+    monthlyRevenue.percentChange < 0 ? "#ef4444" : "var(--ink-3)";
+
+  const profit = stats.totalRevenue - stats.totalExpenses;
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null;
     return (
-      <div className="bg-background border border-border p-3 rounded-lg shadow-xl">
-        <p className="font-medium text-foreground mb-1">{label}</p>
+      <div className="rpt-tooltip">
+        <p className="rpt-tooltip-label">{label}</p>
         {payload.map((p: any, i: number) => (
-          <p key={i} className="text-sm" style={{ color: p.color }}>
-            {p.name}: {p.name === 'Ingresos' || p.name === 'Gastos' || p.name === 'Valor' || p.name.includes('revenue') ? formatCurrency(p.value) : p.value}
+          <p key={i} style={{ color: p.color }} className="rpt-tooltip-val">
+            {p.name}: {fmt(p.value)}
           </p>
         ))}
       </div>
     );
-  }
-  return null;
-};
+  };
 
-export function ReportsClient({ businessId, stats, expensesByCategory, revenueData }: ReportsClientProps) {
   return (
-    <div className="space-y-6">
-      
-      {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos Proyectados</CardTitle>
-            <DollarSign className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-500">{formatCurrency(12450.00)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              +20.1% respecto al mes anterior (*Demo)
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Gastos (Registrados)</CardTitle>
-            <TrendingUp className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalExpenses)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Basado en transacciones del módulo financiero
-            </p>
-          </CardContent>
-        </Card>
+    <div className="rpt-root">
+      {/* KPI Cards */}
+      <div className="rpt-kpi-grid">
+        {/* Monthly Revenue */}
+        <div className="rpt-kpi">
+          <div className="rpt-kpi-header">
+            <span>Ingresos del Mes</span>
+            <DollarSign size={15} className="rpt-kpi-icon green" />
+          </div>
+          <div className="rpt-kpi-value green">{fmt(monthlyRevenue.current)}</div>
+          <div className="rpt-kpi-change" style={{ color: changeColor }}>
+            <ChangeIcon size={13} />
+            {monthlyRevenue.percentChange > 0 ? "+" : ""}{monthlyRevenue.percentChange}% vs mes anterior
+          </div>
+        </div>
 
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Base de Clientes</CardTitle>
-            <Users className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalContacts}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Perfiles registrados en directorio
-            </p>
-          </CardContent>
-        </Card>
+        {/* Total Expenses */}
+        <div className="rpt-kpi">
+          <div className="rpt-kpi-header">
+            <span>Total Gastos</span>
+            <TrendingDown size={15} className="rpt-kpi-icon red" />
+          </div>
+          <div className="rpt-kpi-value">{fmt(stats.totalExpenses)}</div>
+          <div className="rpt-kpi-sub">Todas las transacciones registradas</div>
+        </div>
 
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Artículos y Personal</CardTitle>
-            <Package className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-             <div className="flex justify-between items-center mt-2">
-                 <div className="flex flex-col">
-                     <span className="text-xl font-bold">{stats.totalItems}</span>
-                     <span className="text-xs text-muted-foreground">En Catálogo</span>
-                 </div>
-                 <div className="w-[1px] h-8 bg-border"></div>
-                 <div className="flex flex-col items-end">
-                     <span className="text-xl font-bold">{stats.totalEmployees}</span>
-                     <span className="text-xs text-muted-foreground">Empleados</span>
-                 </div>
-             </div>
-          </CardContent>
-        </Card>
+        {/* Contacts */}
+        <div className="rpt-kpi">
+          <div className="rpt-kpi-header">
+            <span>Base de Clientes</span>
+            <Users size={15} className="rpt-kpi-icon blue" />
+          </div>
+          <div className="rpt-kpi-value">{stats.totalContacts}</div>
+          <div className="rpt-kpi-sub">Perfiles en directorio</div>
+        </div>
+
+        {/* Items + Employees */}
+        <div className="rpt-kpi">
+          <div className="rpt-kpi-header">
+            <span>Catálogo y Personal</span>
+            <Package size={15} className="rpt-kpi-icon amber" />
+          </div>
+          <div className="rpt-kpi-split">
+            <div>
+              <span className="rpt-kpi-val-sm">{stats.totalItems}</span>
+              <span className="rpt-kpi-label-sm">Artículos</span>
+            </div>
+            <div className="rpt-kpi-divider" />
+            <div>
+              <span className="rpt-kpi-val-sm">{stats.totalEmployees}</span>
+              <span className="rpt-kpi-label-sm">Empleados</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        
-        {/* Main Chart */}
-        <Card className="col-span-full lg:col-span-4 border-border/50 shadow-sm">
-          <CardHeader>
-             <div className="flex items-center gap-2 mb-1">
-                 <div className="p-2 bg-primary/10 rounded-lg">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                 </div>
-                 <CardTitle>Flujo Financiero Semanal</CardTitle>
-             </div>
-             <CardDescription>
-              Comparativa de ingresos y gastos operativos
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value/1000}k`} />
-                <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'hsl(var(--muted)/0.4)'}} />
-                <Legend iconType="circle" />
-                <Bar dataKey="revenue" name="Ingresos" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                <Bar dataKey="expenses" name="Gastos" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} maxBarSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Profit summary */}
+      <div className="rpt-profit-bar">
+        <div className="rpt-profit-item">
+          <ShoppingCart size={14} />
+          <span>{stats.totalTransactions} ventas</span>
+        </div>
+        <div className="rpt-profit-item">
+          <TrendingUp size={14} />
+          <span>Ingresos: <strong>{fmt(stats.totalRevenue)}</strong></span>
+        </div>
+        <div className="rpt-profit-item">
+          <TrendingDown size={14} />
+          <span>Gastos: <strong>{fmt(stats.totalExpenses)}</strong></span>
+        </div>
+        <div className={`rpt-profit-item ${profit >= 0 ? "green" : "red"}`}>
+          <DollarSign size={14} />
+          <span>Balance: <strong>{fmt(profit)}</strong></span>
+        </div>
+      </div>
 
-        {/* Donut Chart */}
-        <Card className="col-span-full md:col-span-2 lg:col-span-3 border-border/50 shadow-sm">
-          <CardHeader>
-             <div className="flex items-center gap-2 mb-1">
-                 <div className="p-2 bg-amber-500/10 rounded-lg">
-                    <FileText className="h-4 w-4 text-amber-500" />
-                 </div>
-                 <CardTitle>Distribución de Gastos</CardTitle>
-             </div>
-             <CardDescription>
-               Clasificación estructural de egresos
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-[350px] flex items-center justify-center relative">
+      {/* Charts */}
+      <div className="rpt-charts">
+        {/* Weekly financial flow */}
+        <div className="rpt-chart-card main">
+          <div className="rpt-chart-header">
+            <TrendingUp size={16} />
+            <div>
+              <h3>Flujo Financiero — Últimos 7 días</h3>
+              <p>Ingresos vs gastos por día</p>
+            </div>
+          </div>
+          <div className="rpt-chart-body">
+            {weeklyFlow.every((d) => d.revenue === 0 && d.expenses === 0) ? (
+              <div className="rpt-chart-empty">
+                <TrendingUp size={32} strokeWidth={1} />
+                <p>Sin movimientos esta semana</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyFlow} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--line)" />
+                  <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} stroke="var(--ink-3)" />
+                  <YAxis fontSize={11} tickLine={false} axisLine={false} stroke="var(--ink-3)"
+                    tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)} />
+                  <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: "var(--background-2)" }} />
+                  <Legend iconType="circle" />
+                  <Bar dataKey="revenue" name="Ingresos" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                  <Bar dataKey="expenses" name="Gastos" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Expenses donut */}
+        <div className="rpt-chart-card side">
+          <div className="rpt-chart-header">
+            <FileText size={16} />
+            <div>
+              <h3>Distribución de Gastos</h3>
+              <p>Clasificación por categoría</p>
+            </div>
+          </div>
+          <div className="rpt-chart-body">
             {expensesByCategory.length === 0 ? (
-               <div className="text-center text-muted-foreground flex flex-col items-center gap-2">
-                 <FileText className="h-8 w-8 opacity-20" />
-                 <p className="text-sm">No hay gastos registrados para analizar.</p>
-               </div>
+              <div className="rpt-chart-empty">
+                <FileText size={32} strokeWidth={1} />
+                <p>No hay gastos registrados</p>
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -169,30 +200,29 @@ export function ReportsClient({ businessId, stats, expensesByCategory, revenueDa
                     data={expensesByCategory}
                     cx="50%"
                     cy="45%"
-                    innerRadius={70}
-                    outerRadius={100}
+                    innerRadius={65}
+                    outerRadius={95}
                     paddingAngle={2}
                     dataKey="value"
                     stroke="none"
                   >
-                    {expensesByCategory.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {expensesByCategory.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
                   <RechartsTooltip content={<CustomTooltip />} />
-                  <Legend 
-                    layout="horizontal" 
-                    verticalAlign="bottom" 
+                  <Legend
+                    layout="horizontal"
+                    verticalAlign="bottom"
                     align="center"
                     iconType="circle"
-                    formatter={(value) => <span className="text-xs text-foreground font-medium">{value}</span>}
+                    formatter={(value) => <span className="rpt-legend">{value}</span>}
                   />
                 </PieChart>
               </ResponsiveContainer>
             )}
-          </CardContent>
-        </Card>
-
+          </div>
+        </div>
       </div>
     </div>
   );

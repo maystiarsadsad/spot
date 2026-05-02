@@ -32,12 +32,12 @@ export function ForgotPasswordForm() {
       <div className="auth-card">
         <div className="auth-card-header">
           <div className="auth-mobile-logo">
-            <span className="auth-logo-text">Spot</span>
+            <span className="auth-logo-text font-display italic">Spot</span>
           </div>
           <div className="flex justify-center mb-4">
-            <CheckCircle className="h-12 w-12 text-emerald-500" />
+            <CheckCircle className="h-12 w-12 text-[var(--success)]" />
           </div>
-          <h1 className="auth-title">Correo enviado</h1>
+          <h1 className="auth-title font-display">Correo enviado</h1>
           <p className="auth-subtitle">
             Si existe una cuenta con ese correo, recibirás un enlace para restablecer tu contraseña.
             Revisa tu bandeja de entrada y carpeta de spam.
@@ -55,9 +55,9 @@ export function ForgotPasswordForm() {
     <div className="auth-card">
       <div className="auth-card-header">
         <div className="auth-mobile-logo">
-          <span className="auth-logo-text">Spot</span>
+          <span className="auth-logo-text font-display italic">Spot</span>
         </div>
-        <h1 className="auth-title">¿Olvidaste tu contraseña?</h1>
+        <h1 className="auth-title font-display">¿Olvidaste tu contraseña?</h1>
         <p className="auth-subtitle">
           Ingresa tu correo y te enviaremos un enlace para restablecerla.
         </p>

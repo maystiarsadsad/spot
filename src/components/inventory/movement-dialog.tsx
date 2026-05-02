@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,9 +29,10 @@ interface MovementDialogProps {
   inventoryItems: any[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  preSelectedItemId?: string;
 }
 
-export function MovementDialog({ businessId, inventoryItems, open, onOpenChange }: MovementDialogProps) {
+export function MovementDialog({ businessId, inventoryItems, open, onOpenChange, preSelectedItemId }: MovementDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<MovementFormValues>({
@@ -44,6 +45,13 @@ export function MovementDialog({ businessId, inventoryItems, open, onOpenChange 
       notes: ""
     },
   });
+
+  // When opening with a pre-selected item (from barcode scan)
+  useEffect(() => {
+    if (open && preSelectedItemId) {
+      form.setValue("inventory_id", preSelectedItemId);
+    }
+  }, [open, preSelectedItemId, form]);
 
   const onSubmit = async (values: MovementFormValues) => {
     setIsLoading(true);
@@ -105,7 +113,7 @@ export function MovementDialog({ businessId, inventoryItems, open, onOpenChange 
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Producto *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccione un producto..." />

@@ -70,14 +70,14 @@ export default async function BusinessesPage() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <h1 className="text-3xl font-bold tracking-tight mt-2">Negocios</h1>
+          <h1 className="text-3xl font-bold tracking-tight mt-2 font-display">Negocios</h1>
           <p className="text-muted-foreground">
             Gestiona todos los negocios registrados en la plataforma.
           </p>
         </div>
         <Button 
           render={<Link href="/sa/businesses/create" />} 
-          className="bg-orange-600 hover:bg-orange-700"
+          className="bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-white shadow-[var(--shadow-stamp)] hover:shadow-[var(--shadow-stamp-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
           nativeButton={false}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -97,7 +97,7 @@ export default async function BusinessesPage() {
         <Button variant="outline">Filtros</Button>
       </div>
 
-      <div className="rounded-md border bg-card">
+      <div className="rounded-xl border border-[var(--line)] bg-card shadow-[var(--shadow-stamp)] overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -121,8 +121,8 @@ export default async function BusinessesPage() {
                 <TableRow key={business.id}>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-medium">{business.name}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="font-bold">{business.name}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
                         /{business.slug}
                       </span>
                     </div>
@@ -151,7 +151,7 @@ export default async function BusinessesPage() {
                     {business.suspended ? (
                       <Badge variant="destructive">Suspendido</Badge>
                     ) : business.active ? (
-                      <Badge variant="default" className="bg-emerald-500 hover:bg-emerald-600">
+                      <Badge className="bg-[var(--success)] text-white hover:bg-[var(--success)]/90 border-0">
                         Activo
                       </Badge>
                     ) : (
@@ -193,7 +193,7 @@ export default async function BusinessesPage() {
                           </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-500 focus:text-red-500 cursor-pointer">
+                        <DropdownMenuItem className="text-[var(--destructive)] focus:text-[var(--destructive)] cursor-pointer">
                           <ShieldAlert className="mr-2 h-4 w-4" />
                           {business.suspended ? "Levantar Suspensión" : "Suspender Negocio"}
                         </DropdownMenuItem>

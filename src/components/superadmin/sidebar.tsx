@@ -12,7 +12,6 @@ import {
   LogOut,
   Loader2,
   ChevronsUpDown,
-  BadgeCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,7 +30,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -113,14 +111,14 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
               size="lg" 
               render={<Link href="/sa/analytics" />}
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-orange-600 text-sidebar-primary-foreground">
-                <LayoutDashboard className="size-4" />
+              <div className="flex aspect-square size-8 items-center justify-center rounded-xl bg-[var(--ink)] text-[var(--sun)] font-display font-bold text-sm shadow-[var(--shadow-stamp)]">
+                S
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold uppercase tracking-wider text-[10px] text-orange-600/70 dark:text-orange-400/70">
-                  Spot Platform
+                <span className="font-mono font-bold uppercase tracking-widest text-[10px] text-[var(--accent)]">
+                  ★ Spot Platform
                 </span>
-                <span className="font-bold text-sm tracking-tight text-foreground underline decoration-orange-500/30 decoration-2 underline-offset-4">
+                <span className="font-display font-bold text-base tracking-tight text-foreground italic">
                   SuperAdmin
                 </span>
               </div>
@@ -132,14 +130,16 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
       <SidebarContent>
         {saNavigation.map((group) => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupLabel className="font-mono text-[10px] font-bold uppercase tracking-widest">
+              {group.label}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
-                      isActive={pathname === item.href}
+                      isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
                       tooltip={item.title}
                     >
                       <item.icon />
@@ -170,44 +170,44 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
                   />
                 }
               >
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 rounded-full">
                   <AvatarImage
                     src={user.avatar_url ?? ""}
                     alt={user.display_name}
                   />
-                  <AvatarFallback className="rounded-lg bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 font-medium">
+                  <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-white font-bold text-xs">
                     {user.display_name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold text-foreground">
+                  <span className="truncate font-bold text-foreground">
                     {user.display_name}
                   </span>
-                  <span className="truncate text-xs text-muted-foreground italic font-medium">
-                    Platform Overlord
+                  <span className="truncate text-xs text-muted-foreground font-mono">
+                    Admin
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg shadow-xl border-sidebar-border"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl shadow-[var(--shadow-stamp-lg)] border-[var(--line)]"
                 side="bottom"
                 align="end"
                 sideOffset={4}
               >
-                <div className="p-3 border-b border-sidebar-border">
+                <div className="p-3 border-b border-dashed border-[var(--line)]">
                   <div className="flex items-center gap-2 text-left text-sm">
-                    <Avatar className="h-8 w-8 rounded-lg">
+                    <Avatar className="h-8 w-8 rounded-full">
                       <AvatarImage
                         src={user.avatar_url ?? ""}
                         alt={user.display_name}
                       />
-                      <AvatarFallback className="rounded-lg bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400">
+                      <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-white font-bold">
                         {user.display_name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">
+                      <span className="truncate font-bold">
                         {user.display_name}
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
@@ -237,7 +237,7 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
                 <DropdownMenuItem
                   onSelect={handleLogout}
                   disabled={isPending}
-                  className="text-red-500 focus:text-red-500 cursor-pointer"
+                  className="text-[var(--destructive)] focus:text-[var(--destructive)] cursor-pointer"
                 >
                   {isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -253,7 +253,6 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-// Version: 1.0.1 (Base UI Fix)
     </Sidebar>
   );
 }

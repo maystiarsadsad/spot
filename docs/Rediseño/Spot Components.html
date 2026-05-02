@@ -1,0 +1,1211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spot · Expresivo Components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   SPOT — EXPRESIVO Design System
+   Drop-in for src/app/globals.css
+   Tailwind v4 + shadcn/ui compatible
+   ============================================================ */
+
+
+
+/* ─── Tokens (light) ─────────────────────────────────────── */
+:root {
+  --radius: 0.875rem;
+
+  /* Surfaces — paper warmth */
+  --background: #f3efe7;
+  --background-2: #ebe5d6;
+  --foreground: #15140f;
+  --card: #fdfaf2;
+  --card-foreground: #15140f;
+  --popover: #fdfaf2;
+  --popover-foreground: #15140f;
+
+  /* Brand — hot orange + ink */
+  --primary: #15140f;            /* ink as primary surface */
+  --primary-foreground: #ffe7a8; /* sun yellow */
+  --accent: #ff5b1f;             /* expresivo orange */
+  --accent-foreground: #ffffff;
+
+  --secondary: #fdfaf2;
+  --secondary-foreground: #15140f;
+
+  /* Editorial colorways (use as utility) */
+  --sun: #ffe7a8;
+  --mint: #b6e3b6;
+  --rose: #ffb8b1;
+  --violet: #4b3df0;
+  --sky: #cdd9ff;
+
+  /* Neutrals */
+  --muted: #ebe5d6;
+  --muted-foreground: #6c6855;
+  --border: #d6cfba;
+  --input: #d6cfba;
+  --ring: #ff5b1f;
+
+  /* Semantic */
+  --destructive: #c0392b;
+  --success: #2f7d4a;
+  --warning: #c98a16;
+
+  /* Charts */
+  --chart-1: #ff5b1f;
+  --chart-2: #4b3df0;
+  --chart-3: #2f7d4a;
+  --chart-4: #c98a16;
+  --chart-5: #4a6cf5;
+
+  /* Sidebar */
+  --sidebar: #f3efe7;
+  --sidebar-foreground: #15140f;
+  --sidebar-primary: #15140f;
+  --sidebar-primary-foreground: #ffe7a8;
+  --sidebar-accent: #fdfaf2;
+  --sidebar-accent-foreground: #15140f;
+  --sidebar-border: #d6cfba;
+  --sidebar-ring: #ff5b1f;
+
+  /* Spot tokens */
+  --ink: #15140f;
+  --ink-2: #3a3729;
+  --ink-3: #6c6855;
+  --line: #d6cfba;
+  --paper: #fdfaf2;
+
+  /* Hard offset shadow (signature) */
+  --shadow-stamp: 2px 2px 0 var(--ink);
+  --shadow-stamp-lg: 4px 4px 0 var(--ink);
+  --shadow-soft: 0 8px 24px -8px rgba(20,20,15,0.08);
+
+  /* Typography */
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: "Geist", "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ─── Dark — "Midnight Paper" ────────────────────────────── */
+.dark {
+  --background: #15140f;
+  --background-2: #1d1c14;
+  --foreground: #f3efe7;
+  --card: #1d1c14;
+  --card-foreground: #f3efe7;
+  --popover: #25231a;
+  --popover-foreground: #f3efe7;
+
+  --primary: #fdfaf2;
+  --primary-foreground: #15140f;
+  --accent: #ff7a44;
+  --accent-foreground: #15140f;
+
+  --secondary: #25231a;
+  --secondary-foreground: #f3efe7;
+
+  --sun: #ffd96a;
+  --mint: #7ec77e;
+  --rose: #ff8d83;
+  --violet: #7e72ff;
+
+  --muted: #25231a;
+  --muted-foreground: #8a8676;
+  --border: #2d2b21;
+  --input: #2d2b21;
+  --ring: #ff7a44;
+
+  --destructive: #ff6b5a;
+  --success: #5fc480;
+  --warning: #ffc14a;
+
+  --sidebar: #15140f;
+  --sidebar-foreground: #f3efe7;
+  --sidebar-primary: #fdfaf2;
+  --sidebar-primary-foreground: #15140f;
+  --sidebar-accent: #25231a;
+  --sidebar-accent-foreground: #ff7a44;
+  --sidebar-border: #2d2b21;
+  --sidebar-ring: #ff7a44;
+
+  --ink: #f3efe7;
+  --ink-2: #c9c4b3;
+  --ink-3: #8a8676;
+  --line: #2d2b21;
+  --paper: #1d1c14;
+
+  --shadow-stamp: 2px 2px 0 #ff7a44;
+  --shadow-stamp-lg: 4px 4px 0 #ff7a44;
+  --shadow-soft: 0 8px 24px -8px rgba(0,0,0,0.6);
+}
+
+
+/* ─── Base ───────────────────────────────────────────────── */
+  * { border-color: var(--border); box-sizing: border-box; }
+  html { font-family: var(--font-sans); }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.005em;
+  }
+  /* Paper texture (signature) */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(rgba(20,20,15,0.04) 1px, transparent 1px),
+      radial-gradient(rgba(20,20,15,0.03) 1px, transparent 1px);
+    background-size: 14px 14px, 24px 24px;
+    background-position: 0 0, 7px 7px;
+    pointer-events: none;
+    opacity: 0.45;
+    z-index: 0;
+  }
+  .dark body::before {
+    background-image:
+      radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+  }
+  body > * { position: relative; z-index: 1; }
+
+/* ─── Display / editorial helpers ────────────────────────── */
+.font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+.font-display-italic { font-family: var(--font-display); font-style: italic; letter-spacing: -0.02em; }
+.text-accent-ink em,
+.editorial em {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+/* Hard-stamp shadow */
+.shadow-stamp { box-shadow: var(--shadow-stamp); }
+.shadow-stamp-lg { box-shadow: var(--shadow-stamp-lg); }
+
+/* Dashed dividers */
+.divide-dashed > * + * { border-top: 1px dashed var(--line); }
+.border-dashed-line { border: 1px dashed var(--line); }
+
+/* ─── shadcn/ui — themed components ──────────────────────── */
+
+/* Button */
+[data-slot="button"],
+.btn-spot {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid transparent;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+  white-space: nowrap;
+}
+.btn-spot:hover { transform: translate(-1px, -1px); }
+
+.btn-default {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+.btn-default:hover { box-shadow: var(--shadow-stamp); background: var(--ink); }
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+.btn-accent:hover { box-shadow: 2px 2px 0 var(--ink); }
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--foreground);
+  border-color: var(--line);
+}
+.btn-secondary:hover { background: var(--background-2); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--foreground);
+  border-color: transparent;
+}
+.btn-ghost:hover { background: rgba(20,20,15,0.05); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--foreground);
+  border-color: var(--ink);
+  border-width: 1.5px;
+}
+.btn-outline:hover { background: var(--ink); color: var(--primary-foreground); }
+
+/* Card */
+.card-spot {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 1.4);
+  box-shadow: var(--shadow-stamp);
+  overflow: hidden;
+}
+.card-spot.flat { box-shadow: none; }
+.card-spot-header { padding: 1.1rem 1.25rem; border-bottom: 1px dashed var(--line); }
+.card-spot-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.card-spot-body { padding: 1.25rem; }
+
+/* Badge */
+.badge-spot {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--background-2);
+  color: var(--ink-2);
+}
+.badge-spot .dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+.badge-spot.success { background: var(--mint); color: #1d4d28; }
+.badge-spot.warn { background: var(--sun); color: #6b4f0f; }
+.badge-spot.danger { background: var(--rose); color: #6b1d22; }
+.badge-spot.info { background: var(--sky); color: #1c3b80; }
+.badge-spot.accent { background: var(--accent); color: #fff; }
+.badge-spot.ink { background: var(--ink); color: var(--sun); }
+
+/* Input */
+.input-spot {
+  width: 100%;
+  background: var(--background-2);
+  color: var(--foreground);
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) * 0.85);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, background 0.15s;
+}
+.input-spot::placeholder { color: var(--ink-3); }
+.input-spot:focus {
+  outline: none;
+  background: var(--card);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(255, 91, 31, 0.15);
+}
+
+/* Table */
+.table-spot { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.table-spot th {
+  text-align: left;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  border-bottom: 1px dashed var(--line);
+}
+.table-spot td {
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px dashed var(--line);
+}
+.table-spot tr:last-child td { border-bottom: none; }
+.table-spot tr:hover td { background: rgba(255, 91, 31, 0.04); }
+
+/* Tabs */
+.tabs-spot {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.25rem;
+  background: var(--background-2);
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.tab-spot {
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.tab-spot.active {
+  background: var(--ink);
+  color: var(--sun);
+}
+
+/* Pill / Chip */
+.chip-spot {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--foreground);
+  cursor: pointer;
+}
+.chip-spot.active {
+  background: var(--ink);
+  color: var(--sun);
+  border-color: var(--ink);
+}
+
+/* Dialog */
+.dialog-spot {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 1.6);
+  box-shadow: var(--shadow-stamp-lg), 0 30px 60px -20px rgba(0,0,0,0.25);
+  padding: 1.5rem;
+  max-width: 480px;
+  width: 100%;
+}
+.dialog-spot h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4rem;
+}
+
+/* Stat card */
+.stat-spot {
+  border-radius: calc(var(--radius) * 1.6);
+  padding: 1.15rem 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-stamp);
+}
+.stat-spot.pop-orange { background: var(--accent); color: #fff; border-color: var(--accent); }
+.stat-spot.pop-violet { background: var(--violet); color: #fff; border-color: var(--violet); }
+.stat-spot.pop-mint { background: var(--mint); color: var(--ink); }
+.stat-spot.pop-sun { background: var(--sun); color: var(--ink); }
+.stat-spot-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+.stat-spot-value {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-top: 0.45rem;
+  font-feature-settings: "tnum";
+}
+.stat-spot-delta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+}
+
+/* Sidebar nav item */
+.nav-spot {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: calc(var(--radius) * 0.9);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: background 0.12s;
+}
+.nav-spot:hover { background: rgba(20,20,15,0.05); color: var(--ink); }
+.nav-spot.active {
+  background: var(--ink);
+  color: var(--sun);
+  font-weight: 600;
+}
+.nav-spot.active svg { color: var(--accent); }
+.nav-spot-badge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+/* Headlines */
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+}
+.h-display em { font-style: italic; color: var(--accent); font-weight: 400; }
+
+/* Scrollbars */
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+
+</style>
+<style>
+  /* Showcase-only chrome */
+  .page { max-width: 1280px; margin: 0 auto; padding: 56px 40px 120px; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 28px; border-bottom: 1px dashed var(--line); margin-bottom: 48px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--ink); color: var(--sun);
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-size: 26px; font-weight: 700;
+    box-shadow: var(--shadow-stamp);
+  }
+  .brand-mark::after { content: "."; color: var(--accent); }
+  .brand-title { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  .brand-sub { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  .hero {
+    display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: end;
+    margin-bottom: 64px;
+  }
+  .hero h1 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(48px, 6vw, 88px); letter-spacing: -0.045em; line-height: 0.98;
+    margin: 0;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .hero-meta { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-bottom: 8px; }
+  .hero-meta p { margin: 0; color: var(--ink-2); font-size: 15px; max-width: 32ch; line-height: 1.5; }
+
+  section.block { margin-bottom: 64px; }
+  .block-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px dashed var(--line);
+  }
+  .block-num {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent);
+  }
+  .block-title { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.03em; margin: 4px 0 0; }
+  .block-title em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .block-desc { color: var(--ink-3); font-size: 14px; max-width: 36ch; text-align: right; margin: 0; line-height: 1.5; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* Color swatches */
+  .swatch-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .swatch {
+    border-radius: 14px; padding: 14px; height: 110px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    border: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  }
+  .swatch .name { text-transform: uppercase; letter-spacing: 0.08em; }
+  .swatch .hex { opacity: 0.7; }
+
+  /* Type spec */
+  .type-row {
+    display: grid; grid-template-columns: 80px 1fr auto; gap: 24px;
+    padding: 16px 0; border-bottom: 1px dashed var(--line); align-items: baseline;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .type-spec { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); text-align: right; }
+
+  /* Component label */
+  .demo {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--card);
+    padding: 28px;
+    position: relative;
+  }
+  .demo-label {
+    position: absolute; top: -10px; left: 18px;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    background: var(--background); padding: 2px 8px; color: var(--ink-3);
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; max-width: 560px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); }
+  .field-help { font-size: 12px; color: var(--ink-3); }
+  .field-full { grid-column: span 2; }
+
+  /* Sidebar showcase */
+  .sb-demo { display: grid; grid-template-columns: 240px 1fr; gap: 0; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; min-height: 420px; }
+  .sb {
+    background: var(--sidebar); padding: 22px 14px;
+    border-right: 1px dashed var(--line);
+  }
+  .sb-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+  .sb-brand .mark { width: 30px; height: 30px; border-radius: 8px; background: var(--ink); color: var(--sun); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+  .sb-brand .name { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+  .sb-section-label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); padding: 14px 8px 6px; }
+  .sb-content { padding: 28px; background: var(--background); }
+
+  /* Stamp annotation */
+  .stamp {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent);
+  }
+  .stamp::before { content: "✦"; }
+
+  /* Toggle theme */
+  .theme-toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    background: var(--background-2); border: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    cursor: pointer; color: var(--foreground);
+  }
+
+  /* Dialog overlay demo */
+  .dialog-stage {
+    position: relative;
+    background: var(--background-2);
+    border-radius: 18px;
+    padding: 40px;
+    display: grid; place-items: center;
+    min-height: 320px;
+    overflow: hidden;
+  }
+  .dialog-stage::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(20,20,15,0.06) 1px, transparent 1px);
+    background-size: 12px 12px;
+    opacity: 0.6;
+  }
+
+  /* Order list mini */
+  .order-row { display: grid; grid-template-columns: 1fr 100px 100px 80px; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .order-row:last-child { border-bottom: none; }
+  .order-id { font-family: var(--font-mono); font-weight: 700; font-size: 12px; color: var(--ink-3); }
+  .order-name { font-weight: 600; }
+  .order-amount { font-family: var(--font-mono); font-weight: 700; text-align: right; font-feature-settings: "tnum"; }
+
+  /* Avatars */
+  .avatar { width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; color: white; font-size: 14px; }
+  .avatar-stack { display: flex; }
+  .avatar-stack .avatar { margin-left: -8px; border: 2px solid var(--card); }
+  .avatar-stack .avatar:first-child { margin-left: 0; }
+
+  /* Toast */
+  .toast {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--accent);
+    max-width: 380px;
+  }
+  .toast .toast-icon { width: 28px; height: 28px; border-radius: 999px; background: var(--accent); display: grid; place-items: center; flex-shrink: 0; }
+  .toast .toast-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+  .toast .toast-body { font-size: 13px; opacity: 0.85; }
+
+  /* Progress */
+  .progress { height: 10px; background: var(--background-2); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 999px; }
+
+  /* Switch */
+  .switch { width: 44px; height: 26px; background: var(--background-2); border: 1px solid var(--line); border-radius: 999px; position: relative; cursor: pointer; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 999px; background: var(--ink); transition: 0.2s; }
+  .switch.on { background: var(--accent); border-color: var(--accent); }
+  .switch.on::after { left: 20px; background: white; }
+
+  /* Checkbox */
+  .checkbox { width: 20px; height: 20px; border: 1.5px solid var(--ink); border-radius: 5px; display: inline-grid; place-items: center; cursor: pointer; background: var(--card); }
+  .checkbox.checked { background: var(--ink); }
+  .checkbox.checked::after { content: "✓"; color: var(--sun); font-size: 13px; font-weight: 700; }
+
+  /* Footer */
+  .footer {
+    margin-top: 80px; padding-top: 28px; border-top: 1px dashed var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3);
+  }
+
+  /* Rotated tag */
+  .tag-rotate {
+    display: inline-block;
+    background: var(--sun); color: var(--ink);
+    padding: 4px 10px; border-radius: 4px;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    transform: rotate(-3deg);
+    border: 1px solid var(--ink);
+  }
+
+  /* Icon */
+  .icon { width: 16px; height: 16px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <div class="brand-title">Spot <em style="font-style:italic;color:var(--accent);font-weight:400">Expresivo</em></div>
+        <div class="brand-sub">Component Library · v1.0</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="stamp">For Antigravity / shadcn</span>
+      <button class="theme-toggle" onclick="document.documentElement.classList.toggle('dark')">
+        <span>◐</span> Toggle theme
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>A design system<br />that <em>feels</em> like<br />a real place.</h1>
+    <div class="hero-meta">
+      <span class="tag-rotate">Drop-in for globals.css</span>
+      <p>Tokens, components y reglas tipográficas listas para pegar en el codebase. Editorial serif para tono, mono para datos, sans para UI.</p>
+    </div>
+  </div>
+
+  <!-- 01 COLOR -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">01 / Color</div>
+        <h2 class="block-title">Paper, ink &amp; <em>spark</em>.</h2>
+      </div>
+      <p class="block-desc">Base cálida tipo papel. Tinta como neutro principal. Naranja como chispa editorial.</p>
+    </div>
+    <div class="swatch-grid">
+      <div class="swatch" style="background:#15140f;color:#f3efe7"><span class="name">Ink</span><span class="hex">#15140F</span></div>
+      <div class="swatch" style="background:#3a3729;color:#f3efe7"><span class="name">Ink-2</span><span class="hex">#3A3729</span></div>
+      <div class="swatch" style="background:#fdfaf2;color:#15140f"><span class="name">Paper</span><span class="hex">#FDFAF2</span></div>
+      <div class="swatch" style="background:#f3efe7;color:#15140f"><span class="name">Background</span><span class="hex">#F3EFE7</span></div>
+      <div class="swatch" style="background:#ebe5d6;color:#15140f"><span class="name">Background-2</span><span class="hex">#EBE5D6</span></div>
+      <div class="swatch" style="background:#d6cfba;color:#15140f"><span class="name">Line</span><span class="hex">#D6CFBA</span></div>
+
+      <div class="swatch" style="background:#ff5b1f;color:#fff"><span class="name">Accent</span><span class="hex">#FF5B1F</span></div>
+      <div class="swatch" style="background:#4b3df0;color:#fff"><span class="name">Violet</span><span class="hex">#4B3DF0</span></div>
+      <div class="swatch" style="background:#ffe7a8;color:#15140f"><span class="name">Sun</span><span class="hex">#FFE7A8</span></div>
+      <div class="swatch" style="background:#b6e3b6;color:#1d4d28"><span class="name">Mint</span><span class="hex">#B6E3B6</span></div>
+      <div class="swatch" style="background:#ffb8b1;color:#6b1d22"><span class="name">Rose</span><span class="hex">#FFB8B1</span></div>
+      <div class="swatch" style="background:#cdd9ff;color:#1c3b80"><span class="name">Sky</span><span class="hex">#CDD9FF</span></div>
+    </div>
+  </section>
+
+  <!-- 02 TYPE -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">02 / Typography</div>
+        <h2 class="block-title">Three voices, <em>one</em> rhythm.</h2>
+      </div>
+      <p class="block-desc">Instrument Serif para emoción. Geist para UI. Geist Mono para datos y micro-copy.</p>
+    </div>
+    <div class="demo">
+      <span class="demo-label">Type Scale</span>
+      <div class="type-row">
+        <span class="type-meta">Display XL</span>
+        <span class="h-display" style="font-size:72px">Order <em>everything.</em></span>
+        <span class="type-spec">Instrument Serif · 72/0.98 · -4%</span>
+      </div>
+      <div class="type-row">
+        <span class="type-meta">Display L</span>
+        <span class="h-display" style="font-size:48px">A new way to <em>sell</em>.</span>
+        <span class="type-spec">Instrument Serif · 48/1 · -3.5%</span>
+      </div>
+      <div class="type-row">
+        <span class="type-meta">Display M</span>
+        <span class="h-display" style="font-size:32px">Pedidos del día</span>
+        <span class="type-spec">Instrument Serif · 32/1.05 · -3%</span>
+      </div>
+      <div class="type-row">
+        <span class="type-meta">Body L</span>
+        <span style="font-size:18px;line-height:1.5">El menú vive en la calle. Spot lo lleva al móvil.</span>
+        <span class="type-spec">Geist · 18/1.5 · 0%</span>
+      </div>
+      <div class="type-row">
+        <span class="type-meta">Body</span>
+        <span style="font-size:14px;line-height:1.55;color:var(--ink-2)">Texto regular para descripciones, formularios y tablas.</span>
+        <span class="type-spec">Geist · 14/1.55 · 0%</span>
+      </div>
+      <div class="type-row">
+        <span class="type-meta">Caption</span>
+        <span style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-3)">SKU · 0094 · IN STOCK</span>
+        <span class="type-spec">Geist Mono · 11/1.4 · +12%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 BUTTONS -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">03 / Buttons</div>
+        <h2 class="block-title">Soft pills, <em>hard</em> stamps.</h2>
+      </div>
+      <p class="block-desc">Pill rounded + offset shadow al hover. La sombra es la firma.</p>
+    </div>
+    <div class="demo">
+      <span class="demo-label">Variants</span>
+      <div class="row">
+        <button class="btn-spot btn-default">Cobrar pedido</button>
+        <button class="btn-spot btn-accent">Nueva orden</button>
+        <button class="btn-spot btn-secondary">Guardar</button>
+        <button class="btn-spot btn-outline">Ver detalle</button>
+        <button class="btn-spot btn-ghost">Cancelar</button>
+        <button class="btn-spot btn-default" disabled style="opacity:0.4;pointer-events:none">Procesando…</button>
+      </div>
+      <div class="row" style="margin-top:18px">
+        <button class="btn-spot btn-default" style="padding:0.4rem 0.85rem;font-size:0.78rem">Pequeño</button>
+        <button class="btn-spot btn-accent" style="padding:0.55rem 1.1rem">Mediano</button>
+        <button class="btn-spot btn-default" style="padding:0.85rem 1.6rem;font-size:1rem">Grande</button>
+        <button class="btn-spot btn-accent" style="padding:0.55rem 1.1rem;gap:0.4rem">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Con icono
+        </button>
+        <button class="btn-spot btn-outline" style="width:36px;padding:0;height:36px">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-4.3-4.3M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 BADGES -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">04 / Badges &amp; chips</div>
+        <h2 class="block-title">Status, in <em>monospace</em>.</h2>
+      </div>
+      <p class="block-desc">Mono uppercase con paleta editorial para estados. Chips con borde para filtros.</p>
+    </div>
+    <div class="demo">
+      <span class="demo-label">Badges</span>
+      <div class="row">
+        <span class="badge-spot success"><span class="dot"></span>Pagado</span>
+        <span class="badge-spot warn"><span class="dot"></span>Pendiente</span>
+        <span class="badge-spot danger"><span class="dot"></span>Cancelado</span>
+        <span class="badge-spot info"><span class="dot"></span>En camino</span>
+        <span class="badge-spot accent"><span class="dot"></span>Nuevo</span>
+        <span class="badge-spot ink"><span class="dot"></span>Pro</span>
+        <span class="badge-spot">SKU · 0094</span>
+      </div>
+      <div class="row" style="margin-top:18px">
+        <span class="chip-spot active">Todos</span>
+        <span class="chip-spot">Pendientes <span style="color:var(--ink-3);font-family:var(--font-mono);font-size:11px">(12)</span></span>
+        <span class="chip-spot">Pagados</span>
+        <span class="chip-spot">Cancelados</span>
+        <span class="chip-spot">+ Filtro</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 CARDS / STATS -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">05 / Cards &amp; stats</div>
+        <h2 class="block-title">Numbers that <em>show off</em>.</h2>
+      </div>
+      <p class="block-desc">Stamp shadow + serif numbers. Variantes de color para jerarquía sin gradientes.</p>
+    </div>
+    <div class="grid-4">
+      <div class="stat-spot">
+        <div class="stat-spot-label">Ventas hoy</div>
+        <div class="stat-spot-value">$8,420</div>
+        <div class="stat-spot-delta" style="color:var(--success)">▲ 12.4%</div>
+      </div>
+      <div class="stat-spot pop-orange">
+        <div class="stat-spot-label">Pedidos activos</div>
+        <div class="stat-spot-value">23</div>
+        <div class="stat-spot-delta">en cocina · 7</div>
+      </div>
+      <div class="stat-spot pop-sun">
+        <div class="stat-spot-label">Ticket promedio</div>
+        <div class="stat-spot-value">$365</div>
+        <div class="stat-spot-delta">▲ 4.1%</div>
+      </div>
+      <div class="stat-spot pop-violet">
+        <div class="stat-spot-label">Clientes nuevos</div>
+        <div class="stat-spot-value">147</div>
+        <div class="stat-spot-delta">esta semana</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="card-spot">
+        <div class="card-spot-header" style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-3)">Pedidos recientes</div>
+            <div class="card-spot-title">Hoy <em style="font-family:var(--font-display);font-style:italic;color:var(--accent);font-weight:400">en vivo</em></div>
+          </div>
+          <span class="badge-spot accent"><span class="dot"></span>5 nuevos</span>
+        </div>
+        <div class="card-spot-body" style="padding-top:0.5rem">
+          <div class="order-row">
+            <div><div class="order-name">María López</div><div class="order-id">#2410 · 14:32</div></div>
+            <span class="badge-spot success">Pagado</span>
+            <span class="order-amount">$420</span>
+            <button class="btn-spot btn-ghost" style="padding:0.3rem 0.6rem;font-size:0.75rem">Ver →</button>
+          </div>
+          <div class="order-row">
+            <div><div class="order-name">Carlos Mendez</div><div class="order-id">#2409 · 14:28</div></div>
+            <span class="badge-spot warn">Cocinando</span>
+            <span class="order-amount">$180</span>
+            <button class="btn-spot btn-ghost" style="padding:0.3rem 0.6rem;font-size:0.75rem">Ver →</button>
+          </div>
+          <div class="order-row">
+            <div><div class="order-name">Ana Reyes</div><div class="order-id">#2408 · 14:25</div></div>
+            <span class="badge-spot info">En camino</span>
+            <span class="order-amount">$650</span>
+            <button class="btn-spot btn-ghost" style="padding:0.3rem 0.6rem;font-size:0.75rem">Ver →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-spot flat">
+        <div class="card-spot-header">
+          <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-3)">Top productos · semana</div>
+          <div class="card-spot-title">Los <em style="font-family:var(--font-display);font-style:italic;color:var(--accent);font-weight:400">favoritos</em></div>
+        </div>
+        <div class="card-spot-body" style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><strong>Tacos al pastor</strong><span style="font-family:var(--font-mono);font-weight:700">142</span></div>
+            <div class="progress"><div class="progress-bar" style="width:90%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><strong>Quesadilla flor calabaza</strong><span style="font-family:var(--font-mono);font-weight:700">98</span></div>
+            <div class="progress"><div class="progress-bar" style="width:62%;background:var(--violet)"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><strong>Agua de jamaica</strong><span style="font-family:var(--font-mono);font-weight:700">71</span></div>
+            <div class="progress"><div class="progress-bar" style="width:45%;background:var(--success)"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px"><strong>Pozole rojo</strong><span style="font-family:var(--font-mono);font-weight:700">54</span></div>
+            <div class="progress"><div class="progress-bar" style="width:34%;background:var(--warning)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 FORMS -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">06 / Forms</div>
+        <h2 class="block-title">Inputs that <em>breathe</em>.</h2>
+      </div>
+      <p class="block-desc">Fondo crema, focus en tinta + halo naranja. Labels en mono.</p>
+    </div>
+    <div class="demo">
+      <span class="demo-label">Form</span>
+      <div class="form-grid">
+        <div class="field">
+          <label class="field-label">Nombre</label>
+          <input class="input-spot" value="Tacos La Esquina" />
+        </div>
+        <div class="field">
+          <label class="field-label">SKU</label>
+          <input class="input-spot" value="0094-AP" />
+        </div>
+        <div class="field field-full">
+          <label class="field-label">Descripción</label>
+          <textarea class="input-spot" rows="3">Tortilla de maíz hecha a mano, carne al pastor y piña asada.</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Precio</label>
+          <input class="input-spot" value="$45.00" />
+        </div>
+        <div class="field">
+          <label class="field-label">Categoría</label>
+          <input class="input-spot" value="Tacos" />
+        </div>
+        <div class="field field-full" style="display:flex;flex-direction:row;align-items:center;gap:24px">
+          <div style="display:flex;align-items:center;gap:10px"><span class="checkbox checked"></span><span style="font-size:13px">Disponible para venta</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span class="switch on"></span><span style="font-size:13px">Mostrar en menú público</span></div>
+        </div>
+        <div class="field-full" style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;border-top:1px dashed var(--line);margin-top:8px">
+          <button class="btn-spot btn-ghost">Cancelar</button>
+          <button class="btn-spot btn-default">Guardar producto</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 TABLE -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">07 / Tables</div>
+        <h2 class="block-title">Data, <em>readable</em>.</h2>
+      </div>
+      <p class="block-desc">Headers mono, separadores dashed, hover naranja sutil.</p>
+    </div>
+    <div class="card-spot flat" style="padding:0">
+      <table class="table-spot">
+        <thead>
+          <tr>
+            <th>Pedido</th>
+            <th>Cliente</th>
+            <th>Items</th>
+            <th>Estado</th>
+            <th style="text-align:right">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="font-family:var(--font-mono);font-weight:700">#2410</span></td>
+            <td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="background:var(--accent)">M</span><div><div style="font-weight:600">María López</div><div style="font-size:12px;color:var(--ink-3)">+52 55 4180 2912</div></div></div></td>
+            <td>3 items</td>
+            <td><span class="badge-spot success">Pagado</span></td>
+            <td style="text-align:right;font-family:var(--font-mono);font-weight:700">$420.00</td>
+            <td style="text-align:right"><button class="btn-spot btn-ghost" style="padding:0.3rem 0.6rem">···</button></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-mono);font-weight:700">#2409</span></td>
+            <td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="background:var(--violet)">C</span><div><div style="font-weight:600">Carlos Méndez</div><div style="font-size:12px;color:var(--ink-3)">+52 33 1820 4501</div></div></div></td>
+            <td>2 items</td>
+            <td><span class="badge-spot warn">Cocinando</span></td>
+            <td style="text-align:right;font-family:var(--font-mono);font-weight:700">$180.00</td>
+            <td style="text-align:right"><button class="btn-spot btn-ghost" style="padding:0.3rem 0.6rem">···</button></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-mono);font-weight:700">#2408</span></td>
+            <td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="background:#2f7d4a">A</span><div><div style="font-weight:600">Ana Reyes</div><div style="font-size:12px;color:var(--ink-3)">+52 55 9013 7720</div></div></div></td>
+            <td>5 items</td>
+            <td><span class="badge-spot info">En camino</span></td>
+            <td style="text-align:right;font-family:var(--font-mono);font-weight:700">$650.00</td>
+            <td style="text-align:right"><button class="btn-spot btn-ghost" style="padding:0.3rem 0.6rem">···</button></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-mono);font-weight:700">#2407</span></td>
+            <td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="background:#c98a16">L</span><div><div style="font-weight:600">Luis Hernández</div><div style="font-size:12px;color:var(--ink-3)">+52 81 7234 8810</div></div></div></td>
+            <td>1 item</td>
+            <td><span class="badge-spot danger">Cancelado</span></td>
+            <td style="text-align:right;font-family:var(--font-mono);font-weight:700">$95.00</td>
+            <td style="text-align:right"><button class="btn-spot btn-ghost" style="padding:0.3rem 0.6rem">···</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 08 TABS -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">08 / Tabs &amp; navigation</div>
+        <h2 class="block-title">Direction, <em>rounded</em>.</h2>
+      </div>
+      <p class="block-desc">Pill tabs, sidebar items con tinta sólida + acento.</p>
+    </div>
+    <div class="grid-2">
+      <div class="demo">
+        <span class="demo-label">Tabs</span>
+        <div class="tabs-spot">
+          <button class="tab-spot active">Resumen</button>
+          <button class="tab-spot">Pedidos</button>
+          <button class="tab-spot">Productos</button>
+          <button class="tab-spot">Reportes</button>
+        </div>
+        <div style="margin-top:24px;padding-top:18px;border-top:1px dashed var(--line)">
+          <div class="tabs-spot" style="background:var(--ink);border-color:var(--ink)">
+            <button class="tab-spot active" style="background:var(--accent);color:white">Día</button>
+            <button class="tab-spot" style="color:var(--ink-3)">Semana</button>
+            <button class="tab-spot" style="color:var(--ink-3)">Mes</button>
+            <button class="tab-spot" style="color:var(--ink-3)">Año</button>
+          </div>
+        </div>
+      </div>
+      <div class="demo" style="padding:0;overflow:hidden">
+        <span class="demo-label" style="z-index:2">Sidebar nav</span>
+        <div style="padding:22px 14px;background:var(--sidebar)">
+          <div class="sb-section-label">Operaciones</div>
+          <a href="#" class="nav-spot active">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            Dashboard
+          </a>
+          <a href="#" class="nav-spot">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l3 12h12l3-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+            Pedidos <span class="nav-spot-badge">12</span>
+          </a>
+          <a href="#" class="nav-spot">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+            POS
+          </a>
+          <a href="#" class="nav-spot">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg>
+            Productos
+          </a>
+          <div class="sb-section-label">Negocio</div>
+          <a href="#" class="nav-spot">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+            Reportes
+          </a>
+          <a href="#" class="nav-spot">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M5 9h14M5 15h14"/></svg>
+            Finanzas
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 DIALOG / TOAST -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">09 / Overlays</div>
+        <h2 class="block-title">Dialogs &amp; <em>toasts</em>.</h2>
+      </div>
+      <p class="block-desc">Stamp shadow grande para dialogs. Toasts en tinta con detalle naranja.</p>
+    </div>
+    <div class="grid-2">
+      <div class="dialog-stage">
+        <div class="dialog-spot" style="position:relative;z-index:1">
+          <span class="badge-spot accent" style="margin-bottom:14px">Confirmación</span>
+          <h2>¿Cancelar el <em style="font-family:var(--font-display);font-style:italic;color:var(--accent);font-weight:400">pedido #2410</em>?</h2>
+          <p style="color:var(--ink-2);font-size:14px;line-height:1.5;margin:0 0 20px">El cliente recibirá una notificación. Esta acción no se puede deshacer.</p>
+          <div style="display:flex;gap:10px;justify-content:flex-end">
+            <button class="btn-spot btn-ghost">Volver</button>
+            <button class="btn-spot btn-default" style="background:var(--destructive);border-color:var(--destructive)">Sí, cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;justify-content:center">
+        <div class="toast">
+          <div class="toast-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>
+          </div>
+          <div>
+            <div class="toast-title">Pedido confirmado</div>
+            <div class="toast-body">#2410 enviado a cocina · ETA 18 min</div>
+          </div>
+        </div>
+        <div class="toast" style="background:var(--accent);box-shadow:4px 4px 0 var(--ink)">
+          <div class="toast-icon" style="background:var(--ink)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sun)" stroke-width="3"><path d="M12 8v4M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+          </div>
+          <div>
+            <div class="toast-title">Inventario bajo</div>
+            <div class="toast-body">Pastor · solo quedan 4 órdenes</div>
+          </div>
+        </div>
+        <div class="toast" style="background:var(--card);color:var(--foreground);border:1px solid var(--line);box-shadow:var(--shadow-stamp)">
+          <div class="toast-icon" style="background:var(--mint);color:#1d4d28">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>
+          </div>
+          <div>
+            <div class="toast-title" style="color:var(--ink)">Producto guardado</div>
+            <div class="toast-body" style="color:var(--ink-3)">Tacos al pastor · disponible en menú</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 SIDEBAR FULL -->
+  <section class="block">
+    <div class="block-header">
+      <div>
+        <div class="block-num">10 / Layout</div>
+        <h2 class="block-title">It all <em>composes</em>.</h2>
+      </div>
+      <p class="block-desc">Sidebar + content area. Esto es lo que ves al entrar al admin.</p>
+    </div>
+    <div class="sb-demo">
+      <aside class="sb">
+        <div class="sb-brand"><div class="mark">S</div><div class="name">Spot</div></div>
+        <a href="#" class="nav-spot active">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Dashboard
+        </a>
+        <a href="#" class="nav-spot">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h2l3 12h12l3-8H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+          Pedidos <span class="nav-spot-badge">12</span>
+        </a>
+        <a href="#" class="nav-spot">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          POS
+        </a>
+        <a href="#" class="nav-spot">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg>
+          Productos
+        </a>
+        <div class="sb-section-label">Negocio</div>
+        <a href="#" class="nav-spot">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+          Reportes
+        </a>
+        <a href="#" class="nav-spot">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Reservas
+        </a>
+        <a href="#" class="nav-spot">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2"/></svg>
+          Equipo
+        </a>
+      </aside>
+      <div class="sb-content">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-3)">Lunes · 14 Octubre</div>
+            <h3 class="h-display" style="font-size:32px;margin:4px 0 0">Buenas tardes, <em>Marta</em>.</h3>
+          </div>
+          <button class="btn-spot btn-default">+ Nuevo pedido</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <div class="stat-spot pop-orange"><div class="stat-spot-label">Hoy</div><div class="stat-spot-value">$8,420</div></div>
+          <div class="stat-spot"><div class="stat-spot-label">Pedidos</div><div class="stat-spot-value">23</div></div>
+          <div class="stat-spot pop-sun"><div class="stat-spot-label">Ticket</div><div class="stat-spot-value">$365</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>Spot · Expresivo · v1.0</span>
+    <span>spot-expresivo.css → drop-in for app/globals.css</span>
+  </footer>
+
+</div>
+</body>
+</html>

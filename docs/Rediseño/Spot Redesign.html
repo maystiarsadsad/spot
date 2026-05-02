@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Spot — UI/UX Redesign</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* Display font for Expresivo */
+  .exp { font-family: "Inter", -apple-system, sans-serif; }
+  .exp .brand-name,
+  .exp .stat-val-exp,
+  .exp .panel-title-exp,
+  .exp .hero h1,
+  .exp .order-amount,
+  .exp .pos-item-price-exp,
+  .exp .menu-name,
+  .exp .menu-price,
+  .exp .cart-head-exp h3,
+  .exp .cart-total-exp .v,
+  .store-exp .nav-brand,
+  .store-exp .hero-store h1 {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: normal;
+    letter-spacing: -0.02em;
+  }
+  .exp .brand-name { font-style: italic; }
+  .exp .hero h1 em,
+  .store-exp .hero-store h1 em,
+  .exp .panel-title-exp em,
+  .exp h1 em {
+    font-style: italic;
+  }
+
+  /* Tweaks panel positioning override */
+  body { overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+  window.SPOT_TWEAKS = /*EDITMODE-BEGIN*/{
+    "density": "compact",
+    "radius": 14,
+    "fontScale": 1,
+    "theme": "light",
+    "sidebarLayout": "expanded",
+    "cardStyle": "elevated"
+  }/*EDITMODE-END*/;
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="spot-icons.jsx"></script>
+<script type="text/babel" src="safe-screens.jsx"></script>
+<script type="text/babel" src="exp-screens.jsx"></script>
+
+<script type="text/babel">
+const { useEffect } = React;
+const { DesignCanvas, DCSection, DCArtboard } = window;
+const { TweaksPanel, useTweaks, TweakSection, TweakRadio, TweakSlider, TweakSelect } = window;
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(window.SPOT_TWEAKS);
+
+  useEffect(() => {
+    const r = document.documentElement;
+    const fontMap = { compact: "13.5px", comfortable: "15px", spacious: "16.5px" };
+    const densityMap = { compact: 0.78, comfortable: 1, spacious: 1.18 };
+    r.style.setProperty("--font-base", fontMap[tweaks.density] || "15px");
+    r.style.setProperty("--density", densityMap[tweaks.density] || 1);
+    r.style.setProperty("--radius", `${tweaks.radius}px`);
+    r.style.fontSize = `${tweaks.fontScale * 100}%`;
+    document.body.classList.toggle("sidebar-iconic", tweaks.sidebarLayout === "iconic");
+  }, [tweaks]);
+
+  const cs = tweaks.cardStyle;
+
+  return (
+    <>
+      <DesignCanvas
+        title="Spot — Redesign"
+        subtitle="Dos direcciones · Safe (refinado) y Expresivo (2026)"
+      >
+        <DCSection id="dashboards" title="A · Dashboard">
+          <DCArtboard id="safe-dash" label="Safe — refinado, calmado" width={1280} height={820}>
+            <window.SafeDashboard cardStyle={cs} />
+          </DCArtboard>
+          <DCArtboard id="exp-dash" label="Expresivo — editorial 2026" width={1280} height={820}>
+            <window.ExpDashboard cardStyle={cs} />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="pos" title="B · POS (Punto de Venta)">
+          <DCArtboard id="safe-pos" label="Safe — POS limpio" width={1280} height={820}>
+            <window.SafePOS cardStyle={cs} />
+          </DCArtboard>
+          <DCArtboard id="exp-pos" label="Expresivo — POS con carácter" width={1280} height={820}>
+            <window.ExpPOS cardStyle={cs} />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="orders" title="C · Pedidos / Orders">
+          <DCArtboard id="safe-ord" label="Safe — tabla pro" width={1280} height={820}>
+            <window.SafeOrders cardStyle={cs} />
+          </DCArtboard>
+          <DCArtboard id="exp-ord" label="Expresivo — listado editorial" width={1280} height={820}>
+            <window.ExpOrders cardStyle={cs} />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="public" title="D · Storefront público (cliente final)">
+          <DCArtboard id="safe-store" label="Safe — neutro, profesional" width={1280} height={920}>
+            <window.SafeStorefront />
+          </DCArtboard>
+          <DCArtboard id="exp-store" label="Expresivo — editorial, memorable" width={1280} height={920}>
+            <window.ExpStorefront />
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Densidad y escala">
+          <TweakRadio
+            label="Densidad"
+            value={tweaks.density}
+            onChange={(v) => setTweak("density", v)}
+            options={[
+              { value: "compact", label: "Compacto" },
+              { value: "comfortable", label: "Cómodo" },
+              { value: "spacious", label: "Espacioso" },
+            ]}
+          />
+          <TweakSlider
+            label="Escala tipográfica"
+            value={tweaks.fontScale}
+            onChange={(v) => setTweak("fontScale", v)}
+            min={0.85} max={1.2} step={0.05}
+            format={(v) => `${Math.round(v * 100)}%`}
+          />
+          <TweakSlider
+            label="Radio de bordes"
+            value={tweaks.radius}
+            onChange={(v) => setTweak("radius", v)}
+            min={0} max={28} step={2}
+            format={(v) => `${v}px`}
+          />
+        </TweakSection>
+        <TweakSection title="Layout">
+          <TweakRadio
+            label="Sidebar"
+            value={tweaks.sidebarLayout}
+            onChange={(v) => setTweak("sidebarLayout", v)}
+            options={[
+              { value: "expanded", label: "Expandido" },
+              { value: "iconic", label: "Iconos" },
+            ]}
+          />
+          <TweakRadio
+            label="Estilo de cards"
+            value={tweaks.cardStyle}
+            onChange={(v) => setTweak("cardStyle", v)}
+            options={[
+              { value: "plain", label: "Plano" },
+              { value: "elevated", label: "Elevado" },
+              { value: "outlined", label: "Outline" },
+            ]}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

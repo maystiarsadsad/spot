@@ -30,9 +30,9 @@ export function LoginForm() {
       <div className="auth-card-header">
         {/* Mobile logo */}
         <div className="auth-mobile-logo">
-          <span className="auth-logo-text">Spot</span>
+          <span className="auth-logo-text font-display italic">Spot</span>
         </div>
-        <h1 className="auth-title">Bienvenido de vuelta</h1>
+        <h1 className="auth-title font-display">Bienvenido de vuelta</h1>
         <p className="auth-subtitle">Inicia sesión en tu cuenta</p>
       </div>
 

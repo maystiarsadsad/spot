@@ -1,6 +1,6 @@
 import { getActiveBusiness } from "@/lib/get-active-business";
 import { redirect } from "next/navigation";
-import { getEmployees, getPayrollRecords } from "@/lib/actions/team";
+import { getEmployees, getPayrollRecords, getBusinessMembers } from "@/lib/actions/team";
 import { TeamClient } from "@/components/team/team-client";
 import { Users } from "lucide-react";
 
@@ -11,8 +11,11 @@ export default async function TeamPage() {
     redirect("/d/getting-started");
   }
 
-  const employees = await getEmployees(business.id);
-  const payroll = await getPayrollRecords(business.id);
+  const [employees, payroll, members] = await Promise.all([
+    getEmployees(business.id),
+    getPayrollRecords(business.id),
+    getBusinessMembers(business.id),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -21,10 +24,10 @@ export default async function TeamPage() {
           <div className="section-header-icon">
             <Users className="h-5 w-5" />
           </div>
-          Equipo y Nómina
+          Equipo
         </h1>
         <p>
-          Gestiona el personal de {business.name}, sus cargos y liquidaciones de pago.
+          Gestiona el personal, nómina y accesos de {business.name}.
         </p>
       </div>
       
@@ -33,6 +36,7 @@ export default async function TeamPage() {
         businessType={business.type}
         initialEmployees={employees || []}
         initialPayroll={payroll || []}
+        initialMembers={members || []}
       />
     </div>
   );

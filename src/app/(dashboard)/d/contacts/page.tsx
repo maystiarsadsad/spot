@@ -34,6 +34,7 @@ export default async function ContactsPage() {
       
       <ContactsClient 
         businessId={business.id}
+        currency={business.currency || "COP"}
         initialContacts={contacts || []}
       />
     </div>

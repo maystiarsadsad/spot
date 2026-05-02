@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ContactDialog } from "./contact-dialog";
 
-export function ContactsTable({ businessId, contacts }: { businessId: string; contacts: any[] }) {
+export function ContactsTable({ businessId, currency, contacts }: { businessId: string; currency: string; contacts: any[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -129,7 +129,7 @@ export function ContactsTable({ businessId, contacts }: { businessId: string; co
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatCurrency(contact.total_spent || 0)}
+                    {formatCurrency(contact.total_spent || 0, currency)}
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="secondary">{contact.total_visits || 0}</Badge>
