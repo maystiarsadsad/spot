@@ -47,7 +47,7 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <SettingsForm business={business} />
+      <SettingsForm business={business as any} />
     </div>
   );
 }

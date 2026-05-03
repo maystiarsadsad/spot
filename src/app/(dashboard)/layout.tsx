@@ -91,14 +91,42 @@ export default async function DashboardLayout({
       if (isOwner) {
         memberRole = "owner"; // Explicit owner — full access
       }
-      // If not owner and no membership, memberRole stays null
-      // Sidebar treats null as full access for backwards compat,
-      // but this branch only fires for actual owners or superadmins
     }
   }
 
+  // Fetch enabled modules for the active business
+  let enabledModules: string[] | null = null;
+  if (activeBusinessId) {
+    const { data: modules } = await supabase
+      .from("business_modules")
+      .select("module_key, enabled")
+      .eq("business_id", activeBusinessId);
+    
+    if (modules && modules.length > 0) {
+      enabledModules = modules
+        .filter((m: any) => m.enabled)
+        .map((m: any) => m.module_key);
+    }
+  }
+
+  // Fetch brand color for the active business
+  let brandColor: string | null = null;
+  if (activeBusinessId) {
+    const { data: biz } = await supabase
+      .from("businesses")
+      .select("theme")
+      .eq("id", activeBusinessId)
+      .single();
+    brandColor = (biz?.theme as any)?.brandColor || null;
+  }
+
+  const themeStyle = brandColor
+    ? { "--accent": brandColor, "--sidebar-accent-foreground": brandColor } as React.CSSProperties
+    : undefined;
+
   return (
     <AuthProvider initialUser={user} initialProfile={profile}>
+      <div style={themeStyle}>
       <SidebarProvider>
         <DashboardSidebar
           user={{
@@ -111,6 +139,7 @@ export default async function DashboardLayout({
           initialActiveBusinessId={activeBusinessId}
           memberRole={memberRole}
           memberPermissions={memberPermissions}
+          enabledModules={enabledModules}
         />
         <SidebarInset>
           <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-dashed border-[var(--line)] bg-[var(--background)]/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -121,6 +150,7 @@ export default async function DashboardLayout({
           <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
         </SidebarInset>
       </SidebarProvider>
+      </div>
     </AuthProvider>
   );
 }

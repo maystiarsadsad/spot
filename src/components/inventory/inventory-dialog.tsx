@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Search, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { createInventoryItem, updateInventoryItem } from "@/lib/actions/inventory";
+import { lookupBarcode } from "@/lib/actions/barcode-lookup";
 import { Textarea } from "@/components/ui/textarea";
 
 const inventorySchema = z.object({
@@ -37,6 +38,8 @@ interface InventoryDialogProps {
 
 export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: InventoryDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found">("idle");
+  const lookupTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const isEditing = !!itemToEdit;
 
@@ -88,6 +91,46 @@ export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: 
     }
   }, [open, isEditing, itemToEdit, form]);
 
+  // Barcode lookup with debounce
+  const handleBarcodeLookup = useCallback(async (barcode: string) => {
+    if (isEditing || !barcode || barcode.length < 8) {
+      setLookupStatus("idle");
+      return;
+    }
+
+    // Only lookup if the name is still empty (don't overwrite user data)
+    const currentName = form.getValues("name");
+    if (currentName && currentName.length > 0) {
+      setLookupStatus("idle");
+      return;
+    }
+
+    setLookupStatus("loading");
+    try {
+      const result = await lookupBarcode(barcode);
+      if (result.found) {
+        form.setValue("name", result.product.name);
+        if (result.product.category) form.setValue("category", result.product.category);
+        if (result.product.unit) form.setValue("unit", result.product.unit);
+        setLookupStatus("found");
+        toast.success(`Producto encontrado: ${result.product.name}`);
+      } else {
+        setLookupStatus("not_found");
+      }
+    } catch {
+      setLookupStatus("not_found");
+    }
+  }, [isEditing, form]);
+
+  const onBarcodeChange = useCallback((value: string) => {
+    if (lookupTimeout.current) clearTimeout(lookupTimeout.current);
+    setLookupStatus("idle");
+    // Debounce: wait 600ms after last keystroke (or instant for scanner input)
+    if (value.length >= 8) {
+      lookupTimeout.current = setTimeout(() => handleBarcodeLookup(value), 600);
+    }
+  }, [handleBarcodeLookup]);
+
   const onSubmit = async (values: InventoryFormValues) => {
     setIsLoading(true);
 
@@ -135,6 +178,61 @@ export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Barcode first — scan-to-fill workflow */}
+              {!isEditing && (
+                <FormField
+                  control={form.control}
+                  name="barcode"
+                  render={({ field }) => (
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel className="flex items-center gap-2">
+                        📦 Código de barras
+                        {lookupStatus === "loading" && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Loader2 className="h-3 w-3 animate-spin" /> Buscando...
+                          </span>
+                        )}
+                        {lookupStatus === "found" && (
+                          <span className="flex items-center gap-1 text-xs text-green-500">
+                            <CheckCircle2 className="h-3 w-3" /> Producto identificado
+                          </span>
+                        )}
+                        {lookupStatus === "not_found" && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <XCircle className="h-3 w-3" /> No encontrado en la base global
+                          </span>
+                        )}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="Escanea o escribe el código EAN para auto-llenar" 
+                            {...field}
+                            autoFocus
+                            onChange={(e) => {
+                              field.onChange(e);
+                              onBarcodeChange(e.target.value);
+                            }}
+                          />
+                          {field.value && field.value.length >= 8 && lookupStatus !== "loading" && (
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="icon"
+                              onClick={() => handleBarcodeLookup(field.value || "")}
+                              title="Buscar producto"
+                            >
+                              <Search className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <FormField
                 control={form.control}
                 name="name"
@@ -240,19 +338,22 @@ export function InventoryDialog({ businessId, open, onOpenChange, itemToEdit }: 
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="barcode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Código de barras</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej. 7702004001214" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Barcode field for edit mode (simple, no lookup) */}
+              {isEditing && (
+                <FormField
+                  control={form.control}
+                  name="barcode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Código de barras</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej. 7702004001214" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
             
             <FormField

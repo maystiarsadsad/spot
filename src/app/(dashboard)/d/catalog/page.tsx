@@ -30,7 +30,7 @@ export default async function CatalogPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("inventory")
-      .select("id, name, unit")
+      .select("id, name, unit, barcode")
       .eq("business_id", business.id)
       .order("name"),
   ]);

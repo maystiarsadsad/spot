@@ -1,12 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { updateBusinessSettings } from "@/lib/actions/settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Loader2, Palette } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -27,7 +27,21 @@ interface Business {
   address: string | null;
   city: string | null;
   currency: string | null;
+  theme: { brandColor?: string } | null;
 }
+
+const BRAND_PRESETS = [
+  { name: "Naranja", color: "#ff5b1f" },
+  { name: "Azul", color: "#3b82f6" },
+  { name: "Verde", color: "#22c55e" },
+  { name: "Rojo", color: "#ef4444" },
+  { name: "Púrpura", color: "#a855f7" },
+  { name: "Rosa", color: "#ec4899" },
+  { name: "Cyan", color: "#06b6d4" },
+  { name: "Ámbar", color: "#f59e0b" },
+  { name: "Esmeralda", color: "#10b981" },
+  { name: "Índigo", color: "#6366f1" },
+];
 
 interface Props {
   business: Business;
@@ -35,6 +49,7 @@ interface Props {
 
 export function SettingsForm({ business }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [brandColor, setBrandColor] = useState(business.theme?.brandColor || "#ff5b1f");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -145,6 +160,67 @@ export function SettingsForm({ business }: Props) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Brand Color */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-medium flex items-center gap-2">
+            <Palette className="h-5 w-5" /> Color de Marca
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Personaliza el color de acento de tu panel y página web.
+          </p>
+        </div>
+
+        <div className="space-y-4 rounded-xl border p-6 bg-card">
+          <div className="flex flex-wrap gap-2">
+            {BRAND_PRESETS.map((preset) => (
+              <button
+                key={preset.color}
+                type="button"
+                onClick={() => setBrandColor(preset.color)}
+                className="group relative"
+                title={preset.name}
+              >
+                <div
+                  className="w-9 h-9 rounded-full border-2 transition-all"
+                  style={{
+                    backgroundColor: preset.color,
+                    borderColor: brandColor === preset.color ? "var(--ink)" : "transparent",
+                    transform: brandColor === preset.color ? "scale(1.15)" : "scale(1)",
+                    boxShadow: brandColor === preset.color ? `0 0 0 2px var(--paper), 0 0 0 4px ${preset.color}` : "none",
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={brandColor}
+              onChange={(e) => setBrandColor(e.target.value)}
+              className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0"
+            />
+            <Input
+              value={brandColor}
+              onChange={(e) => setBrandColor(e.target.value)}
+              placeholder="#ff5b1f"
+              className="max-w-[140px] font-mono text-sm"
+            />
+            <div
+              className="rounded-lg px-4 py-2 text-sm font-medium text-white"
+              style={{ backgroundColor: brandColor }}
+            >
+              Vista previa
+            </div>
+          </div>
+
+          <input type="hidden" name="brandColor" value={brandColor} />
         </div>
       </div>
 

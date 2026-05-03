@@ -40,3 +40,20 @@ export async function getMembershipForBusiness(businessId: string) {
 
   return { role: null, permissions: null };
 }
+
+export async function getEnabledModules(businessId: string): Promise<string[] | null> {
+  const supabase = await createClient();
+
+  const { data: modules } = await supabase
+    .from("business_modules")
+    .select("module_key, enabled")
+    .eq("business_id", businessId);
+
+  if (modules && modules.length > 0) {
+    return modules
+      .filter((m) => m.enabled)
+      .map((m) => m.module_key);
+  }
+
+  return null; // No explicit config — fallback to defaults
+}

@@ -81,7 +81,7 @@ interface BusinessInfo {
   type: string;
 }
 
-export function DashboardSidebar({ user: initialUser, businesses = [], initialActiveBusinessId, memberRole: initialMemberRole, memberPermissions: initialMemberPermissions }: { user: UserInfo, businesses?: BusinessInfo[], initialActiveBusinessId?: string, memberRole?: string | null, memberPermissions?: any }) {
+export function DashboardSidebar({ user: initialUser, businesses = [], initialActiveBusinessId, memberRole: initialMemberRole, memberPermissions: initialMemberPermissions, enabledModules: initialEnabledModules }: { user: UserInfo, businesses?: BusinessInfo[], initialActiveBusinessId?: string, memberRole?: string | null, memberPermissions?: any, enabledModules?: string[] | null }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -94,17 +94,20 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
   const [activeBusiness, setActiveBusiness] = useState<BusinessInfo | null>(initialBusiness || null);
   const [memberRole, setMemberRole] = useState<string | null | undefined>(initialMemberRole);
   const [memberPermissions, setMemberPermissions] = useState<any>(initialMemberPermissions);
+  const [enabledModules, setEnabledModules] = useState<string[] | null | undefined>(initialEnabledModules);
 
   const handleBusinessSwitch = async (business: BusinessInfo) => {
     setActiveBusiness(business);
     try {
-      const { setActiveBusinessCookie, getMembershipForBusiness } = await import("@/lib/actions/context");
-      const [, membership] = await Promise.all([
+      const { setActiveBusinessCookie, getMembershipForBusiness, getEnabledModules } = await import("@/lib/actions/context");
+      const [, membership, modules] = await Promise.all([
         setActiveBusinessCookie(business.id),
         getMembershipForBusiness(business.id),
+        getEnabledModules(business.id),
       ]);
       setMemberRole(membership.role);
       setMemberPermissions(membership.permissions);
+      setEnabledModules(modules);
       router.refresh();
     } catch (e) {
       console.error("Failed to set business cookie", e);
@@ -189,9 +192,15 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
             <SidebarMenu>
               {navItems.map((item) => {
                 if (item.moduleKey && activeBusiness?.type) {
-                  // Layer 1: Business-type module filter
-                  const businessModules = DEFAULT_MODULES_BY_TYPE[activeBusiness.type as BusinessType] || [];
-                  if (!businessModules.includes(item.moduleKey)) return null;
+                  // Layer 1: Check DB-stored enabled modules (from business_modules table)
+                  if (enabledModules) {
+                    // If we have explicit module config from DB, use it
+                    if (!enabledModules.includes(item.moduleKey)) return null;
+                  } else {
+                    // Fallback: use static defaults by business type
+                    const businessModules = DEFAULT_MODULES_BY_TYPE[activeBusiness.type as BusinessType] || [];
+                    if (!businessModules.includes(item.moduleKey)) return null;
+                  }
 
                   // Layer 2: User permission filter (owners/admins see everything)
                   const isFullAccess = !memberRole || memberRole === 'owner' || memberRole === 'admin';

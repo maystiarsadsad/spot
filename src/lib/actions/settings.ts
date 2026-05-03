@@ -6,6 +6,20 @@ import { revalidatePath } from "next/cache";
 export async function updateBusinessSettings(businessId: string, formData: FormData) {
   const supabase = await createClient();
 
+  // Get existing theme to preserve other fields
+  const { data: existing } = await supabase
+    .from("businesses")
+    .select("theme")
+    .eq("id", businessId)
+    .single();
+
+  const brandColor = formData.get("brandColor")?.toString() || null;
+  const existingTheme = (typeof existing?.theme === 'object' && existing?.theme !== null ? existing.theme : {}) as Record<string, unknown>;
+  const theme = {
+    ...existingTheme,
+    ...(brandColor ? { brandColor } : {}),
+  };
+
   const data = {
     name: formData.get("name")?.toString(),
     description: formData.get("description")?.toString() || null,
@@ -15,6 +29,7 @@ export async function updateBusinessSettings(businessId: string, formData: FormD
     address: formData.get("address")?.toString() || null,
     city: formData.get("city")?.toString() || null,
     currency: formData.get("currency")?.toString() || "COP",
+    theme,
   };
 
   // Validate required fields
