@@ -76,8 +76,8 @@ export function ContactsTable({ businessId, currency, contacts }: { businessId: 
         </Button>
       </div>
 
-      <div className="rounded-md border bg-card/50 shadow-sm">
-        <Table>
+      <div className="rounded-md border bg-card/50 shadow-sm overflow-x-auto -webkit-overflow-scrolling-touch">
+        <Table className="min-w-[580px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Cliente / Contacto</TableHead>

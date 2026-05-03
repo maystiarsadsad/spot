@@ -216,7 +216,11 @@ export async function createMember(
     const { createAdminClient } = await import("@/lib/supabase/admin");
     adminClient = createAdminClient();
   } catch (e: any) {
-    return { success: false, error: "Error de configuración del servidor" };
+    console.error("Admin client error:", e.message);
+    return { 
+      success: false, 
+      error: "Falta la variable SUPABASE_SERVICE_ROLE_KEY en el servidor. Agrégala en las variables de entorno de producción." 
+    };
   }
 
   const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({

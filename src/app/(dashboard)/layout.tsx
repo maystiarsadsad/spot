@@ -85,6 +85,15 @@ export default async function DashboardLayout({
     if (membership) {
       memberRole = membership.role;
       memberPermissions = membership.permissions;
+    } else {
+      // No membership record found — check if user is the business owner
+      const isOwner = ownedBusinesses?.some((b) => b.id === activeBusinessId);
+      if (isOwner) {
+        memberRole = "owner"; // Explicit owner — full access
+      }
+      // If not owner and no membership, memberRole stays null
+      // Sidebar treats null as full access for backwards compat,
+      // but this branch only fires for actual owners or superadmins
     }
   }
 

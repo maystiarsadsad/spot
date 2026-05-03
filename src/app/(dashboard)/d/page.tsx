@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/get-active-business";
 import { NoBusinessSelected } from "@/components/dashboard/no-business-selected";
+import { Greeting } from "@/components/dashboard/greeting";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +38,7 @@ export default async function DashboardPage() {
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {getGreeting()}, {profile?.display_name ?? "Usuario"} 👋
+            <Greeting name={profile?.display_name ?? "Usuario"} />
           </h1>
           <p className="text-muted-foreground mt-1">
             Aquí tienes un resumen de tu negocio
@@ -213,7 +214,6 @@ export default async function DashboardPage() {
   }
 
   // ── Helpers ──────────────────────────────────────────────────
-  const greeting = getGreeting();
   const name = profile?.display_name ?? "Usuario";
 
   const formatCurrency = (amount: number) =>
@@ -255,7 +255,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="dash-header">
         <h1>
-          {greeting}, {name} 👋
+          <Greeting name={name} />
         </h1>
         <p>
           Resumen de <span className="font-semibold text-foreground">{business.name}</span>
@@ -450,12 +450,5 @@ export default async function DashboardPage() {
       </div>
     </div>
   );
-}
-
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Buenos días";
-  if (hour < 18) return "Buenas tardes";
-  return "Buenas noches";
 }
 

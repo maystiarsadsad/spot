@@ -676,6 +676,39 @@
   margin-top: 0.25rem;
 }
 
+/* ── Global dashboard mobile ── */
+@media (max-width: 639px) {
+  .dash-header h1 { font-size: 1.35rem; }
+  .dash-header p { font-size: 0.78rem; }
+
+  /* Catalog table */
+  .catalog-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .catalog-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.5rem; }
+
+  /* Finance tables */
+  .fin-history-table-wrap,
+  .fin-expenses-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fin-history-table,
+  .fin-expenses-table { min-width: 480px; }
+  .fin-stats-grid { grid-template-columns: 1fr !important; }
+
+  /* Contacts table */
+  .contacts-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .contacts-table { min-width: 420px; }
+
+  /* Reports */
+  .rpt-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .rpt-charts { grid-template-columns: 1fr !important; }
+  .rpt-chart-body { min-height: 200px; }
+
+  /* Team */
+  .acc-invite-row { flex-direction: column; }
+  .acc-module-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* General: full-width buttons on mobile */
+  .pos-scan-btn { padding: 0.4rem 0.6rem; }
+}
+
 /* Stat Card Gradient */
 .stat-card-gradient {
   position: relative;
@@ -881,9 +914,10 @@
 .orders-table-wrap {
   background: var(--card); border: 1px solid var(--line);
   border-radius: calc(var(--radius) * 1.4);
-  box-shadow: var(--shadow-stamp); overflow: hidden;
+  box-shadow: var(--shadow-stamp); overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
-.orders-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.orders-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; min-width: 580px; }
 .orders-table thead tr {
   background: var(--background-2);
 }
@@ -1104,12 +1138,17 @@
 @media (max-width: 639px) {
   .orders-hide-mobile { display: none; }
   .orders-detail { grid-template-columns: 1fr; }
-  .orders-table td, .orders-table th { padding: 0.6rem 0.5rem; }
+  .orders-table { min-width: 520px; font-size: 0.8rem; }
+  .orders-table td, .orders-table th { padding: 0.5rem 0.45rem; }
   .orders-tabs { width: 100%; overflow-x: auto; scrollbar-width: none; }
   .orders-tabs::-webkit-scrollbar { display: none; }
   .orders-search { max-width: none; }
   .orders-filters { flex-direction: column; }
   .orders-filter-select { width: 100%; }
+  .orders-status-badge { font-size: 0.65rem; padding: 2px 6px; }
+  .orders-origin { font-size: 0.65rem; padding: 2px 6px; }
+  .orders-total { font-size: 0.8rem; }
+  .orders-code { font-size: 0.72rem; }
 }
 
 /* ─── CATALOG PAGE ───────────────────────────────────────── */
@@ -1495,9 +1534,10 @@
 .inv-table-wrap {
   background: var(--card); border: 1px solid var(--line);
   border-radius: calc(var(--radius) * 1.4);
-  box-shadow: var(--shadow-stamp); overflow: hidden;
+  box-shadow: var(--shadow-stamp); overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
-.inv-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.inv-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; min-width: 520px; }
 .inv-table thead tr { background: var(--background-2); }
 .inv-table th {
   text-align: left; padding: 0.6rem 1rem;
@@ -1646,12 +1686,15 @@
 @media (max-width: 639px) {
   .inv-hide-mobile { display: none; }
   .inv-stats { grid-template-columns: repeat(2, 1fr); }
-  .inv-table td, .inv-table th { padding: 0.6rem 0.5rem; }
+  .inv-table { min-width: 420px; font-size: 0.8rem; }
+  .inv-table td, .inv-table th { padding: 0.5rem 0.45rem; }
   .inv-tabs { width: 100%; overflow-x: auto; scrollbar-width: none; }
   .inv-tabs::-webkit-scrollbar { display: none; }
   .inv-search { max-width: none; }
-  .inv-filters { flex-direction: column; }
+  .inv-filters { flex-direction: column; gap: 0.5rem; }
   .inv-filter-select { width: 100%; }
+  .inv-add-btn { width: 100%; justify-content: center; }
+  .inv-header { flex-direction: column; gap: 0.75rem; }
 }
 
 /* ─── CATALOG ITEM — INVENTORY LINK SECTION ──────────────── */

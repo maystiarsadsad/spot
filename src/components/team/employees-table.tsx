@@ -86,8 +86,8 @@ export function EmployeesTable({ businessId, businessType, employees }: { busine
         </Button>
       </div>
 
-      <div className="rounded-md border bg-card/50">
-        <Table>
+      <div className="rounded-md border bg-card/50 overflow-x-auto">
+        <Table className="min-w-[580px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Empleado</TableHead>

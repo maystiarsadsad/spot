@@ -81,7 +81,7 @@ interface BusinessInfo {
   type: string;
 }
 
-export function DashboardSidebar({ user: initialUser, businesses = [], initialActiveBusinessId, memberRole, memberPermissions }: { user: UserInfo, businesses?: BusinessInfo[], initialActiveBusinessId?: string, memberRole?: string | null, memberPermissions?: any }) {
+export function DashboardSidebar({ user: initialUser, businesses = [], initialActiveBusinessId, memberRole: initialMemberRole, memberPermissions: initialMemberPermissions }: { user: UserInfo, businesses?: BusinessInfo[], initialActiveBusinessId?: string, memberRole?: string | null, memberPermissions?: any }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -92,12 +92,19 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
     : businesses[0];
   
   const [activeBusiness, setActiveBusiness] = useState<BusinessInfo | null>(initialBusiness || null);
+  const [memberRole, setMemberRole] = useState<string | null | undefined>(initialMemberRole);
+  const [memberPermissions, setMemberPermissions] = useState<any>(initialMemberPermissions);
 
   const handleBusinessSwitch = async (business: BusinessInfo) => {
     setActiveBusiness(business);
     try {
-      const { setActiveBusinessCookie } = await import("@/lib/actions/context");
-      await setActiveBusinessCookie(business.id);
+      const { setActiveBusinessCookie, getMembershipForBusiness } = await import("@/lib/actions/context");
+      const [, membership] = await Promise.all([
+        setActiveBusinessCookie(business.id),
+        getMembershipForBusiness(business.id),
+      ]);
+      setMemberRole(membership.role);
+      setMemberPermissions(membership.permissions);
       router.refresh();
     } catch (e) {
       console.error("Failed to set business cookie", e);
