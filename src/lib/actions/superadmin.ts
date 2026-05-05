@@ -244,7 +244,7 @@ export async function updateBusinessAsSuperadmin(
 }
 
 /**
- * Create a new user as SuperAdmin (requires SUPABASE_SERVICE_ROLE_KEY)
+ * Create a new user as SuperAdmin (requires SUPABASE_SECRET_KEY)
  */
 export async function createUserAsSuperadmin(data: {
   email: string;
@@ -285,7 +285,7 @@ export async function createUserAsSuperadmin(data: {
     const { createAdminClient } = await import("@/lib/supabase/admin");
     adminClient = createAdminClient();
   } catch (e: any) {
-    return { error: e.message || "No se pudo inicializar el cliente admin. Verifica SUPABASE_SERVICE_ROLE_KEY." };
+    return { error: e.message || "No se pudo inicializar el cliente admin. Verifica SUPABASE_SECRET_KEY." };
   }
 
   const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({

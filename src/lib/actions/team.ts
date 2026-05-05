@@ -219,7 +219,7 @@ export async function createMember(
     console.error("Admin client error:", e.message);
     return { 
       success: false, 
-      error: "Falta la variable SUPABASE_SERVICE_ROLE_KEY en el servidor. Agrégala en las variables de entorno de producción." 
+      error: "Falta la variable SUPABASE_SECRET_KEY en el servidor. Agrégala en las variables de entorno de producción." 
     };
   }
 
