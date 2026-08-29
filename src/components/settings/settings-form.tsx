@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { updateBusinessSettings } from "@/lib/actions/settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Palette } from "lucide-react";
 import { toast } from "sonner";
+import { readableTextColor } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -50,6 +52,7 @@ interface Props {
 export function SettingsForm({ business }: Props) {
   const [isPending, startTransition] = useTransition();
   const [brandColor, setBrandColor] = useState(business.theme?.brandColor || "#ff5b1f");
+  const router = useRouter();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -61,6 +64,7 @@ export function SettingsForm({ business }: Props) {
         toast.error(result.error);
       } else {
         toast.success("Ajustes actualizados correctamente");
+        router.refresh();
       }
     });
   }
@@ -213,8 +217,8 @@ export function SettingsForm({ business }: Props) {
               className="max-w-[140px] font-mono text-sm"
             />
             <div
-              className="rounded-lg px-4 py-2 text-sm font-medium text-white"
-              style={{ backgroundColor: brandColor }}
+              className="rounded-lg px-4 py-2 text-sm font-medium"
+              style={{ backgroundColor: brandColor, color: readableTextColor(brandColor) }}
             >
               Vista previa
             </div>

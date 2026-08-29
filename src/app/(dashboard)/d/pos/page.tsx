@@ -34,13 +34,21 @@ export default async function POSPage() {
       .order("name"),
     supabase
       .from("catalog_items")
-      .select("id, name, price, category_id, image_url, active, sku")
+      .select("id, name, price, category_id, image_url, active, sku, inventory_id, inventory:inventory_id(barcode)")
       .eq("business_id", business.id)
       .eq("active", true)
       .order("sort_order")
       .order("name"),
     getCreditAccounts(business.id),
   ]);
+
+  // Products sold "directo" from an inventory item (e.g. scanned into stock with
+  // a barcode) carry that barcode via the inventory_id FK — resolve it here so
+  // the barcode scanner can match it at checkout, not just the manual SKU field.
+  const posItems = (items || []).map((it: any) => ({
+    ...it,
+    barcode: it.inventory?.barcode ?? null,
+  }));
 
   // Map credit accounts for POS (only active ones)
   const posCredits = (creditAccounts || [])
@@ -67,10 +75,10 @@ export default async function POSPage() {
         </p>
       </div>
 
-      <POSClient 
-        businessId={business.id} 
-        categories={categories || []} 
-        items={items || []} 
+      <POSClient
+        businessId={business.id}
+        categories={categories || []}
+        items={posItems}
         currency={business.currency || "COP"}
         creditAccounts={posCredits}
       />

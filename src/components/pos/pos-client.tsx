@@ -45,6 +45,8 @@ interface CatalogItem {
   image_url: string | null;
   active: boolean | null;
   sku: string | null;
+  /** Resolved from the linked inventory item (inventory.barcode), if any. */
+  barcode: string | null;
 }
 
 interface CartItem {
@@ -75,9 +77,14 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
 
   // ── Barcode scanner support ──
   const handleBarcodeScan = useCallback((barcode: string) => {
-    // Find item by SKU (case-insensitive)
+    // Match by the manual SKU field, or by the barcode of the linked
+    // inventory item (products sold "directo" from stock — see pos/page.tsx).
+    const code = barcode.toLowerCase();
     const found = items.find(
-      (it) => it.sku && it.sku.toLowerCase() === barcode.toLowerCase() && it.active
+      (it) =>
+        it.active &&
+        ((it.sku && it.sku.toLowerCase() === code) ||
+          (it.barcode && it.barcode.toLowerCase() === code))
     );
 
     if (found) {

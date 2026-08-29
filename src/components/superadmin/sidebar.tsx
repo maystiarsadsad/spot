@@ -111,7 +111,7 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
               size="lg" 
               render={<Link href="/sa/analytics" />}
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-xl bg-[var(--ink)] text-[var(--sun)] font-display font-bold text-sm shadow-[var(--shadow-stamp)]">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] font-display font-bold text-sm shadow-[var(--shadow-stamp)]">
                 S
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
@@ -175,7 +175,7 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
                     src={user.avatar_url ?? ""}
                     alt={user.display_name}
                   />
-                  <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-white font-bold text-xs">
+                  <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold text-xs">
                     {user.display_name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -202,7 +202,7 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
                         src={user.avatar_url ?? ""}
                         alt={user.display_name}
                       />
-                      <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-white font-bold">
+                      <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold">
                         {user.display_name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>

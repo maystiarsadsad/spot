@@ -34,7 +34,7 @@ export default async function SuperAdminDashboard() {
         </div>
         <div className="flex items-center gap-3">
           <Button 
-            className="bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-white h-11 px-6 shadow-[var(--shadow-stamp)] hover:shadow-[var(--shadow-stamp-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all" 
+            className="bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-[var(--accent-foreground)] h-11 px-6 shadow-[var(--shadow-stamp)] hover:shadow-[var(--shadow-stamp-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             render={<Link href="/sa/businesses/create" />}
             nativeButton={false}
           >

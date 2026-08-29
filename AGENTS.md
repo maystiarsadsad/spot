@@ -70,9 +70,9 @@ src/
 │   ├── constants.ts     # Business types, modules
 │   └── utils.ts         # Shared utilities (cn, formatters)
 ├── hooks/               # Client-side hooks
-├── types/               # TypeScript types (database.ts is generated)
-└── proxy.ts              # Auth session refresh + route protection (Next.js 16 proxy convention)
+└── types/               # TypeScript types (database.ts is generated)
 ```
+> Route protection uses **Layout Server Guards** (Server Components calling `getUser()` + `redirect()`), not `middleware.ts`/`proxy.ts`. See `docs/backlog_plataforma.md` (FND-005 note).
 
 ## Patterns
 

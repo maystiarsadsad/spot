@@ -46,7 +46,7 @@ export async function updateBusinessSettings(businessId: string, formData: FormD
     return { error: error.message };
   }
 
-  revalidatePath("/d");
+  revalidatePath("/d", "layout");
   revalidatePath("/d/settings");
   return { success: true };
 }

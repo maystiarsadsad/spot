@@ -88,7 +88,7 @@ export default async function BusinessDetailPage({ params }: BusinessDetailPageP
           {business.suspended ? (
             <Badge variant="destructive" className="h-7 px-3">Suspendido</Badge>
           ) : business.active ? (
-            <Badge className="bg-[var(--success)] text-white h-7 px-3 border-0">Activo</Badge>
+            <Badge className="bg-[var(--success)] text-white dark:text-[var(--primary-foreground)] h-7 px-3 border-0">Activo</Badge>
           ) : (
             <Badge variant="secondary" className="h-7 px-3">Inactivo</Badge>
           )}
@@ -113,7 +113,7 @@ export default async function BusinessDetailPage({ params }: BusinessDetailPageP
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border-2 border-[var(--line)]">
                   <AvatarImage src={owner?.avatar_url || ''} />
-                  <AvatarFallback className="bg-[var(--accent)] text-white font-bold">
+                  <AvatarFallback className="bg-[var(--accent)] text-[var(--accent-foreground)] font-bold">
                     {owner?.display_name?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
@@ -160,7 +160,7 @@ export default async function BusinessDetailPage({ params }: BusinessDetailPageP
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider">Plan</span>
-                <Badge className="bg-[var(--accent)] text-white border-0">{business.subscription_plan || 'free'}</Badge>
+                <Badge className="bg-[var(--accent)] text-[var(--accent-foreground)] border-0">{business.subscription_plan || 'free'}</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider">Creado el</span>

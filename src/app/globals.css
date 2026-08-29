@@ -27,7 +27,7 @@
   --primary: #15140f;            /* ink as primary surface */
   --primary-foreground: #ffe7a8; /* sun yellow */
   --accent: #ff5b1f;             /* expresivo orange */
-  --accent-foreground: #ffffff;
+  --accent-foreground: #15140f;  /* dark ink reads 5.9:1 on accent; white only hit 3.1:1 */
 
   --secondary: #fdfaf2;
   --secondary-foreground: #15140f;
@@ -41,7 +41,7 @@
 
   /* Neutrals */
   --muted: #ebe5d6;
-  --muted-foreground: #6c6855;
+  --muted-foreground: #655f49; /* was #6c6855 — 4.46:1 on --muted, just under AA */
   --border: #d6cfba;
   --input: #d6cfba;
   --ring: #ff5b1f;
@@ -71,7 +71,7 @@
   /* Spot tokens */
   --ink: #15140f;
   --ink-2: #3a3729;
-  --ink-3: #6c6855;
+  --ink-3: #655f49; /* was #6c6855 — kept in sync with --muted-foreground */
   --line: #d6cfba;
   --paper: #fdfaf2;
 
@@ -96,7 +96,7 @@
   --popover: #25231a;
   --popover-foreground: #f3efe7;
 
-  --primary: #fdfaf2;
+  --primary: #ff7a44;
   --primary-foreground: #15140f;
   --accent: #ff7a44;
   --accent-foreground: #15140f;
@@ -110,9 +110,9 @@
   --violet: #7e72ff;
 
   --muted: #25231a;
-  --muted-foreground: #8a8676;
-  --border: #2d2b21;
-  --input: #2d2b21;
+  --muted-foreground: #928e7d; /* was #8a8676 — 4.31:1 on --muted, just under AA */
+  --border: #3a3729;
+  --input: #3a3729;
   --ring: #ff7a44;
 
   --destructive: #ff6b5a;
@@ -121,7 +121,7 @@
 
   --sidebar: #15140f;
   --sidebar-foreground: #f3efe7;
-  --sidebar-primary: #fdfaf2;
+  --sidebar-primary: #ff7a44;
   --sidebar-primary-foreground: #15140f;
   --sidebar-accent: #25231a;
   --sidebar-accent-foreground: #ff7a44;
@@ -130,13 +130,52 @@
 
   --ink: #f3efe7;
   --ink-2: #c9c4b3;
-  --ink-3: #8a8676;
-  --line: #2d2b21;
+  --ink-3: #928e7d; /* was #8a8676 — kept in sync with --muted-foreground */
+  --line: #3a3729;
   --paper: #1d1c14;
 
   --shadow-stamp: 2px 2px 0 #ff7a44;
   --shadow-stamp-lg: 4px 4px 0 #ff7a44;
   --shadow-soft: 0 8px 24px -8px rgba(0,0,0,0.6);
+}
+
+/* ─── Dark mode: "ink pill" fills ───────────────────────────
+   Many active/filled states below are styled as
+   `background: var(--ink); color: var(--sun);` — a solid dark
+   pill with light text. That works in light mode (--ink is
+   near-black), but in dark mode --ink flips to near-white (it
+   also serves as plain readable text color elsewhere), so the
+   same rule renders near-white-on-near-white (~1.2:1 contrast,
+   effectively invisible). --primary/--primary-foreground are
+   built to stay a readable solid fill in both themes, so we
+   swap to those here instead of touching --ink/--sun globally. */
+.dark .tab-spot.active,
+.dark .chip-spot.active,
+.dark .badge-spot.ink,
+.dark .nav-spot.active,
+.dark .orders-tab.active,
+.dark .catalog-tab.active,
+.dark .inv-tab.active,
+.dark .orders-action-btn.confirm,
+.dark .catalog-add-btn,
+.dark .catalog-empty-btn,
+.dark .catalog-action-btn.edit,
+.dark .inv-add-btn,
+.dark .inv-empty-btn,
+.dark .fin-cash-btn.primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+.dark .camera-scanner-btn:hover,
+.dark .pos-scan-btn:hover,
+.dark .fin-cash-btn.secondary:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+.dark .fin-cash-header.closed {
+  color: var(--primary-foreground);
 }
 
 @theme inline {
@@ -189,7 +228,7 @@
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.005em;
+    letter-spacing: 0em;
   }
   /* Paper texture (signature) */
   body::before {
@@ -213,8 +252,8 @@
 }
 
 /* ─── Display / editorial helpers ────────────────────────── */
-.font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
-.font-display-italic { font-family: var(--font-display); font-style: italic; letter-spacing: -0.02em; }
+.font-display { font-family: var(--font-display); letter-spacing: 0.02em; }
+.font-display-italic { font-family: var(--font-display); font-style: italic; letter-spacing: 0.02em; }
 .text-accent-ink em,
 .editorial em {
   font-family: var(--font-display);
@@ -283,6 +322,61 @@
 }
 .btn-outline:hover { background: var(--ink); color: var(--primary-foreground); }
 
+/* Dark mode button refinements */
+.dark .btn-ghost:hover { background: rgba(255,255,255,0.06); }
+.dark .btn-secondary { border-color: var(--line); }
+.dark .btn-secondary:hover { background: #2d2b21; }
+.dark .btn-outline { border-color: var(--line); }
+.dark .btn-outline:hover { background: rgba(255,255,255,0.08); color: var(--foreground); }
+.dark [data-slot="button"] { border-color: transparent; }
+
+/* Theme Toggle — segmented control */
+.theme-toggle-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--background-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.theme-toggle-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 0.65rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.theme-toggle-option:hover {
+  color: var(--foreground);
+  background: var(--card);
+}
+.theme-toggle-option.active {
+  background: var(--ink);
+  color: var(--sun);
+  box-shadow: var(--shadow-stamp);
+}
+.dark .theme-toggle-option.active {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  box-shadow: none;
+}
+.theme-toggle-skeleton {
+  width: 160px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--background-2);
+}
+
 /* Card */
 .card-spot {
   background: var(--card);
@@ -298,7 +392,7 @@
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
 }
 .card-spot-body { padding: 1.25rem; }
 
@@ -320,7 +414,7 @@
 .badge-spot.warn { background: var(--sun); color: #6b4f0f; }
 .badge-spot.danger { background: var(--rose); color: #6b1d22; }
 .badge-spot.info { background: var(--sky); color: #1c3b80; }
-.badge-spot.accent { background: var(--accent); color: #fff; }
+.badge-spot.accent { background: var(--accent); color: var(--accent-foreground); }
 .badge-spot.ink { background: var(--ink); color: var(--sun); }
 
 /* Input */
@@ -419,7 +513,7 @@
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
   margin: 0 0 0.4rem;
 }
 
@@ -431,10 +525,14 @@
   border: 1px solid var(--line);
   box-shadow: var(--shadow-stamp);
 }
-.stat-spot.pop-orange { background: var(--accent); color: #fff; border-color: var(--accent); }
+.stat-spot.pop-orange { background: var(--accent); color: var(--accent-foreground); border-color: var(--accent); }
 .stat-spot.pop-violet { background: var(--violet); color: #fff; border-color: var(--violet); }
 .stat-spot.pop-mint { background: var(--mint); color: var(--ink); }
 .stat-spot.pop-sun { background: var(--sun); color: var(--ink); }
+/* Dark mode: violet/mint/sun brighten and no longer contrast with white/--ink text */
+.dark .stat-spot.pop-violet { color: var(--primary-foreground); }
+.dark .stat-spot.pop-mint,
+.dark .stat-spot.pop-sun { color: var(--primary-foreground); }
 .stat-spot-label {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -447,7 +545,7 @@
   font-family: var(--font-display);
   font-size: 2.2rem;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.01em;
   line-height: 1;
   margin-top: 0.45rem;
   font-feature-settings: "tnum";
@@ -483,7 +581,7 @@
   font-size: 0.65rem;
   font-weight: 800;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-foreground);
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
 }
@@ -492,7 +590,7 @@
 .h-display {
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: 0.02em;
   line-height: 1.02;
 }
 .h-display em { font-style: italic; color: var(--accent); font-weight: 400; }
@@ -575,9 +673,9 @@
 
 .auth-hero-content { position: relative; z-index: 10; padding: 3rem; width: 100%; max-width: 560px; }
 .auth-logo { margin-bottom: 5rem; }
-.auth-logo-text { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; color: var(--foreground); }
+.auth-logo-text { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.01em; color: var(--foreground); }
 .auth-tagline { display: flex; flex-direction: column; gap: 0.25rem; }
-.tagline-line { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; color: var(--foreground); }
+.tagline-line { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 700; letter-spacing: 0.01em; line-height: 1.15; color: var(--foreground); }
 .tagline-gradient { background: linear-gradient(135deg, var(--accent), var(--violet)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
 .auth-form-panel {
@@ -590,7 +688,7 @@
 .auth-card-header { margin-bottom: 2rem; }
 .auth-mobile-logo { display: block; margin-bottom: 2rem; }
 @media (min-width: 1024px) { .auth-mobile-logo { display: none; } }
-.auth-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; color: var(--foreground); margin-bottom: 0.5rem; }
+.auth-title { font-size: 1.75rem; font-weight: 700; letter-spacing: 0.01em; color: var(--foreground); margin-bottom: 0.5rem; }
 .auth-subtitle { font-size: 0.9375rem; color: var(--muted-foreground); }
 .auth-form { display: flex; flex-direction: column; gap: 1.25rem; }
 .auth-field { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -667,7 +765,7 @@
   font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.03em;
   line-height: 1.1;
 }
 .dash-header p {
@@ -748,6 +846,14 @@
 .stat-icon-ring.ring-blue   { border-color: #4a6cf5; color: #4a6cf5; background: rgba(74, 108, 245, 0.06); }
 .stat-icon-ring.ring-amber  { border-color: var(--warning); color: var(--warning); background: rgba(201, 138, 22, 0.06); }
 
+/* Dark mode stat cards */
+.dark .stat-card-gradient { border-color: var(--line); }
+.dark .stat-card-gradient::before { opacity: 0.08; }
+.dark .stat-icon-ring.ring-purple { background: rgba(126, 114, 255, 0.12); }
+.dark .stat-icon-ring.ring-green  { background: rgba(95, 196, 128, 0.12); }
+.dark .stat-icon-ring.ring-blue   { background: rgba(74, 108, 245, 0.12); }
+.dark .stat-icon-ring.ring-amber  { background: rgba(255, 193, 74, 0.12); }
+
 /* Trend Badge */
 .trend-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -772,14 +878,14 @@
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
 }
 .section-header-icon {
   width: 28px; height: 28px;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-foreground);
   flex-shrink: 0;
 }
 
@@ -849,7 +955,7 @@
 .orders-active-badge {
   font-size: 0.7rem; font-weight: 800;
   font-family: var(--font-mono);
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--accent-foreground);
   padding: 2px 10px; border-radius: 999px;
   letter-spacing: 0.04em;
 }
@@ -1087,11 +1193,11 @@
 .orders-whatsapp-btn {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 10px; border-radius: 999px;
-  background: hsl(142,70%,35%); color: white;
+  background: hsl(142,70%,28%); color: white;
   font-size: 0.7rem; font-weight: 600;
   text-decoration: none; transition: background 0.15s;
 }
-.orders-whatsapp-btn:hover { background: hsl(142,70%,40%); }
+.orders-whatsapp-btn:hover { background: hsl(142,70%,33%); }
 
 /* Action buttons */
 .orders-actions {
@@ -1122,6 +1228,9 @@
   border-color: var(--success);
 }
 .orders-action-btn.complete:hover:not(:disabled) { box-shadow: 2px 2px 0 var(--ink); transform: translate(-1px,-1px); }
+/* Dark mode: violet/success brighten, white text drops below AA — swap to dark ink */
+.dark .orders-action-btn.progress { color: var(--primary-foreground); }
+.dark .orders-action-btn.complete { color: var(--primary-foreground); }
 .orders-action-btn.pay {
   background: var(--card); color: var(--foreground);
   border-color: var(--line);
@@ -1163,7 +1272,7 @@
 .catalog-count-badge {
   font-size: 0.7rem; font-weight: 800;
   font-family: var(--font-mono);
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--accent-foreground);
   padding: 2px 10px; border-radius: 999px;
   letter-spacing: 0.04em;
 }
@@ -1479,7 +1588,7 @@
 }
 .inv-stat-value {
   font-family: var(--font-display); font-size: 1.35rem;
-  font-weight: 700; letter-spacing: -0.03em;
+  font-weight: 700; letter-spacing: 0em;
 }
 .inv-stat-value.warn { color: var(--destructive); }
 
@@ -1841,6 +1950,7 @@
 }
 .camera-scanner-btn:hover { background: var(--ink); color: var(--sun); }
 .camera-scanner-btn.close:hover { background: var(--destructive); color: white; border-color: var(--destructive); }
+.dark .camera-scanner-btn.close:hover { color: var(--primary-foreground); }
 
 .camera-scanner-viewport-wrap {
   position: relative;
@@ -1948,7 +2058,7 @@
 }
 .fin-cash-empty-icon {
   width: 56px; height: 56px; border-radius: 999px;
-  background: var(--accent); color: white;
+  background: var(--accent); color: var(--accent-foreground);
   display: flex; align-items: center; justify-content: center;
 }
 .fin-cash-empty h3 { font-size: 1.1rem; font-weight: 800; margin: 0; }
@@ -2000,7 +2110,7 @@
   padding: 0.65rem 1rem; border-radius: calc(var(--radius) * 1.2) calc(var(--radius) * 1.2) 0 0;
   font-size: 0.8rem; font-weight: 700;
 }
-.fin-cash-header.open { background: #059669; color: white; }
+.fin-cash-header.open { background: #047857; color: white; }
 .fin-cash-header.closed { background: var(--ink-2); color: var(--sun); }
 .fin-cash-check { margin-left: auto; }
 
@@ -2311,7 +2421,7 @@
 }
 .acc-member-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .acc-member-avatar span {
-  color: white; font-size: 0.72rem; font-weight: 800;
+  color: var(--accent-foreground); font-size: 0.72rem; font-weight: 800;
 }
 
 .acc-member-info {
@@ -2416,7 +2526,7 @@
 .rpt-kpi-icon.red { color: #ef4444; }
 .rpt-kpi-icon.blue { color: #2563eb; }
 .rpt-kpi-icon.amber { color: #f59e0b; }
-.rpt-kpi-value { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; }
+.rpt-kpi-value { font-size: 1.55rem; font-weight: 800; letter-spacing: 0em; }
 .rpt-kpi-value.green { color: #10b981; }
 .rpt-kpi-change { font-size: 0.72rem; font-weight: 600; display: flex; align-items: center; gap: 2px; }
 .rpt-kpi-sub { font-size: 0.72rem; color: var(--ink-3); }
@@ -2523,7 +2633,7 @@
 .crd-account-row:hover { background: var(--background-2); }
 .crd-account-avatar {
   width: 34px; height: 34px; border-radius: 50%;
-  background: var(--accent); color: white;
+  background: var(--accent); color: var(--accent-foreground);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.7rem; font-weight: 800; flex-shrink: 0;
 }

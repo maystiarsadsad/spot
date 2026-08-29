@@ -55,7 +55,7 @@ export function CreateUserDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button className="bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-white shadow-[var(--shadow-stamp)] hover:shadow-[var(--shadow-stamp-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
+          <Button className="bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-[var(--accent-foreground)] shadow-[var(--shadow-stamp)] hover:shadow-[var(--shadow-stamp-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all">
             <UserPlus className="mr-2 h-4 w-4" />
             Nuevo Usuario
           </Button>

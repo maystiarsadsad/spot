@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { ServiceWorkerRegistrar } from "@/components/shared/sw-registrar";
 import "./globals.css";
 import "@/styles/storefront.css";
 
@@ -42,6 +43,14 @@ export const metadata: Metadata = {
     template: "%s | Spot",
   },
   description: "Plataforma todo-en-uno para negocios locales",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Spot",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
   openGraph: {
     title: "Spot — Tu negocio, tu lugar",
     description: "Plataforma todo-en-uno para negocios locales",
@@ -65,6 +74,7 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
           <Toaster richColors position="top-right" />
+          <ServiceWorkerRegistrar />
         </ThemeProvider>
       </body>
     </html>

@@ -45,7 +45,7 @@ export default async function SuperAdminLayout({
           <Separator orientation="vertical" className="h-6" />
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white font-mono shadow-[var(--shadow-stamp)] transition-all duration-300 hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_var(--ink)]">
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--accent-foreground)] font-mono shadow-[var(--shadow-stamp)] transition-all duration-300 hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_var(--ink)]">
               ★ SuperAdmin
             </span>
           </div>

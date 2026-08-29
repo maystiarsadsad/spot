@@ -121,7 +121,16 @@ export default async function DashboardLayout({
   }
 
   const themeStyle = brandColor
-    ? { "--accent": brandColor, "--sidebar-accent-foreground": brandColor } as React.CSSProperties
+    ? {
+        "--accent": brandColor,
+        "--sun": brandColor,
+        "--ring": brandColor,
+        "--chart-1": brandColor,
+        "--primary-foreground": brandColor,
+        "--sidebar-ring": brandColor,
+        "--sidebar-primary-foreground": brandColor,
+        "--sidebar-accent-foreground": brandColor,
+      } as React.CSSProperties
     : undefined;
 
   return (

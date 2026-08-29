@@ -137,7 +137,7 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
         <DropdownMenu>
           <DropdownMenuTrigger className="flex w-full items-center justify-between cursor-pointer rounded-xl hover:bg-[var(--background-2)] p-2 transition-colors outline-none text-left">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-[var(--ink)] text-[var(--sun)] flex items-center justify-center shrink-0 shadow-[var(--shadow-stamp)]">
+              <div className="w-8 h-8 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] flex items-center justify-center shrink-0 shadow-[var(--shadow-stamp)]">
                 {activeBusiness?.logo_url ? (
                   <img src={activeBusiness.logo_url} alt={activeBusiness.name} className="w-full h-full rounded-xl object-cover" />
                 ) : (
@@ -252,7 +252,7 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
           >
             <Avatar className="h-8 w-8 rounded-full">
               <AvatarImage src={user.avatar_url ?? undefined} />
-              <AvatarFallback className="text-xs rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-white font-bold">
+              <AvatarFallback className="text-xs rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -262,7 +262,7 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
                   {user.display_name ?? "Usuario"}
                 </p>
                 {isSuperAdmin && (
-                  <Badge className="h-4 px-1 text-[9px] bg-[var(--accent)] text-white border-0 font-mono leading-none">
+                  <Badge className="h-4 px-1 text-[9px] bg-[var(--accent)] text-[var(--accent-foreground)] border-0 font-mono leading-none">
                     SA
                   </Badge>
                 )}
@@ -282,7 +282,7 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 rounded-full">
                   <AvatarImage src={user.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-sm rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-white font-bold">{initials}</AvatarFallback>
+                  <AvatarFallback className="text-sm rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 text-left overflow-hidden">
                   <p className="text-sm font-bold truncate leading-none mb-1">{user.display_name}</p>
@@ -318,14 +318,12 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
             
             <DropdownMenuSeparator className="my-2" />
             
-            <div className="px-2 py-1.5">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">
-                  <Palette className="h-3.5 w-3.5" />
-                  Tema UI
-                </span>
-                <ThemeToggle />
-              </div>
+            <div className="px-2 py-2">
+              <span className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono mb-2">
+                <Palette className="h-3.5 w-3.5" />
+                Tema UI
+              </span>
+              <ThemeToggle />
             </div>
 
             <DropdownMenuSeparator className="my-2" />

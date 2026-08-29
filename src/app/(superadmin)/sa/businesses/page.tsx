@@ -77,7 +77,7 @@ export default async function BusinessesPage() {
         </div>
         <Button 
           render={<Link href="/sa/businesses/create" />} 
-          className="bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-white shadow-[var(--shadow-stamp)] hover:shadow-[var(--shadow-stamp-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+          className="bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-[var(--accent-foreground)] shadow-[var(--shadow-stamp)] hover:shadow-[var(--shadow-stamp-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
           nativeButton={false}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -151,7 +151,7 @@ export default async function BusinessesPage() {
                     {business.suspended ? (
                       <Badge variant="destructive">Suspendido</Badge>
                     ) : business.active ? (
-                      <Badge className="bg-[var(--success)] text-white hover:bg-[var(--success)]/90 border-0">
+                      <Badge className="bg-[var(--success)] text-white dark:text-[var(--primary-foreground)] hover:bg-[var(--success)]/90 border-0">
                         Activo
                       </Badge>
                     ) : (
