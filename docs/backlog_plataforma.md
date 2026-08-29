@@ -2,6 +2,34 @@
 
 > Última auditoría: 2026-04-06
 > Tablas en BD: 21 | RLS habilitado: 21/21 | Migración: 1 (initial_schema)
+>
+> ⚠️ Este backlog no refleja el estado real del código desde hace varias
+> sesiones: hay módulos completos ya construidos que no aparecen en ningún
+> EPIC (Reservas, Sistema de crédito/fiado, escaneo de código de barras,
+> chat con IA en la web pública, PWA). La sección de abajo son solo notas
+> de la sesión de hoy — falta una re-auditoría completa de los 11 EPICs.
+
+## 📝 Sesión 2026-08-29
+
+- **Migración de tooling**: proyecto adaptado de Antigravity a Claude Code
+  (ver nota en FND-005).
+- **Fix**: Caja (POS) no encontraba productos de Inventario con código de
+  barras al escanearlos — solo miraba `catalog_items.sku`. Ahora también
+  resuelve el barcode del ítem de inventario vinculado.
+- **Auditoría de contraste WCAG** en todo el dashboard (15+ páginas, ambos
+  temas): bug sistémico donde `--ink` se invierte en modo oscuro rompía
+  ~25 componentes ("pills" activos, badges); texto blanco fijo sobre
+  colores que se aclaran en oscuro (`--accent`/`--success`/`--violet`).
+- **Fix**: el service worker (PWA) cacheaba JS/CSS con estrategia
+  cache-first, sirviendo código viejo indefinidamente en dev y tras cada
+  deploy en producción. Ahora network-first para JS/CSS; no se registra
+  en desarrollo.
+- **Reconciliado drift de migraciones**: 7 migraciones aplicadas directo a
+  producción entre abril-mayo nunca tuvieron archivo en el repo
+  (`ai_agent_*` en `businesses`, `inventory.barcode`,
+  `catalog_items.inventory_id`, tablas `catalog_item_ingredients` /
+  `credit_accounts` / `credit_payments`). Reconstruidas en
+  `supabase/migrations/20260829000000_sync_remote_drift.sql`.
 
 ## Leyenda
 
@@ -20,7 +48,7 @@
 | FND-002 | Setup UI base (shadcn/ui)    | ✅     | shadcn/ui instalado, Tailwind CSS v4               |
 | FND-003 | Integrar Supabase            | ✅     | Client + Server helpers, 21 tablas, RLS en todas   |
 | FND-004 | Sistema de temas dual        | ✅     | Dark "Obsidian Monolith" + Light "Clean Crystal"   |
-| FND-005 | Configuración IDE            | ✅     | VSCode settings, CSS linting, Tailwind at-rules    |
+| FND-005 | Configuración IDE            | ✅     | VSCode settings, CSS linting, Tailwind at-rules. Migrado de Antigravity a Claude Code (2026-08-29): `.claude/commands/{sod,eod}.md`, `.mcp.json` (Context7) |
 
 ---
 
