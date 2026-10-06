@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   Phone,
@@ -22,14 +22,45 @@ import {
   CheckCircle,
   ArrowLeft,
   Loader2,
+  Bike,
 } from "lucide-react";
 import type { Database } from "@/types/database";
 import { publicChatMessage } from "@/lib/actions/public-chat";
 import { createPublicOrder } from "@/lib/actions/orders";
+import { LocationPicker } from "@/components/maps/location-picker";
+import type { LatLng } from "@/components/maps/leaflet";
 
 type Business = Database["public"]["Tables"]["businesses"]["Row"];
 type Category = Database["public"]["Tables"]["catalog_categories"]["Row"];
 type CatalogItem = Database["public"]["Tables"]["catalog_items"]["Row"];
+
+/** Last delivery order placed from this device, so the customer can always get back to tracking. */
+type ActiveOrder = { token: string; code: string; at: number };
+const ACTIVE_ORDER_TTL_MS = 12 * 60 * 60 * 1000;
+const activeOrderKey = (businessId: string) => `spot:active-order:${businessId}`;
+
+function subscribeStorage(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
+
+function readStorage(key: string) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null; // storage unavailable — the success screen still shows the link
+  }
+}
+
+function parseActiveOrder(raw: string | null): ActiveOrder | null {
+  if (!raw) return null;
+  try {
+    const saved = JSON.parse(raw) as ActiveOrder;
+    return Date.now() - saved.at < ACTIVE_ORDER_TTL_MS ? saved : null;
+  } catch {
+    return null;
+  }
+}
 
 interface CartItem {
   item: CatalogItem;
@@ -75,6 +106,16 @@ export function PublicStorefront({
   const [checkoutDelivery, setCheckoutDelivery] = useState<'pickup' | 'delivery'>('pickup');
   const [checkoutAddress, setCheckoutAddress] = useState("");
   const [checkoutOrderCode, setCheckoutOrderCode] = useState("");
+  const [checkoutLocation, setCheckoutLocation] = useState<LatLng | null>(null);
+  const [checkoutTrackingToken, setCheckoutTrackingToken] = useState<string | null>(null);
+  const [placedOrder, setPlacedOrder] = useState<ActiveOrder | null>(null);
+  const storedOrderRaw = useSyncExternalStore(
+    subscribeStorage,
+    () => readStorage(activeOrderKey(business.id)),
+    () => null
+  );
+  const storedOrder = useMemo(() => parseActiveOrder(storedOrderRaw), [storedOrderRaw]);
+  const activeOrder = placedOrder ?? storedOrder;
 
   const currency = business.currency || "COP";
 
@@ -157,6 +198,7 @@ export function PublicStorefront({
       customer_phone: checkoutPhone.trim(),
       delivery_type: checkoutDelivery,
       address: checkoutDelivery === 'delivery' ? checkoutAddress.trim() : undefined,
+      location: checkoutDelivery === 'delivery' && checkoutLocation ? checkoutLocation : undefined,
       items: cart.map((c) => ({
         catalog_item_id: c.item.id,
         name: c.item.name,
@@ -172,6 +214,16 @@ export function PublicStorefront({
 
     if (result.success && result.transaction) {
       setCheckoutOrderCode(result.transaction.code || '');
+      setCheckoutTrackingToken(result.trackingToken ?? null);
+      if (result.trackingToken) {
+        const saved: ActiveOrder = { token: result.trackingToken, code: result.transaction.code || '', at: Date.now() };
+        setPlacedOrder(saved);
+        try {
+          localStorage.setItem(activeOrderKey(business.id), JSON.stringify(saved));
+        } catch {
+          // ignore
+        }
+      }
       setCheckoutStep('success');
       setCart([]);
     } else {
@@ -256,8 +308,11 @@ export function PublicStorefront({
   };
 
   const storeThemeStyle: React.CSSProperties & Record<string, string> = {};
-  if (themeData.primary_color) {
-    storeThemeStyle["--store-primary"] = themeData.primary_color;
+  // primary_color is the explicit Mi Página override; brandColor (Configuración)
+  // is what the settings screen promises will also apply to the web page.
+  const storePrimary = themeData.primary_color || themeData.brandColor;
+  if (storePrimary) {
+    storeThemeStyle["--store-primary"] = storePrimary;
   }
   if (themeData.bg_color) {
     storeThemeStyle["--store-bg"] = themeData.bg_color;
@@ -507,6 +562,14 @@ export function PublicStorefront({
         </div>
       )}
 
+      {/* ═══ Active delivery shortcut ═══ */}
+      {activeOrder && !checkoutOpen && (
+        <Link href={`/${business.slug}/pedido/${activeOrder.token}`} className="store-track-pill">
+          <Bike size={16} />
+          Ver mi pedido{activeOrder.code ? ` ${activeOrder.code}` : ''}
+        </Link>
+      )}
+
       {/* ═══ Cart Drawer ═══ */}
       {cartOpen && (
         <div className="store-drawer-overlay" onClick={() => setCartOpen(false)}>
@@ -664,6 +727,13 @@ export function PublicStorefront({
                     </div>
                   )}
 
+                  {checkoutDelivery === 'delivery' && (
+                    <div className="store-checkout-field">
+                      <label>Ubicación en el mapa</label>
+                      <LocationPicker value={checkoutLocation} onChange={setCheckoutLocation} />
+                    </div>
+                  )}
+
                   <button
                     className="store-checkout-submit"
                     onClick={handleCheckout}
@@ -685,6 +755,14 @@ export function PublicStorefront({
                 <h2>¡Pedido enviado!</h2>
                 <p className="store-checkout-code">Código: <strong>{checkoutOrderCode}</strong></p>
                 <p>Te contactaremos al <strong>{checkoutPhone}</strong> para confirmar tu pedido.</p>
+                {checkoutTrackingToken && (
+                  <Link
+                    href={`/${business.slug}/pedido/${checkoutTrackingToken}`}
+                    className="store-checkout-submit store-checkout-track"
+                  >
+                    <Bike size={18} /> Seguir mi pedido en el mapa
+                  </Link>
+                )}
                 <button
                   className="store-checkout-submit"
                   onClick={() => {
@@ -692,6 +770,8 @@ export function PublicStorefront({
                     setCheckoutName('');
                     setCheckoutPhone('');
                     setCheckoutAddress('');
+                    setCheckoutLocation(null);
+                    setCheckoutTrackingToken(null);
                     setCheckoutDelivery('pickup');
                   }}
                 >

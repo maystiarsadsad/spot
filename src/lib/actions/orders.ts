@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { updateDailyCashOnSale } from "@/lib/actions/finance";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 interface OrderItemPayload {
   catalog_item_id: string;
@@ -101,10 +102,20 @@ export interface PublicOrderPayload {
   customer_phone: string;
   delivery_type: 'pickup' | 'delivery';
   address?: string;
+  /** Pin dropped by the customer on the checkout map */
+  location?: { lat: number; lng: number };
   notes?: string;
   items: OrderItemPayload[];
   subtotal: number;
   total: number;
+}
+
+function isValidLocation(loc: PublicOrderPayload["location"]): loc is { lat: number; lng: number } {
+  return (
+    !!loc &&
+    Number.isFinite(loc.lat) && Number.isFinite(loc.lng) &&
+    Math.abs(loc.lat) <= 90 && Math.abs(loc.lng) <= 180
+  );
 }
 
 export async function createPublicOrder(businessId: string, payload: PublicOrderPayload) {
@@ -170,9 +181,32 @@ export async function createPublicOrder(businessId: string, payload: PublicOrder
     return { error: itemsError.message };
   }
 
+  // Delivery tracking — anonymous customers can't write `deliveries` (RLS),
+  // so the row is created server-side. A failure here must not lose the order.
+  let trackingToken: string | null = null;
+  if (payload.delivery_type === 'delivery') {
+    const location = isValidLocation(payload.location) ? payload.location : null;
+    const { data: delivery, error: deliveryError } = await createAdminClient()
+      .from("deliveries")
+      .insert({
+        business_id: transaction.business_id,
+        transaction_id: transaction.id,
+        dest_lat: location?.lat ?? null,
+        dest_lng: location?.lng ?? null,
+      })
+      .select("tracking_token")
+      .single();
+
+    if (deliveryError) {
+      console.error("[createPublicOrder] delivery tracking:", deliveryError.message);
+    } else {
+      trackingToken = delivery.tracking_token;
+    }
+  }
+
   revalidatePath("/d/orders");
   revalidatePath("/d/contacts");
-  return { success: true, transaction };
+  return { success: true, transaction, trackingToken };
 }
 
 export async function updateOrderStatus(orderId: string, status: string, paymentStatus?: string) {

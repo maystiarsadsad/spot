@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -758,6 +758,84 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deliveries: {
+        Row: {
+          business_id: string
+          courier_accuracy: number | null
+          courier_heading: number | null
+          courier_lat: number | null
+          courier_lng: number | null
+          courier_name: string | null
+          courier_token: string
+          created_at: string | null
+          delivered_at: string | null
+          dest_lat: number | null
+          dest_lng: number | null
+          id: string
+          location_updated_at: string | null
+          started_at: string | null
+          status: string
+          tracking_token: string
+          transaction_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          business_id: string
+          courier_accuracy?: number | null
+          courier_heading?: number | null
+          courier_lat?: number | null
+          courier_lng?: number | null
+          courier_name?: string | null
+          courier_token?: string
+          created_at?: string | null
+          delivered_at?: string | null
+          dest_lat?: number | null
+          dest_lng?: number | null
+          id?: string
+          location_updated_at?: string | null
+          started_at?: string | null
+          status?: string
+          tracking_token?: string
+          transaction_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          courier_accuracy?: number | null
+          courier_heading?: number | null
+          courier_lat?: number | null
+          courier_lng?: number | null
+          courier_name?: string | null
+          courier_token?: string
+          created_at?: string | null
+          delivered_at?: string | null
+          dest_lat?: number | null
+          dest_lng?: number | null
+          id?: string
+          location_updated_at?: string | null
+          started_at?: string | null
+          status?: string
+          tracking_token?: string
+          transaction_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliveries_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliveries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
@@ -1584,6 +1662,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      courier_set_status: {
+        Args: { p_name?: string; p_status: string; p_token: string }
+        Returns: boolean
+      }
+      courier_update_location: {
+        Args: {
+          p_accuracy?: number
+          p_heading?: number
+          p_lat: number
+          p_lng: number
+          p_token: string
+        }
+        Returns: boolean
+      }
+      delivery_public_payload: {
+        Args: { d: Database["public"]["Tables"]["deliveries"]["Row"] }
+        Returns: Json
+      }
       get_business_as_superadmin: {
         Args: { business_id: string }
         Returns: {
@@ -1636,6 +1732,8 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_courier_delivery: { Args: { p_token: string }; Returns: Json }
+      get_delivery_tracking: { Args: { p_token: string }; Returns: Json }
       is_business_member: { Args: { b_id: string }; Returns: boolean }
       is_business_owner_or_admin: { Args: { b_id: string }; Returns: boolean }
       is_superadmin: { Args: never; Returns: boolean }
@@ -1657,12 +1755,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1686,11 +1784,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1711,11 +1809,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1736,11 +1834,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1753,11 +1851,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1771,4 +1869,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

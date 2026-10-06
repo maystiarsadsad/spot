@@ -38,6 +38,7 @@ import {
   Ban,
 } from "lucide-react";
 import { toast } from "sonner";
+import { DeliveryPanel, type DeliveryInfo } from "@/components/orders/delivery-panel";
 
 /* ── Types ──────────────────────────────────────────── */
 
@@ -70,11 +71,14 @@ interface Transaction {
   created_at: string | null;
   completed_at: string | null;
   transaction_items: TransactionItem[];
+  /** One-to-one embed; PostgREST returns an object (array kept for safety) */
+  deliveries?: DeliveryInfo | DeliveryInfo[] | null;
 }
 
 interface Props {
   transactions: Transaction[];
   currency: string;
+  businessSlug: string;
 }
 
 /* ── Status config ──────────────────────────────────── */
@@ -130,7 +134,7 @@ type Tab = "active" | "history" | "all";
 
 /* ── Component ──────────────────────────────────────── */
 
-export function OrdersTable({ transactions, currency }: Props) {
+export function OrdersTable({ transactions, currency, businessSlug }: Props) {
   const [isPending, startTransition] = useTransition();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("active");
@@ -282,6 +286,7 @@ export function OrdersTable({ transactions, currency }: Props) {
                     key={txn.id}
                     txn={txn}
                     currency={currency}
+                    businessSlug={businessSlug}
                     s={s}
                     ps={ps}
                     origin={origin}
@@ -308,6 +313,7 @@ export function OrdersTable({ transactions, currency }: Props) {
 interface OrderRowProps {
   txn: Transaction;
   currency: string;
+  businessSlug: string;
   s: typeof statusConfig[string];
   ps: typeof paymentConfig[string];
   origin: { label: string; icon: typeof Globe };
@@ -320,8 +326,9 @@ interface OrderRowProps {
   onStatus: (id: string, status: string, paymentStatus?: string) => void;
 }
 
-function OrderRow({ txn, currency, s, ps, origin, OriginIcon, StatusIcon, isExpanded, delivery, isPending, onToggle, onStatus }: OrderRowProps) {
+function OrderRow({ txn, currency, businessSlug, s, ps, origin, OriginIcon, StatusIcon, isExpanded, delivery, isPending, onToggle, onStatus }: OrderRowProps) {
   const DeliveryIcon = delivery?.icon || Package;
+  const deliveryInfo = Array.isArray(txn.deliveries) ? txn.deliveries[0] ?? null : txn.deliveries ?? null;
 
   return (
     <>
@@ -455,6 +462,19 @@ function OrderRow({ txn, currency, s, ps, origin, OriginIcon, StatusIcon, isExpa
                     </div>
                   )}
                 </div>
+
+                {(deliveryInfo || delivery?.label === "Domicilio") && (
+                  <DeliveryPanel
+                    transactionId={txn.id}
+                    orderCode={txn.code}
+                    orderStatus={txn.status}
+                    customerName={txn.customer_name}
+                    customerPhone={txn.customer_phone}
+                    businessSlug={businessSlug}
+                    delivery={deliveryInfo}
+                    whatsappUrl={whatsappUrl}
+                  />
+                )}
 
                 {/* Action buttons */}
                 <div className="orders-actions">

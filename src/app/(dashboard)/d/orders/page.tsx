@@ -19,7 +19,7 @@ export default async function OrdersPage() {
 
   const { data: transactions } = await supabase
     .from("transactions")
-    .select("*, transaction_items(*)")
+    .select("*, transaction_items(*), deliveries(status, tracking_token, courier_token, courier_name, location_updated_at)")
     .eq("business_id", business.id)
     .order("created_at", { ascending: false });
 
@@ -27,6 +27,7 @@ export default async function OrdersPage() {
     <OrdersTable
       transactions={transactions || []}
       currency={business.currency || "COP"}
+      businessSlug={business.slug}
     />
   );
 }
