@@ -14,6 +14,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 const OWNER_EMAIL = process.env.DEMO_OWNER_EMAIL || "arias.crc@gmail.com";
+// Sales WhatsApp shown on every demo (wa.me links, delivery tracker contact button)
+const DEMO_WHATSAPP = process.env.DEMO_WHATSAPP || "+573044047382";
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
     const [k, v] = a.replace(/^--/, "").split("=");
@@ -520,6 +522,7 @@ async function seedDemo(d, ownerId, broken) {
     logo_url: safeImg(d.logo, 400, 400), cover_url: safeImg(d.cover, 1600, 700),
     address: `${pick(STREETS)}, ${d.barrio}`, city: "Bogotá", country: "CO",
     email: `hola@${d.slug}.demo`,
+    whatsapp: DEMO_WHATSAPP,
     business_hours: hours, currency: "COP", timezone: "America/Bogota", locale: "es",
     theme: { primary_color: d.color },
     social_links: { instagram: "", facebook: "", tiktok: "", twitter: "", website: "" },
