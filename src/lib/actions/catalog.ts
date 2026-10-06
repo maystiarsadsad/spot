@@ -2,6 +2,19 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { parseOptionGroups } from "@/lib/item-options";
+import type { Json } from "@/types/database";
+
+/** Option groups arrive as JSON in the form; sanitize before storing. */
+function readOptions(formData: FormData) {
+  const raw = formData.get("options");
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    return parseOptionGroups(JSON.parse(raw));
+  } catch {
+    return [];
+  }
+}
 
 // ── Categories ─────────────────────────────────────────────
 
@@ -101,6 +114,7 @@ export async function createItem(businessId: string, formData: FormData) {
     compare_price: comparePrice,
     sku,
     type,
+    options: readOptions(formData) as unknown as Json,
   }).select("id").single();
 
   if (error) return { error: "Error al crear producto: " + error.message };
@@ -143,6 +157,7 @@ export async function updateItem(itemId: string, formData: FormData) {
       sku,
       type,
       active,
+      options: readOptions(formData) as unknown as Json,
     })
     .eq("id", itemId);
 

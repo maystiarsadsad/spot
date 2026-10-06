@@ -470,6 +470,75 @@ const DEMOS = [
   },
 ];
 
+/* ── product options (Rappi-style modifiers) ─────────── */
+// Same shape as src/lib/item-options.ts → OptionGroup
+let optSeq = 0;
+const oid = () => `o${(++optSeq).toString(36)}`;
+// choices: [name, price?, isDefault?]
+const grp = (name, min, max, choices) => ({
+  id: oid(), name, min, max,
+  choices: choices.map(([n, price = 0, def]) => ({ id: oid(), name: n, price, available: true, ...(def ? { default: true } : {}) })),
+});
+const CUBIERTOS = () => grp("¿Incluir cubiertos?", 1, 1, [["Sí, por favor"], ["No, gracias", 0, true]]);
+const TERMINO = () => grp("Término de la carne", 1, 1, [["Medio"], ["Tres cuartos", 0, true], ["Bien asado"]]);
+const ACOMP = () => grp("Elige tu acompañamiento", 1, 1, [["Papas a la francesa", 0, true], ["Arroz blanco"], ["Ensalada de la casa"], ["Patacón", 2000]]);
+const QUITAR = () => grp("Quitar ingredientes", 0, 4, [["Sin cebolla"], ["Sin tomate"], ["Sin lechuga"], ["Sin salsas"]]);
+const ADICIONES = () => grp("Adiciones", 0, 3, [["Queso cheddar extra", 3000], ["Tocineta", 4000], ["Huevo frito", 2000], ["Aguacate", 3500]]);
+const COMBO = () => grp("¿Lo quieres en combo?", 0, 1, [["Combo: papas + gaseosa", 9000]]);
+const SALSA_ALITAS = () => grp("Salsa", 1, 1, [["BBQ", 0, true], ["Búfalo picante"], ["Miel mostaza"]]);
+const LECHE = () => grp("Tipo de leche", 1, 1, [["Entera", 0, true], ["Deslactosada"], ["Almendras", 2000], ["Avena", 2000]]);
+const TAMANO_CAFE = () => grp("Tamaño", 1, 1, [["8 oz", 0, true], ["12 oz", 2000]]);
+const EXTRAS_CAFE = () => grp("Extras", 0, 2, [["Shot extra de espresso", 2500], ["Sirope de vainilla", 1500], ["Sirope de caramelo", 1500]]);
+
+const ITEM_OPTIONS = {
+  "demo-restaurante": {
+    "Churrasco con papas": () => [TERMINO(), ACOMP(), CUBIERTOS()],
+    "Pollo asado a las finas hierbas": () => [ACOMP(), CUBIERTOS()],
+    "Salmón a la plancha": () => [grp("Acompañamiento", 1, 1, [["Puré de papa", 0, true], ["Arroz con coco"], ["Vegetales salteados"]]), CUBIERTOS()],
+    "Pasta arrabiata": () => [
+      grp("Nivel de picante", 1, 1, [["Suave"], ["Medio", 0, true], ["Picante"]]),
+      grp("Proteína adicional", 0, 1, [["Pollo", 6000], ["Camarones", 9000]]),
+      CUBIERTOS(),
+    ],
+    "Tacos de pollo x2": () => [grp("Proteína", 1, 1, [["Pollo", 0, true], ["Res", 3000], ["Cerdo al pastor", 2000]]), QUITAR()],
+    "Ensalada de la casa": () => [
+      grp("Aderezo", 1, 1, [["Vinagreta de maracuyá", 0, true], ["César"], ["Miel mostaza"]]),
+      grp("Agrega proteína", 0, 1, [["Pollo a la plancha", 7000], ["Salmón", 12000]]),
+    ],
+    "Jugo natural en agua": () => [
+      grp("Sabor", 1, 1, [["Mora"], ["Lulo"], ["Maracuyá"], ["Mango"]]),
+      grp("Preparación", 1, 1, [["En agua", 0, true], ["En leche", 1500]]),
+    ],
+    "Gaseosa": () => [grp("Sabor", 1, 1, [["Coca-Cola", 0, true], ["Sprite"], ["Quatro"]])],
+  },
+  "demo-comidas-rapidas": {
+    "Clásica": () => [TERMINO(), ADICIONES(), QUITAR(), COMBO()],
+    "Doble Bacon": () => [TERMINO(), ADICIONES(), QUITAR(), COMBO()],
+    "BBQ Ranch": () => [TERMINO(), ADICIONES(), QUITAR(), COMBO()],
+    "Pollo Crispy": () => [ADICIONES(), QUITAR(), COMBO()],
+    "Veggie": () => [QUITAR(), COMBO()],
+    "Perro americano": () => [ADICIONES(), QUITAR()],
+    "Alitas BBQ x8": () => [SALSA_ALITAS(), CUBIERTOS()],
+    "Malteada de vainilla": () => [grp("Sabor", 1, 1, [["Vainilla", 0, true], ["Chocolate"], ["Fresa"], ["Oreo", 2000]])],
+    "Gaseosa 400 ml": () => [grp("Sabor", 1, 1, [["Coca-Cola", 0, true], ["Sprite"], ["Quatro"]])],
+  },
+  "demo-cafe": {
+    "Cappuccino": () => [TAMANO_CAFE(), LECHE(), EXTRAS_CAFE()],
+    "Latte": () => [TAMANO_CAFE(), LECHE(), EXTRAS_CAFE()],
+    "Cold brew": () => [grp("¿Con leche?", 0, 1, [["Leche entera"], ["Leche de avena", 2000]])],
+    "Sándwich de pavo": () => [grp("Pan", 1, 1, [["Masa madre", 0, true], ["Integral"], ["Croissant", 2500]]), QUITAR()],
+    "Café 250 g en grano": () => [grp("Molienda", 1, 1, [["En grano", 0, true], ["Para prensa francesa"], ["Para filtrado (V60)"], ["Para espresso"]])],
+  },
+  "demo-bar": {
+    "Mojito": () => [grp("Sabor", 1, 1, [["Clásico", 0, true], ["Maracuyá", 2000], ["Fresa", 2000]])],
+    "Margarita de maracuyá": () => [grp("Escarchado", 1, 1, [["Sal", 0, true], ["Azúcar"], ["Sin escarchar"]])],
+    "Cerveza artesanal": () => [grp("Estilo", 1, 1, [["Rubia", 0, true], ["Roja"], ["Negra"]])],
+    "Nachos supremos": () => [grp("Proteína", 1, 1, [["Res", 0, true], ["Pollo"], ["Mixto", 4000]]), grp("Extra", 0, 2, [["Guacamole extra", 4000], ["Jalapeños", 1500]])],
+    "Alitas picantes x10": () => [SALSA_ALITAS()],
+  },
+};
+const itemOptions = (slug, name) => ITEM_OPTIONS[slug]?.[name]?.() ?? [];
+
 const MODULES_BY_TYPE = {
   // Mirror of DEFAULT_MODULES_BY_TYPE in src/lib/constants.ts
   restaurant: ["catalog", "transactions", "reservations", "inventory", "finance", "team", "contacts", "reports"],
@@ -558,6 +627,7 @@ async function seedDemo(d, ownerId, broken) {
         type: extra.type || d.itemType, image_url: safeImg(imgId), sku,
         duration_minutes: extra.duration ?? null, capacity: extra.capacity ?? null,
         featured: sort <= 3, sort_order: sort, active: true, inventory_id: inventoryId,
+        options: itemOptions(d.slug, name),
       }).select().single(), "item");
       items.push(item);
     }
@@ -607,8 +677,28 @@ async function seedDemo(d, ownerId, broken) {
       const it = pick(sellable);
       chosen.set(it.id, { it, q: (chosen.get(it.id)?.q || 0) + (d.itemType === "room" ? int(1, 3) : 1) });
     }
-    return [...chosen.values()].map(({ it, q }) => ({ catalog_item_id: it.id, name: it.name, quantity: q, unit_price: it.price, total_price: it.price * q }));
+    return [...chosen.values()].map(({ it, q }) => {
+      const options = randomOptions(it.options);
+      const unit = it.price + options.reduce((s, o) => s + o.price, 0);
+      return { catalog_item_id: it.id, name: it.name, quantity: q, unit_price: unit, total_price: unit * q, options };
+    });
   };
+
+  // A valid random customization (required groups always answered), as stored on transaction_items
+  function randomOptions(groups) {
+    if (!Array.isArray(groups)) return [];
+    const out = [];
+    for (const g of groups) {
+      const want = g.min > 0 ? g.min : rand() < 0.35 ? 1 : 0;
+      const pool = [...g.choices];
+      for (let k = 0; k < want && pool.length; k++) {
+        const c = k === 0 && g.min > 0 && rand() < 0.6 ? pool.find((x) => x.default) ?? pick(pool) : pick(pool);
+        pool.splice(pool.indexOf(c), 1);
+        out.push({ group: g.name, choice: c.name, price: c.price });
+      }
+    }
+    return out;
+  }
 
   for (let day = 29; day >= 0; day--) {
     const weekend = [0, 5, 6].includes(daysAgo(day).getDay());

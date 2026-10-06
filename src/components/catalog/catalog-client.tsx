@@ -52,6 +52,7 @@ interface CatalogItem {
   image_url: string | null;
   featured: boolean | null;
   created_at: string | null;
+  options?: unknown;
 }
 
 interface Props {
@@ -379,6 +380,7 @@ export function CatalogClient({ businessId, businessType, items, categories, inv
         categories={categories}
         inventoryItems={inventoryItems}
         item={editingItem}
+        otherItems={items.filter((it) => it.id !== editingItem?.id)}
         open={itemDialogOpen}
         onOpenChange={setItemDialogOpen}
       />

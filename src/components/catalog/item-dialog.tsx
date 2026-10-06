@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import { Loader2, ImagePlus, X, Package, ChefHat, Unlink, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { OptionGroupsEditor } from "@/components/catalog/option-groups-editor";
+import { parseOptionGroups, type OptionGroup } from "@/lib/item-options";
 
 interface Category {
   id: string;
@@ -43,6 +45,7 @@ interface CatalogItem {
   type: string | null;
   active: boolean | null;
   image_url: string | null;
+  options?: unknown;
 }
 
 interface InventoryItem {
@@ -68,6 +71,8 @@ interface Props {
   categories: Category[];
   inventoryItems?: InventoryItem[];
   item?: CatalogItem | null;
+  /** Other products of the business, to copy option groups from */
+  otherItems?: { id: string; name: string; options?: unknown }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -78,6 +83,7 @@ export function CatalogItemDialog({
   categories,
   inventoryItems = [],
   item,
+  otherItems = [],
   open,
   onOpenChange,
 }: Props) {
@@ -92,6 +98,16 @@ export function CatalogItemDialog({
   const [directInvId, setDirectInvId] = useState<string>("none");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loadingIngredients, setLoadingIngredients] = useState(false);
+
+  // Option groups (proteína, adiciones, cubiertos…)
+  const [optionGroups, setOptionGroups] = useState<OptionGroup[]>(() => parseOptionGroups(item?.options));
+  const [prevDialogKey, setPrevDialogKey] = useState(`${open}-${item?.id ?? "new"}`);
+  const dialogKey = `${open}-${item?.id ?? "new"}`;
+  if (dialogKey !== prevDialogKey) {
+    // Reset when the dialog opens for a different product (state-from-props pattern)
+    setPrevDialogKey(dialogKey);
+    setOptionGroups(parseOptionGroups(item?.options));
+  }
 
   // Load ingredients when editing
   useEffect(() => {
@@ -146,6 +162,8 @@ export function CatalogItemDialog({
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    formData.set("options", JSON.stringify(optionGroups));
 
     // Set inventory_id based on mode
     if (invMode === "direct" && directInvId !== "none") {
@@ -431,6 +449,14 @@ export function CatalogItemDialog({
           {isEditing && (
             <input type="hidden" name="active" value={String(item?.active ?? true)} />
           )}
+
+          {/* ═══ Options Section ═══ */}
+          <OptionGroupsEditor
+            value={optionGroups}
+            onChange={setOptionGroups}
+            inventoryItems={inventoryItems}
+            otherItems={otherItems.map((it) => ({ id: it.id, name: it.name, options: it.options }))}
+          />
 
           {/* ═══ Inventory Section ═══ */}
           {inventoryItems.length > 0 && (

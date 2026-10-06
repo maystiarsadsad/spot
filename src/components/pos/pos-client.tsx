@@ -12,6 +12,17 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, Plus, Minus, X, Loader2, Camera, CreditCard } from "lucide-react";
 import { CameraScanner } from "@/components/pos/camera-scanner";
+import { PosOptionsDialog } from "@/components/pos/pos-options-dialog";
+import {
+  describeOptions,
+  lineKey,
+  optionsPrice,
+  parseOptionGroups,
+  snapshotSelection,
+  type OptionGroup,
+  type OptionSelection,
+  type SelectedOption,
+} from "@/lib/item-options";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -47,11 +58,17 @@ interface CatalogItem {
   sku: string | null;
   /** Resolved from the linked inventory item (inventory.barcode), if any. */
   barcode: string | null;
+  options?: unknown;
 }
 
 interface CartItem {
+  key: string;
   item: CatalogItem;
   quantity: number;
+  selection: OptionSelection;
+  options: SelectedOption[];
+  note: string;
+  unitPrice: number;
 }
 
 interface Props {
@@ -74,6 +91,13 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
   const [selectedCreditAccount, setSelectedCreditAccount] = useState("");
   const [lastScanned, setLastScanned] = useState<string | null>(null);
   const [cameraScanOpen, setCameraScanOpen] = useState(false);
+  const [customizing, setCustomizing] = useState<CatalogItem | null>(null);
+
+  const groupsById = useMemo(() => {
+    const map = new Map<string, OptionGroup[]>();
+    for (const it of items) map.set(it.id, parseOptionGroups(it.options));
+    return map;
+  }, [items]);
 
   // ── Barcode scanner support ──
   const handleBarcodeScan = useCallback((barcode: string) => {
@@ -124,7 +148,7 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
   }, [items, search, activeTab]);
 
   const cartTotal = useMemo(() => {
-    return cart.reduce((acc, c) => acc + c.item.price * c.quantity, 0);
+    return cart.reduce((acc, c) => acc + c.unitPrice * c.quantity, 0);
   }, [cart]);
 
   const tax = cartTotal * 0.19; // Static 19% tax for now, should ideally be configurable
@@ -132,26 +156,34 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
   // For POS quickly: 
   const total = cartTotal;
 
-  function addToCart(item: CatalogItem) {
+  function addLine(item: CatalogItem, selection: OptionSelection = {}, note = "", quantity = 1) {
+    const options = snapshotSelection(groupsById.get(item.id) ?? [], selection);
+    const key = lineKey(item.id, selection, note);
     setCart((prev) => {
-      const ex = prev.find((c) => c.item.id === item.id);
-      if (ex) {
-        return prev.map((c) =>
-          c.item.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
-        );
+      if (prev.some((c) => c.key === key)) {
+        return prev.map((c) => (c.key === key ? { ...c, quantity: c.quantity + quantity } : c));
       }
-      return [...prev, { item, quantity: 1 }];
+      return [...prev, { key, item, quantity, selection, options, note: note.trim(), unitPrice: item.price + optionsPrice(options) }];
     });
   }
 
-  function removeFromCart(itemId: string) {
-    setCart((prev) => prev.filter((c) => c.item.id !== itemId));
+  /** Customizable products ask for their options first. */
+  function addToCart(item: CatalogItem) {
+    if ((groupsById.get(item.id)?.length ?? 0) > 0) {
+      setCustomizing(item);
+      return;
+    }
+    addLine(item);
   }
 
-  function updateQuantity(itemId: string, delta: number) {
+  function removeFromCart(key: string) {
+    setCart((prev) => prev.filter((c) => c.key !== key));
+  }
+
+  function updateQuantity(key: string, delta: number) {
     setCart((prev) =>
       prev
-        .map((c) => (c.item.id === itemId ? { ...c, quantity: c.quantity + delta } : c))
+        .map((c) => (c.key === key ? { ...c, quantity: c.quantity + delta } : c))
         .filter((c) => c.quantity > 0)
     );
   }
@@ -163,20 +195,18 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
     startTransition(async () => {
       const orderItems = cart.map(c => ({
         catalog_item_id: c.item.id,
-        name: c.item.name,
         quantity: c.quantity,
-        unit_price: c.item.price,
-        total_price: c.item.price * c.quantity
+        options: c.selection,
+        notes: c.note || undefined,
       }));
 
+      // The server prices every line from the catalog (base + options)
       const result: any = await createOrder(businessId, {
         type: 'sale',
         customer_name: customerName,
         payment_method: paymentMethod,
-        subtotal: total,
         tax: 0, // Placeholder
         discount: 0, // Placeholder
-        total: total,
         items: orderItems
       });
 
@@ -190,7 +220,7 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
         const creditResult = await chargeToCredit({
           credit_account_id: selectedCreditAccount,
           transaction_id: result.transaction?.id,
-          amount: total,
+          amount: Number(result.transaction?.total ?? total),
           notes: `Venta POS - ${customerName || "Sin nombre"}`,
         });
         if (!creditResult.success) {
@@ -307,21 +337,29 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
           ) : (
             <div className="space-y-4">
               {cart.map((c) => (
-                <div key={c.item.id} className="flex flex-col gap-2">
-                  <div className="flex justify-between items-start">
-                    <span className="font-medium text-sm leading-tight">{c.item.name}</span>
-                    <span className="font-semibold text-sm">
-                      {formatCurrency(c.item.price * c.quantity, currency)}
+                <div key={c.key} className="flex flex-col gap-2">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <span className="font-medium text-sm leading-tight">{c.item.name}</span>
+                      {(c.options.length > 0 || c.note) && (
+                        <ul className="opt-lines">
+                          {describeOptions(c.options).map((line) => <li key={line}>{line}</li>)}
+                          {c.note && <li className="opt-line-note">“{c.note}”</li>}
+                        </ul>
+                      )}
+                    </div>
+                    <span className="font-semibold text-sm shrink-0">
+                      {formatCurrency(c.unitPrice * c.quantity, currency)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">{formatCurrency(c.item.price, currency)} c/u</div>
+                    <div className="text-xs text-muted-foreground">{formatCurrency(c.unitPrice, currency)} c/u</div>
                     <div className="flex items-center gap-2 border rounded-md p-0.5">
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateQuantity(c.item.id, -1)}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateQuantity(c.key, -1)}>
                         <Minus className="h-3 w-3" />
                       </Button>
                       <span className="text-xs w-4 text-center font-medium">{c.quantity}</span>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateQuantity(c.item.id, 1)}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateQuantity(c.key, 1)}>
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
@@ -444,6 +482,16 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
         open={cameraScanOpen}
         onClose={() => setCameraScanOpen(false)}
         onScan={handleBarcodeScan}
+      />
+      <PosOptionsDialog
+        item={customizing}
+        groups={customizing ? groupsById.get(customizing.id) ?? [] : []}
+        currency={currency}
+        onClose={() => setCustomizing(null)}
+        onConfirm={(selection, note, quantity) => {
+          if (customizing) addLine(customizing, selection, note, quantity);
+          setCustomizing(null);
+        }}
       />
     </div>
   );

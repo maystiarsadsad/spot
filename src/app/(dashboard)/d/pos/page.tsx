@@ -34,7 +34,7 @@ export default async function POSPage() {
       .order("name"),
     supabase
       .from("catalog_items")
-      .select("id, name, price, category_id, image_url, active, sku, inventory_id, inventory:inventory_id(barcode)")
+      .select("id, name, price, category_id, image_url, active, sku, options, inventory_id, inventory:inventory_id(barcode)")
       .eq("business_id", business.id)
       .eq("active", true)
       .order("sort_order")

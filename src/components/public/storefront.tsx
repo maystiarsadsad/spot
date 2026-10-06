@@ -28,6 +28,17 @@ import type { Database } from "@/types/database";
 import { publicChatMessage } from "@/lib/actions/public-chat";
 import { createPublicOrder } from "@/lib/actions/orders";
 import { LocationPicker } from "@/components/maps/location-picker";
+import { ProductCustomizer } from "@/components/public/product-customizer";
+import {
+  describeOptions,
+  lineKey,
+  optionsPrice,
+  parseOptionGroups,
+  snapshotSelection,
+  type OptionGroup,
+  type OptionSelection,
+  type SelectedOption,
+} from "@/lib/item-options";
 import type { LatLng } from "@/components/maps/leaflet";
 
 type Business = Database["public"]["Tables"]["businesses"]["Row"];
@@ -63,8 +74,15 @@ function parseActiveOrder(raw: string | null): ActiveOrder | null {
 }
 
 interface CartItem {
+  /** Same product + same options + same note → same line */
+  key: string;
   item: CatalogItem;
   quantity: number;
+  selection: OptionSelection;
+  options: SelectedOption[];
+  note: string;
+  /** Base price + chosen options */
+  unitPrice: number;
 }
 
 interface PublicStorefrontProps {
@@ -126,35 +144,51 @@ export function PublicStorefront({
       minimumFractionDigits: 0,
     }).format(price);
 
+  // Option groups per product (proteína, adiciones, cubiertos…)
+  const groupsById = useMemo(() => {
+    const map = new Map<string, OptionGroup[]>();
+    for (const it of items) map.set(it.id, parseOptionGroups(it.options));
+    return map;
+  }, [items]);
+  const isCustomizable = (item: CatalogItem) => (groupsById.get(item.id)?.length ?? 0) > 0;
+
   // Cart logic
-  const addToCart = (item: CatalogItem) => {
+  const addLine = (item: CatalogItem, selection: OptionSelection = {}, note = "", quantity = 1) => {
+    const options = snapshotSelection(groupsById.get(item.id) ?? [], selection);
+    const key = lineKey(item.id, selection, note);
     setCart((prev) => {
-      const existing = prev.find((c) => c.item.id === item.id);
-      if (existing) {
-        return prev.map((c) =>
-          c.item.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
-        );
+      if (prev.some((c) => c.key === key)) {
+        return prev.map((c) => (c.key === key ? { ...c, quantity: c.quantity + quantity } : c));
       }
-      return [...prev, { item, quantity: 1 }];
+      return [...prev, { key, item, quantity, selection, options, note: note.trim(), unitPrice: item.price + optionsPrice(options) }];
     });
   };
 
-  const updateQuantity = (itemId: string, delta: number) => {
+  /** Products with options open the customizer instead of adding straight away. */
+  const addToCart = (item: CatalogItem) => {
+    if (isCustomizable(item)) {
+      setSelectedItem(item);
+      return;
+    }
+    addLine(item);
+  };
+
+  const updateQuantity = (key: string, delta: number) => {
     setCart((prev) =>
       prev
         .map((c) =>
-          c.item.id === itemId ? { ...c, quantity: c.quantity + delta } : c
+          c.key === key ? { ...c, quantity: c.quantity + delta } : c
         )
         .filter((c) => c.quantity > 0)
     );
   };
 
-  const removeFromCart = (itemId: string) => {
-    setCart((prev) => prev.filter((c) => c.item.id !== itemId));
+  const removeFromCart = (key: string) => {
+    setCart((prev) => prev.filter((c) => c.key !== key));
   };
 
   const cartTotal = useMemo(
-    () => cart.reduce((sum, c) => sum + c.item.price * c.quantity, 0),
+    () => cart.reduce((sum, c) => sum + c.unitPrice * c.quantity, 0),
     [cart]
   );
 
@@ -164,7 +198,7 @@ export function PublicStorefront({
   );
 
   const getItemQty = (itemId: string) =>
-    cart.find((c) => c.item.id === itemId)?.quantity || 0;
+    cart.filter((c) => c.item.id === itemId).reduce((sum, c) => sum + c.quantity, 0);
 
   // Filter items
   const filteredItems = items.filter((item) => {
@@ -201,13 +235,10 @@ export function PublicStorefront({
       location: checkoutDelivery === 'delivery' && checkoutLocation ? checkoutLocation : undefined,
       items: cart.map((c) => ({
         catalog_item_id: c.item.id,
-        name: c.item.name,
         quantity: c.quantity,
-        unit_price: c.item.price,
-        total_price: c.item.price * c.quantity,
+        options: c.selection,
+        notes: c.note || undefined,
       })),
-      subtotal: cartTotal,
-      total: cartTotal,
     });
 
     setCheckoutLoading(false);
@@ -233,7 +264,7 @@ export function PublicStorefront({
 
   // Build cart context string for AI
   const cartContext = cart.length > 0
-    ? `\n[CONTEXTO DEL CARRITO DEL CLIENTE: ${cart.map((c) => `${c.item.name} x${c.quantity} ($${c.item.price * c.quantity})`).join(', ')}. Total: $${cartTotal}]`
+    ? `\n[CONTEXTO DEL CARRITO DEL CLIENTE: ${cart.map((c) => `${c.item.name}${c.options.length ? ` [${describeOptions(c.options).join('; ')}]` : ''} x${c.quantity} ($${c.unitPrice * c.quantity})`).join(', ')}. Total: $${cartTotal}]`
     : '\n[CONTEXTO: El carrito del cliente está vacío]';
 
   // Chat handler — uses Gemini AI when enabled, falls back to keyword logic
@@ -283,7 +314,7 @@ export function PublicStorefront({
       if (cart.length === 0) {
         response = `Tu carrito está vacío. Explora nuestro catálogo y agrega lo que te guste. 🛒`;
       } else {
-        const summary = cart.map((c) => `• ${c.item.name} x${c.quantity} — ${formatPrice(c.item.price * c.quantity)}`).join("\n");
+        const summary = cart.map((c) => `• ${c.item.name} x${c.quantity} — ${formatPrice(c.unitPrice * c.quantity)}`).join("\n");
         response = `Tu pedido actual:\n${summary}\n\n💰 Total: ${formatPrice(cartTotal)}\n\nPara confirmar, usa el botón del carrito 🛒`;
       }
     } else if (lower.includes("hola") || lower.includes("hi") || lower.includes("buenas")) {
@@ -449,6 +480,7 @@ export function PublicStorefront({
                     item={item}
                     formatPrice={formatPrice}
                     quantity={getItemQty(item.id)}
+                    customizable={isCustomizable(item)}
                     onAdd={() => addToCart(item)}
                     onDetail={() => setSelectedItem(item)}
                   />
@@ -468,6 +500,7 @@ export function PublicStorefront({
                   item={item}
                   formatPrice={formatPrice}
                   quantity={getItemQty(item.id)}
+                  customizable={isCustomizable(item)}
                   onAdd={() => addToCart(item)}
                   onDetail={() => setSelectedItem(item)}
                 />
@@ -534,6 +567,18 @@ export function PublicStorefront({
               </div>
 
               {/* Add to cart controls */}
+              {isCustomizable(selectedItem) ? (
+                <ProductCustomizer
+                  key={selectedItem.id}
+                  basePrice={selectedItem.price}
+                  groups={groupsById.get(selectedItem.id) ?? []}
+                  formatPrice={formatPrice}
+                  onAdd={(selection, note, quantity) => {
+                    addLine(selectedItem, selection, note, quantity);
+                    setSelectedItem(null);
+                  }}
+                />
+              ) : (
               <div className="store-modal-actions">
                 {getItemQty(selectedItem.id) > 0 ? (
                   <div className="store-qty-control store-qty-control-lg">
@@ -541,7 +586,7 @@ export function PublicStorefront({
                       <Minus size={18} />
                     </button>
                     <span>{getItemQty(selectedItem.id)}</span>
-                    <button onClick={() => addToCart(selectedItem)}>
+                    <button onClick={() => addLine(selectedItem)}>
                       <Plus size={18} />
                     </button>
                   </div>
@@ -557,6 +602,7 @@ export function PublicStorefront({
                   </button>
                 )}
               </div>
+              )}
             </div>
           </div>
         </div>
@@ -594,7 +640,7 @@ export function PublicStorefront({
               <>
                 <div className="store-drawer-items">
                   {cart.map((cartItem) => (
-                    <div key={cartItem.item.id} className="store-drawer-item">
+                    <div key={cartItem.key} className="store-drawer-item">
                       {cartItem.item.image_url && (
                         <img
                           src={cartItem.item.image_url}
@@ -606,27 +652,35 @@ export function PublicStorefront({
                         <p className="store-drawer-item-name">
                           {cartItem.item.name}
                         </p>
+                        {(cartItem.options.length > 0 || cartItem.note) && (
+                          <ul className="opt-lines">
+                            {describeOptions(cartItem.options, formatPrice).map((line) => (
+                              <li key={line}>{line}</li>
+                            ))}
+                            {cartItem.note && <li className="opt-line-note">“{cartItem.note}”</li>}
+                          </ul>
+                        )}
                         <p className="store-drawer-item-price">
-                          {formatPrice(cartItem.item.price * cartItem.quantity)}
+                          {formatPrice(cartItem.unitPrice * cartItem.quantity)}
                         </p>
                       </div>
                       <div className="store-drawer-item-controls">
                         <div className="store-qty-control">
                           <button
                             onClick={() =>
-                              updateQuantity(cartItem.item.id, -1)
+                              updateQuantity(cartItem.key, -1)
                             }
                           >
                             <Minus size={14} />
                           </button>
                           <span>{cartItem.quantity}</span>
-                          <button onClick={() => addToCart(cartItem.item)}>
+                          <button onClick={() => updateQuantity(cartItem.key, 1)}>
                             <Plus size={14} />
                           </button>
                         </div>
                         <button
                           className="store-drawer-remove"
-                          onClick={() => removeFromCart(cartItem.item.id)}
+                          onClick={() => removeFromCart(cartItem.key)}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -880,12 +934,14 @@ function ProductCard({
   item,
   formatPrice,
   quantity,
+  customizable,
   onAdd,
   onDetail,
 }: {
   item: CatalogItem;
   formatPrice: (n: number) => string;
   quantity: number;
+  customizable: boolean;
   onAdd: () => void;
   onDetail: () => void;
 }) {
@@ -915,6 +971,7 @@ function ProductCard({
           {item.description && (
             <p className="store-card-desc">{item.description}</p>
           )}
+          {customizable && <span className="opt-badge">Personalizable</span>}
           <div className="store-card-pricing">
             <span className="store-card-price">{formatPrice(item.price)}</span>
             {hasDiscount && (
@@ -928,7 +985,7 @@ function ProductCard({
 
       {/* Add button */}
       <div className="store-card-action">
-        {quantity > 0 ? (
+        {quantity > 0 && !customizable ? (
           <span className="store-card-qty-badge">{quantity} en carrito</span>
         ) : (
           <button
@@ -939,7 +996,7 @@ function ProductCard({
             }}
           >
             <Plus size={16} />
-            Agregar
+            {customizable ? (quantity > 0 ? `Agregar otro (${quantity})` : "Elegir") : "Agregar"}
           </button>
         )}
       </div>

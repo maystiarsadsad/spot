@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DeliveryPanel, type DeliveryInfo } from "@/components/orders/delivery-panel";
+import { describeOptions } from "@/lib/item-options";
 
 /* ── Types ──────────────────────────────────────────── */
 
@@ -49,6 +50,7 @@ interface TransactionItem {
   unit_price: number;
   total_price: number;
   notes: string | null;
+  options?: unknown;
 }
 
 interface Transaction {
@@ -388,7 +390,17 @@ function OrderRow({ txn, currency, businessSlug, s, ps, origin, OriginIcon, Stat
                     txn.transaction_items.map((item) => (
                       <div key={item.id} className="orders-item-row">
                         <span className="orders-item-qty">{item.quantity}x</span>
-                        <span className="orders-item-name">{item.name}</span>
+                        <span className="orders-item-name">
+                          {item.name}
+                          {(describeOptions(item.options).length > 0 || item.notes) && (
+                            <ul className="opt-lines">
+                              {describeOptions(item.options, (n) => formatCurrency(n, currency)).map((line) => (
+                                <li key={line}>{line}</li>
+                              ))}
+                              {item.notes && <li className="opt-line-note">“{item.notes}”</li>}
+                            </ul>
+                          )}
+                        </span>
                         <span className="orders-item-price">{formatCurrency(item.total_price, currency)}</span>
                       </div>
                     ))

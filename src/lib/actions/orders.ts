@@ -4,14 +4,106 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { updateDailyCashOnSale } from "@/lib/actions/finance";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Json } from "@/types/database";
+import {
+  MAX_NOTE_LENGTH,
+  optionsPrice,
+  parseOptionGroups,
+  snapshotSelection,
+  validateSelection,
+  type OptionSelection,
+  type SelectedOption,
+} from "@/lib/item-options";
 
-interface OrderItemPayload {
+/** What the client sends: which product, how many and how it was customized. */
+export interface OrderLineInput {
+  catalog_item_id: string;
+  quantity: number;
+  options?: OptionSelection;
+  notes?: string;
+}
+
+/** A line priced by the server from the catalog (client prices are never trusted). */
+interface PricedLine {
   catalog_item_id: string;
   name: string;
   quantity: number;
   unit_price: number;
   total_price: number;
+  options: SelectedOption[];
+  notes: string | null;
 }
+
+/** Minimal shape needed to deduct stock for a sold line. */
+interface SoldLine {
+  catalog_item_id: string;
+  quantity: number;
+  options?: unknown;
+}
+
+type CatalogRow = { id: string; name: string; price: number; options: unknown; active: boolean | null };
+
+/**
+ * Validates every line against the business catalog and computes prices
+ * (base price + chosen options). Returns a user-facing error on the first problem.
+ */
+async function priceOrderLines(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  businessId: string,
+  lines: OrderLineInput[]
+): Promise<{ error: string } | { lines: PricedLine[]; subtotal: number }> {
+  if (!Array.isArray(lines) || lines.length === 0) return { error: "El pedido está vacío" };
+  if (lines.length > 100) return { error: "El pedido tiene demasiados productos" };
+
+  const ids = [...new Set(lines.map((l) => l.catalog_item_id).filter(Boolean))];
+  const { data: catalog, error } = await supabase
+    .from("catalog_items")
+    .select("id, name, price, options, active")
+    .eq("business_id", businessId)
+    .in("id", ids);
+  if (error) return { error: "No se pudo validar el pedido" };
+
+  const byId = new Map<string, CatalogRow>((catalog ?? []).map((c: CatalogRow) => [c.id, c]));
+
+  const priced: PricedLine[] = [];
+  for (const line of lines) {
+    const item = byId.get(line.catalog_item_id);
+    if (!item || item.active === false) return { error: "Uno de los productos ya no está disponible" };
+    const quantity = Math.floor(Number(line.quantity));
+    if (!Number.isFinite(quantity) || quantity < 1 || quantity > 99) return { error: `Cantidad inválida para "${item.name}"` };
+
+    const groups = parseOptionGroups(item.options);
+    const selection = line.options ?? {};
+    const problem = validateSelection(groups, selection);
+    if (problem) return { error: `${item.name}: ${problem}` };
+
+    const options = snapshotSelection(groups, selection);
+    const unit = Number(item.price) + optionsPrice(options);
+    const notes = typeof line.notes === "string" ? line.notes.trim().slice(0, MAX_NOTE_LENGTH) : "";
+    priced.push({
+      catalog_item_id: item.id,
+      name: item.name,
+      quantity,
+      unit_price: unit,
+      total_price: unit * quantity,
+      options,
+      notes: notes || null,
+    });
+  }
+  return { lines: priced, subtotal: priced.reduce((sum, l) => sum + l.total_price, 0) };
+}
+
+const toItemRows = (transactionId: string, lines: PricedLine[]) =>
+  lines.map((l) => ({
+    transaction_id: transactionId,
+    catalog_item_id: l.catalog_item_id,
+    name: l.name,
+    quantity: l.quantity,
+    unit_price: l.unit_price,
+    total_price: l.total_price,
+    options: l.options as unknown as Json,
+    notes: l.notes,
+  }));
 
 interface CreateOrderPayload {
   type: 'order' | 'sale';
@@ -19,15 +111,21 @@ interface CreateOrderPayload {
   customer_phone?: string;
   customer_email?: string;
   payment_method?: string;
-  subtotal: number;
   discount: number;
   tax: number;
-  total: number;
-  items: OrderItemPayload[];
+  items: OrderLineInput[];
 }
 
 export async function createOrder(businessId: string, payload: CreateOrderPayload) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autorizado" };
+
+  const pricing = await priceOrderLines(supabase, businessId, payload.items);
+  if ("error" in pricing) return { error: pricing.error };
+  const discount = Math.max(0, Number(payload.discount) || 0);
+  const tax = Math.max(0, Number(payload.tax) || 0);
+  const total = Math.max(0, pricing.subtotal - discount + tax);
 
   // Resolve or create contact
   const contactId = await resolveContact(supabase, businessId, {
@@ -45,10 +143,10 @@ export async function createOrder(businessId: string, payload: CreateOrderPayloa
       status: payload.type === 'sale' ? 'completed' : 'pending',
       payment_method: payload.payment_method,
       payment_status: payload.type === 'sale' ? 'paid' : 'pending',
-      subtotal: payload.subtotal,
-      discount: payload.discount,
-      tax: payload.tax,
-      total: payload.total,
+      subtotal: pricing.subtotal,
+      discount,
+      tax,
+      total,
       customer_name: payload.customer_name,
       customer_phone: payload.customer_phone,
       customer_email: payload.customer_email,
@@ -63,18 +161,9 @@ export async function createOrder(businessId: string, payload: CreateOrderPayloa
   }
 
   // Insert Transaction Items
-  const itemsToInsert = payload.items.map(item => ({
-    transaction_id: transaction.id,
-    catalog_item_id: item.catalog_item_id,
-    name: item.name,
-    quantity: item.quantity,
-    unit_price: item.unit_price,
-    total_price: item.total_price,
-  }));
-
   const { error: itemsError } = await supabase
     .from("transaction_items")
-    .insert(itemsToInsert);
+    .insert(toItemRows(transaction.id, pricing.lines));
 
   if (itemsError) {
     return { error: itemsError.message };
@@ -82,10 +171,10 @@ export async function createOrder(businessId: string, payload: CreateOrderPayloa
 
   // POS sales are completed immediately → deduct inventory + update daily cash + update contact stats
   if (payload.type === 'sale') {
-    await deductInventoryForTransaction(supabase, businessId, payload.items);
-    await updateDailyCashOnSale(businessId, payload.total, payload.payment_method || 'cash');
+    await deductInventoryForTransaction(supabase, businessId, pricing.lines);
+    await updateDailyCashOnSale(businessId, total, payload.payment_method || 'cash');
     if (contactId) {
-      await updateContactStats(supabase, contactId, payload.total);
+      await updateContactStats(supabase, contactId, total);
     }
   }
 
@@ -105,9 +194,7 @@ export interface PublicOrderPayload {
   /** Pin dropped by the customer on the checkout map */
   location?: { lat: number; lng: number };
   notes?: string;
-  items: OrderItemPayload[];
-  subtotal: number;
-  total: number;
+  items: OrderLineInput[];
 }
 
 function isValidLocation(loc: PublicOrderPayload["location"]): loc is { lat: number; lng: number } {
@@ -121,6 +208,10 @@ function isValidLocation(loc: PublicOrderPayload["location"]): loc is { lat: num
 export async function createPublicOrder(businessId: string, payload: PublicOrderPayload) {
   const { createClient: createAnonClient } = await import("@/lib/supabase/server");
   const supabase = await createAnonClient();
+
+  // Prices always come from the catalog, never from the browser
+  const pricing = await priceOrderLines(supabase, businessId, payload.items);
+  if ("error" in pricing) return { error: pricing.error };
 
   const deliveryLabel = payload.delivery_type === 'delivery' ? 'Domicilio' : 'Recoge en tienda';
   const orderNotes = [
@@ -145,10 +236,10 @@ export async function createPublicOrder(businessId: string, payload: PublicOrder
       status: 'pending',
       payment_method: 'pending',
       payment_status: 'pending',
-      subtotal: payload.subtotal,
+      subtotal: pricing.subtotal,
       discount: 0,
       tax: 0,
-      total: payload.total,
+      total: pricing.subtotal,
       customer_name: payload.customer_name,
       customer_phone: payload.customer_phone,
       address: payload.delivery_type === 'delivery' ? (payload.address || null) : null,
@@ -164,18 +255,9 @@ export async function createPublicOrder(businessId: string, payload: PublicOrder
   }
 
   // Insert Transaction Items
-  const itemsToInsert = payload.items.map(item => ({
-    transaction_id: transaction.id,
-    catalog_item_id: item.catalog_item_id,
-    name: item.name,
-    quantity: item.quantity,
-    unit_price: item.unit_price,
-    total_price: item.total_price,
-  }));
-
   const { error: itemsError } = await supabase
     .from("transaction_items")
-    .insert(itemsToInsert);
+    .insert(toItemRows(transaction.id, pricing.lines));
 
   if (itemsError) {
     return { error: itemsError.message };
@@ -241,18 +323,16 @@ export async function updateOrderStatus(orderId: string, status: string, payment
     if (transaction) {
       const { data: txItems } = await supabase
         .from("transaction_items")
-        .select("catalog_item_id, quantity")
+        .select("catalog_item_id, quantity, options")
         .eq("transaction_id", orderId);
 
       if (txItems && txItems.length > 0) {
-        const orderItems = txItems
+        const orderItems: SoldLine[] = txItems
           .filter((ti) => ti.catalog_item_id != null)
           .map((ti) => ({
             catalog_item_id: ti.catalog_item_id as string,
             quantity: ti.quantity,
-            name: "",
-            unit_price: 0,
-            total_price: 0,
+            options: ti.options,
           }));
         if (orderItems.length > 0) {
           await deductInventoryForTransaction(supabase, transaction.business_id, orderItems);
@@ -293,7 +373,7 @@ export async function updateOrderStatus(orderId: string, status: string, payment
 async function deductInventoryForTransaction(
   supabase: any,
   businessId: string,
-  items: OrderItemPayload[]
+  items: SoldLine[]
 ) {
   const catalogItemIds = [...new Set(items.map((i) => i.catalog_item_id).filter(Boolean))];
   if (catalogItemIds.length === 0) return;
@@ -352,6 +432,15 @@ async function deductInventoryForTransaction(
         deductions.set(invId, total);
       }
       // No link → skip (service/membership)
+    }
+
+    // Chosen options can consume stock too (e.g. "Proteína: Res" → 0.15 kg de res)
+    if (Array.isArray(soldItem.options)) {
+      for (const opt of soldItem.options as SelectedOption[]) {
+        if (!opt?.inventory_id || !opt.inventory_qty) continue;
+        const total = (deductions.get(opt.inventory_id) || 0) + opt.inventory_qty * soldItem.quantity;
+        deductions.set(opt.inventory_id, total);
+      }
     }
   }
 
