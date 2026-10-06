@@ -175,7 +175,7 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
                     src={user.avatar_url ?? ""}
                     alt={user.display_name}
                   />
-                  <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold text-xs">
+                  <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[color-mix(in_srgb,var(--accent)_65%,white)] text-[var(--accent-foreground)] font-bold text-xs">
                     {user.display_name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -202,7 +202,7 @@ export function SuperAdminSidebar({ user }: { user: SuperAdminUserInfo }) {
                         src={user.avatar_url ?? ""}
                         alt={user.display_name}
                       />
-                      <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold">
+                      <AvatarFallback className="rounded-full bg-gradient-to-br from-[var(--accent)] to-[color-mix(in_srgb,var(--accent)_65%,white)] text-[var(--accent-foreground)] font-bold">
                         {user.display_name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>

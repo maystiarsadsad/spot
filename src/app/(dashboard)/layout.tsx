@@ -5,8 +5,50 @@ import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { AuthProvider } from "@/components/shared/auth-provider";
 import { cookies } from "next/headers";
+import { getUserBusinesses, resolveActiveBusinessId } from "@/lib/get-user-businesses";
+import { ensureContrast, HEX_COLOR, readableTextColor } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Brand color as page-level CSS variables, derived per theme so it stays
+ * legible: the brand is nudged lighter/darker only if it fails 3:1 against the
+ * theme's surface, and the text on top of it is picked by contrast. Emitted on
+ * <html> (not a wrapper div) so dialogs/menus rendered in portals get it too.
+ * In dark mode --primary follows the brand as well, since that's what filled
+ * buttons and active tabs use there.
+ */
+function buildBrandCss(brandColor: string | null): string | null {
+  // Only a strict #rrggbb ever reaches the stylesheet.
+  if (!brandColor || !HEX_COLOR.test(brandColor)) return null;
+
+  const light = ensureContrast(brandColor, "#fdfaf2", 3);
+  const dark = ensureContrast(brandColor, "#15140f", 3);
+  const lightFg = readableTextColor(light);
+  const darkFg = readableTextColor(dark);
+
+  return `
+html:root {
+  --accent: ${light};
+  --accent-foreground: ${lightFg};
+  --ring: ${light};
+  --chart-1: ${light};
+  --sidebar-ring: ${light};
+  --sidebar-accent-foreground: ${light};
+}
+html.dark {
+  --accent: ${dark};
+  --accent-foreground: ${darkFg};
+  --ring: ${dark};
+  --chart-1: ${dark};
+  --primary: ${dark};
+  --primary-foreground: ${darkFg};
+  --sidebar-primary: ${dark};
+  --sidebar-primary-foreground: ${darkFg};
+  --sidebar-ring: ${dark};
+  --sidebar-accent-foreground: ${dark};
+}`;
+}
 
 export default async function DashboardLayout({
   children,
@@ -28,48 +70,15 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
-  // Fetch businesses the user is a member of
-  const { data: memberBusinesses, error: memberErr } = await supabase
-    .from("business_members")
-    .select("business_id, businesses ( id, name, slug, logo_url, type )")
-    .eq("user_id", user.id)
-    .eq("status", "active");
-
-  if (memberErr) {
-    console.log("Warning fetching member businesses:", memberErr.message || JSON.stringify(memberErr));
-  }
-
-  // Fallback/additive: Fetch businesses they directly own
-  const { data: ownedBusinesses } = await supabase
-    .from("businesses")
-    .select("id, name, slug, logo_url, type")
-    .eq("owner_id", user.id);
-
-  let businesses = (memberBusinesses || [])
-    .map((mb: any) => {
-      if (Array.isArray(mb.businesses)) return mb.businesses[0];
-      return mb.businesses;
-    })
-    .filter(Boolean);
-    
-  if (ownedBusinesses && ownedBusinesses.length > 0) {
-    const existingIds = new Set(businesses.map((b: any) => b.id));
-    for (const b of ownedBusinesses) {
-      if (!existingIds.has(b.id)) {
-        businesses.push(b);
-        existingIds.add(b.id);
-      }
-    }
-  }
+  const businesses = await getUserBusinesses(supabase, user.id);
 
   const cookieStore = await cookies();
-  let activeBusinessId = cookieStore.get("spot-business-id")?.value;
-
-  // Validate the cookie id exists in our list. If not, auto-fallback to the first one available.
-  const isValidBusinessId = businesses.find((b: { id: string }) => b.id === activeBusinessId);
-  if (!isValidBusinessId && businesses.length > 0) {
-    activeBusinessId = businesses[0].id;
-  }
+  // Cookie if it's one of the user's businesses, otherwise the first one.
+  // getActiveBusiness() resolves it the same way, so pages agree with the sidebar.
+  const activeBusinessId = resolveActiveBusinessId(
+    businesses,
+    cookieStore.get("spot-business-id")?.value
+  );
 
   // Fetch user's member role for the active business (for module permissions)
   let memberRole: string | null = null;
@@ -87,8 +96,13 @@ export default async function DashboardLayout({
       memberPermissions = membership.permissions;
     } else {
       // No membership record found — check if user is the business owner
-      const isOwner = ownedBusinesses?.some((b) => b.id === activeBusinessId);
-      if (isOwner) {
+      const { data: ownedBiz } = await supabase
+        .from("businesses")
+        .select("id")
+        .eq("id", activeBusinessId)
+        .eq("owner_id", user.id)
+        .maybeSingle();
+      if (ownedBiz) {
         memberRole = "owner"; // Explicit owner — full access
       }
     }
@@ -120,22 +134,12 @@ export default async function DashboardLayout({
     brandColor = (biz?.theme as any)?.brandColor || null;
   }
 
-  const themeStyle = brandColor
-    ? {
-        "--accent": brandColor,
-        "--sun": brandColor,
-        "--ring": brandColor,
-        "--chart-1": brandColor,
-        "--primary-foreground": brandColor,
-        "--sidebar-ring": brandColor,
-        "--sidebar-primary-foreground": brandColor,
-        "--sidebar-accent-foreground": brandColor,
-      } as React.CSSProperties
-    : undefined;
+  const brandCss = buildBrandCss(brandColor);
 
   return (
     <AuthProvider initialUser={user} initialProfile={profile}>
-      <div style={themeStyle}>
+      {brandCss && <style dangerouslySetInnerHTML={{ __html: brandCss }} />}
+      <div>
       <SidebarProvider>
         <DashboardSidebar
           user={{

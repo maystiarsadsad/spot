@@ -36,7 +36,7 @@ interface DashboardChartsProps {
 }
 
 const CATEGORY_COLORS = [
-  "hsl(24, 95%, 53%)",   // orange
+  "var(--accent)",   // orange
   "hsl(262, 83%, 58%)",  // purple
   "hsl(199, 89%, 48%)",  // cyan
   "hsl(142, 71%, 45%)",  // green
@@ -155,8 +155,8 @@ export function DashboardCharts({
               <AreaChart data={salesData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(24, 95%, 53%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(24, 95%, 53%)" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--muted-foreground)" strokeOpacity={0.15} />
@@ -179,11 +179,11 @@ export function DashboardCharts({
                 <Area
                   type="monotone"
                   dataKey="revenue"
-                  stroke="hsl(24, 95%, 53%)"
+                  stroke="var(--accent)"
                   strokeWidth={2.5}
                   fill="url(#revenueGradient)"
-                  dot={{ fill: "hsl(24, 95%, 53%)", strokeWidth: 0, r: 4 }}
-                  activeDot={{ r: 6, stroke: "hsl(24, 95%, 53%)", strokeWidth: 2, fill: "white" }}
+                  dot={{ fill: "var(--accent)", strokeWidth: 0, r: 4 }}
+                  activeDot={{ r: 6, stroke: "var(--accent)", strokeWidth: 2, fill: "white" }}
                 />
               </AreaChart>
             </ResponsiveContainer>

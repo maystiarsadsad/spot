@@ -72,7 +72,7 @@ export function WebpageEditor({ business, itemCount, categoryCount }: WebpageEdi
       website: socialLinks.website || "",
     },
     theme: {
-      primary_color: themeData.primary_color || "#6366f1",
+      primary_color: themeData.primary_color || themeData.brandColor || "#6366f1",
       bg_color: themeData.bg_color || "#0f172a",
       text_color: themeData.text_color || "#f1f5f9",
       font_family: themeData.font_family || "inter",

@@ -31,7 +31,7 @@ interface ReportsClientProps {
   };
 }
 
-const COLORS = ["#ff5b1f", "#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
+const COLORS = ["var(--accent)", "#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
 
 export function ReportsClient({
   businessId,

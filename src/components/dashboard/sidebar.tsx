@@ -69,7 +69,7 @@ const navItems = [
   { label: "Mi Página", href: "/d/webpage", icon: Globe },
 ];
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { DEFAULT_MODULES_BY_TYPE, type BusinessType } from "@/lib/constants";
 
@@ -95,6 +95,17 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
   const [memberRole, setMemberRole] = useState<string | null | undefined>(initialMemberRole);
   const [memberPermissions, setMemberPermissions] = useState<any>(initialMemberPermissions);
   const [enabledModules, setEnabledModules] = useState<string[] | null | undefined>(initialEnabledModules);
+
+  // The layout can resolve a default business (first in the list) when the
+  // cookie is missing, e.g. right after login, but a Server Component can't
+  // write cookies — persist it here so the selection survives reloads.
+  useEffect(() => {
+    if (!initialActiveBusinessId) return;
+    if (document.cookie.includes(`spot-business-id=${initialActiveBusinessId}`)) return;
+    import("@/lib/actions/context").then(({ setActiveBusinessCookie }) =>
+      setActiveBusinessCookie(initialActiveBusinessId)
+    );
+  }, [initialActiveBusinessId]);
 
   const handleBusinessSwitch = async (business: BusinessInfo) => {
     setActiveBusiness(business);
@@ -252,7 +263,7 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
           >
             <Avatar className="h-8 w-8 rounded-full">
               <AvatarImage src={user.avatar_url ?? undefined} />
-              <AvatarFallback className="text-xs rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold">
+              <AvatarFallback className="text-xs rounded-full bg-gradient-to-br from-[var(--accent)] to-[color-mix(in_srgb,var(--accent)_65%,white)] text-[var(--accent-foreground)] font-bold">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -282,7 +293,7 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 rounded-full">
                   <AvatarImage src={user.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-sm rounded-full bg-gradient-to-br from-[var(--accent)] to-[#ff8e6f] text-[var(--accent-foreground)] font-bold">{initials}</AvatarFallback>
+                  <AvatarFallback className="text-sm rounded-full bg-gradient-to-br from-[var(--accent)] to-[color-mix(in_srgb,var(--accent)_65%,white)] text-[var(--accent-foreground)] font-bold">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 text-left overflow-hidden">
                   <p className="text-sm font-bold truncate leading-none mb-1">{user.display_name}</p>

@@ -25,15 +25,32 @@ export async function updateBusinessWebpage(
 ) {
   const supabase = await createClient();
 
+  // `theme` is one JSON column shared with Configuración (brandColor). Merge
+  // instead of replacing it, otherwise saving Mi Página wipes the brand color.
+  let payload = data;
+  if (data.theme) {
+    const { data: existing } = await supabase
+      .from("businesses")
+      .select("theme")
+      .eq("id", businessId)
+      .single();
+    const existingTheme =
+      existing?.theme && typeof existing.theme === "object" && !Array.isArray(existing.theme)
+        ? (existing.theme as Record<string, unknown>)
+        : {};
+    payload = { ...data, theme: { ...existingTheme, ...data.theme } };
+  }
+
   const { error } = await supabase
     .from("businesses")
-    .update(data)
+    .update(payload)
     .eq("id", businessId);
 
   if (error) {
     return { success: false, error: error.message };
   }
 
+  revalidatePath("/d", "layout");
   revalidatePath("/d/webpage");
   revalidatePath(`/`);
   return { success: true };
