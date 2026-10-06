@@ -20,6 +20,13 @@ export const APP_NAME = 'Spot'
 export const APP_TAGLINE = 'Tu negocio, tu lugar'
 export const APP_DESCRIPTION = 'Plataforma todo-en-uno para negocios locales'
 
+/** Spot sales line (international format, digits only for wa.me). */
+export const SALES_WHATSAPP = '573044047382'
+
+export function salesWhatsappUrl(message: string) {
+  return `https://wa.me/${SALES_WHATSAPP}?text=${encodeURIComponent(message)}`
+}
+
 export const BUSINESS_TYPES: Record<BusinessType, { label: string; icon: string; color: string }> = {
   restaurant: { label: 'Restaurante', icon: '🍽️', color: '#ef4444' },
   fast_food: { label: 'Comida Rápida', icon: '🍔', color: '#f97316' },

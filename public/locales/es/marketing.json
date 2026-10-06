@@ -1,0 +1,398 @@
+{
+  "meta": {
+    "title": "Spot — Software para negocios locales: página web, pedidos, caja e inventario",
+    "description": "Página web con pedidos, caja POS, inventario, domicilios con mapa en vivo, reservas y reportes en una sola app. Te la dejamos lista en 30 días."
+  },
+  "nav": {
+    "features": "Funciones",
+    "howItWorks": "Cómo funciona",
+    "pricing": "Precios",
+    "demos": "Demos",
+    "faq": "Preguntas",
+    "login": "Ingresar",
+    "cta": "Agendar demo"
+  },
+  "whatsapp": {
+    "demoMessage": "Hola, quiero agendar una demo de Spot para mi negocio.",
+    "planMessage": "Hola, me interesa el plan {plan} de Spot. ¿Podemos agendar una demo?"
+  },
+  "hero": {
+    "eyebrow": "Para restaurantes, tiendas, barberías, hoteles y más",
+    "titleStart": "Tu negocio,",
+    "titleAccent": "en línea",
+    "titleEnd": "y en orden.",
+    "subtitle": "Página web con pedidos, caja, inventario, domicilios con mapa en vivo y reportes en una sola app. No te entregamos un software para que lo configures tú: en 30 días te lo dejamos funcionando.",
+    "primaryCta": "Agenda una demo por WhatsApp",
+    "secondaryCta": "Ver demos en vivo",
+    "proof": ["Sin comisión por venta", "Funciona en celular, tablet o PC", "Soporte por WhatsApp"],
+    "mock": {
+      "store": "Burger Brothers",
+      "order": "Pedido WEB-1042",
+      "status": "En camino",
+      "eta": "Llega en ~6 min",
+      "courier": "Sofía va hacia tu dirección · 1.2 km",
+      "steps": ["Recibido", "Preparando", "En camino", "Entregado"],
+      "salesLabel": "Ventas hoy",
+      "salesValue": "$ 927.500",
+      "stockLabel": "Stock bajo",
+      "stockValue": "Tocineta · 4 kg"
+    }
+  },
+  "segments": {
+    "title": "Una demo real para cada tipo de negocio"
+  },
+  "features": {
+    "eyebrow": "Todo en un solo lugar",
+    "title": "Deja de saltar entre el cuaderno, el Excel y el WhatsApp",
+    "subtitle": "Spot reúne lo que tu negocio necesita para vender y para organizarse, y todo se conecta: una venta descuenta inventario, suma a la caja del día y alimenta tus reportes.",
+    "items": [
+      { "icon": "Globe", "title": "Página web con tu marca", "body": "Catálogo con fotos, precios y carrito. Tus clientes piden para recoger o a domicilio desde el celular, sin descargar nada." },
+      { "icon": "Bike", "title": "Domicilios con mapa en vivo", "body": "El cliente marca su ubicación y ve en tiempo real dónde va su pedido. El repartidor solo abre un link, sin instalar ninguna app." },
+      { "icon": "ScanBarcode", "title": "Caja POS con escáner", "body": "Vende en mostrador desde cualquier dispositivo y escanea códigos de barras con la cámara. Efectivo, tarjeta o transferencia." },
+      { "icon": "Warehouse", "title": "Inventario con alertas", "body": "Stock por producto o insumo, movimientos y avisos cuando algo se está acabando, antes de que te quedes sin vender." },
+      { "icon": "CalendarDays", "title": "Reservas y agenda", "body": "Mesas, citas, habitaciones o clases en un calendario, con el estado de cada reserva." },
+      { "icon": "Contact", "title": "Clientes y fiado", "body": "Historial de compras de cada cliente, cuentas de crédito y abonos, sin libreta." },
+      { "icon": "Wallet", "title": "Finanzas, caja y nómina", "body": "Apertura y cierre de caja, gastos, nómina del equipo y la utilidad real del mes." },
+      { "icon": "BarChart3", "title": "Reportes claros", "body": "Qué se vende, a qué hora, quiénes son tus mejores clientes y cómo vas frente al mes pasado." },
+      { "icon": "Bot", "title": "Asistente con IA", "body": "Un agente en tu página responde preguntas sobre productos, precios y horarios, también de noche." },
+      { "icon": "Users", "title": "Equipo y permisos", "body": "Cada persona entra con su usuario y ve solo lo que le corresponde. Maneja varios negocios desde una sola cuenta." }
+    ]
+  },
+  "process": {
+    "eyebrow": "Cómo funciona",
+    "title": "Un mes de implementación y te acompañamos después",
+    "subtitle": "La mayoría de los negocios no tiene tiempo de configurar un sistema. Por eso el primer mes lo hacemos contigo: llegas al día 30 vendiendo con Spot.",
+    "steps": [
+      { "week": "Semana 1", "title": "Diagnóstico y configuración", "body": "Entendemos cómo vendes, activamos los módulos que necesitas y creamos los usuarios de tu equipo con sus permisos." },
+      { "week": "Semana 2", "title": "Catálogo y página web", "body": "Cargamos tus productos o servicios con fotos y precios, y dejamos tu página lista con tus colores, logo y horarios." },
+      { "week": "Semana 3", "title": "Inventario y capacitación", "body": "Registramos el inventario inicial y capacitamos a tu equipo en caja, pedidos, domicilios y cierre del día." },
+      { "week": "Semana 4", "title": "Salida en vivo", "body": "Empiezas a vender con Spot y estamos pendientes por WhatsApp para resolver cualquier duda en el momento." }
+    ],
+    "after": {
+      "title": "Después: mantenimiento mensual",
+      "body": "La mensualidad incluye hosting, actualizaciones, copias de seguridad, nuevas funciones y soporte. Tú te dedicas a vender."
+    }
+  },
+  "pricing": {
+    "eyebrow": "Precios",
+    "title": "Implementación una sola vez y luego una mensualidad fija",
+    "subtitle": "Sin comisiones por venta ni costos escondidos. Todos los precios son en pesos colombianos y no incluyen IVA.",
+    "setupLabel": "Implementación (pago único)",
+    "monthlyLabel": "/mes",
+    "annualNote": "o {price} al año (2 meses gratis)",
+    "from": "Desde",
+    "popular": "Más elegido",
+    "cta": "Agendar demo",
+    "plans": [
+      {
+        "key": "starter",
+        "name": "Esencial",
+        "tagline": "Para empezar a vender en línea y ordenar la caja.",
+        "setup": 1200000,
+        "monthly": 149900,
+        "features": [
+          "Página web con tu marca y catálogo (hasta 80 productos cargados por nosotros)",
+          "Pedidos web para recoger o a domicilio",
+          "Caja POS con escáner por cámara",
+          "Clientes, caja diaria y gastos",
+          "Hasta 3 usuarios",
+          "2 sesiones de capacitación",
+          "Soporte por WhatsApp de lunes a viernes"
+        ]
+      },
+      {
+        "key": "pro",
+        "name": "Profesional",
+        "tagline": "Para negocios con domicilios, inventario o agenda.",
+        "setup": 1800000,
+        "monthly": 249900,
+        "popular": true,
+        "features": [
+          "Todo lo del plan Esencial",
+          "Catálogo de hasta 300 productos cargados por nosotros",
+          "Domicilios con seguimiento en mapa en vivo",
+          "Inventario con alertas de stock",
+          "Reservas y agenda",
+          "Fiado, nómina y reportes avanzados",
+          "Asistente con IA en tu página",
+          "Hasta 10 usuarios y 4 sesiones de capacitación",
+          "Soporte prioritario todos los días"
+        ]
+      },
+      {
+        "key": "enterprise",
+        "name": "Empresa",
+        "tagline": "Para varias sedes o equipos grandes.",
+        "setup": 3000000,
+        "monthly": 449900,
+        "fromPrice": true,
+        "features": [
+          "Todo lo del plan Profesional",
+          "Varios negocios o sedes en una sola cuenta",
+          "Usuarios ilimitados",
+          "Catálogo ilimitado cargado por nosotros",
+          "Capacitación continua y revisión mensual de resultados",
+          "Acompañamiento con un asesor dedicado",
+          "Desarrollos e integraciones a medida (se cotizan aparte)"
+        ]
+      }
+    ],
+    "compare": {
+      "title": "¿Por qué este precio?",
+      "body": "Por separado, un POS para negocios cuesta entre $60.000 y $270.000 al mes, una tienda en línea entre $200.000 y $600.000 al mes (más comisiones) y una agencia cobra desde $1.800.000 por montar la página. Con Spot tienes todo conectado, sin comisiones, y alguien que lo deja funcionando por ti."
+    }
+  },
+  "demos": {
+    "eyebrow": "Demos en vivo",
+    "title": "Mira cómo se vería tu negocio",
+    "subtitle": "Cada demo es una página real con catálogo, carrito y pedidos. Ábrela desde tu celular. En la demo por WhatsApp te mostramos también el panel de administración.",
+    "open": "Ver demo",
+    "empty": "Las demos se están actualizando. Escríbenos y te mostramos una en vivo."
+  },
+  "faq": {
+    "eyebrow": "Preguntas frecuentes",
+    "title": "Lo que nos suelen preguntar",
+    "items": [
+      { "q": "¿Qué incluye exactamente la implementación?", "a": "Configuración de tu negocio y sus módulos, carga del catálogo con fotos y precios, tu página web con tu marca, inventario inicial, usuarios para tu equipo, capacitaciones y acompañamiento durante la salida en vivo. Al terminar el mes, tu negocio queda vendiendo con Spot." },
+      { "q": "¿Tengo que comprar equipos?", "a": "No. Spot funciona en el navegador de cualquier celular, tablet o computador, y se puede instalar como app. El escáner de códigos de barras usa la cámara del dispositivo. Si ya tienes impresora o lector, lo revisamos en la implementación." },
+      { "q": "¿Cobran comisión por cada venta?", "a": "No. Pagas la implementación una sola vez y luego la mensualidad de tu plan. Lo que vendes es tuyo." },
+      { "q": "¿Incluye facturación electrónica DIAN?", "a": "Por ahora no. Spot registra tus ventas, pedidos y caja, y la facturación electrónica la sigues haciendo con tu proveedor actual. Si la necesitas, te contamos las opciones en la demo." },
+      { "q": "¿Cómo funciona el seguimiento de domicilios?", "a": "Cuando el cliente pide a domicilio, marca su ubicación en un mapa. Tú le envías al repartidor un link por WhatsApp; al abrirlo comparte su ubicación y el cliente ve en tiempo real cuánto le falta. No hay que instalar ninguna app." },
+      { "q": "¿Puedo cambiar de plan o cancelar?", "a": "Sí. Puedes subir o bajar de plan cuando quieras y cancelar avisando con 30 días. Si cancelas, te entregamos tus datos en un archivo para que no pierdas tu información." },
+      { "q": "¿Mis datos están seguros?", "a": "Cada negocio está aislado del resto: nadie más puede ver tu información. Hacemos copias de seguridad y tratamos los datos de acuerdo con la Ley 1581 de 2012. Puedes leer nuestra política de privacidad." }
+    ]
+  },
+  "finalCta": {
+    "title": "¿Lo vemos funcionando con tu negocio?",
+    "subtitle": "En 20 minutos por WhatsApp o videollamada te mostramos la demo de tu tipo de negocio y lo que costaría en tu caso.",
+    "cta": "Agendar demo por WhatsApp"
+  },
+  "footer": {
+    "tagline": "Tu negocio, tu lugar.",
+    "product": "Producto",
+    "legal": "Legal",
+    "contact": "Contacto",
+    "privacy": "Política de privacidad",
+    "terms": "Términos y condiciones",
+    "cookies": "Política de cookies",
+    "whatsapp": "WhatsApp ventas",
+    "rights": "Todos los derechos reservados."
+  },
+  "legal": {
+    "updatedLabel": "Última actualización",
+    "updated": "6 de octubre de 2026",
+    "placeholderNote": "Los campos entre corchetes se completarán con los datos del responsable del servicio.",
+    "backHome": "Volver al inicio",
+    "privacy": {
+      "title": "Política de privacidad y tratamiento de datos personales",
+      "intro": "Esta política explica cómo Spot recolecta, usa, guarda y protege los datos personales, en cumplimiento de la Ley Estatutaria 1581 de 2012, el Decreto 1074 de 2015 (capítulo 25) y demás normas colombianas sobre protección de datos personales.",
+      "sections": [
+        {
+          "title": "1. Responsable del tratamiento",
+          "paragraphs": [
+            "[RAZÓN SOCIAL], identificado con NIT [NIT], con domicilio en [DIRECCIÓN], [CIUDAD], Colombia. Correo para temas de datos personales: [CORREO DE PRIVACIDAD]. Teléfono: [TELÉFONO]."
+          ]
+        },
+        {
+          "title": "2. Dos roles distintos: responsable y encargado",
+          "paragraphs": [
+            "Spot es responsable de los datos de quienes contratan el servicio y usan el panel (dueños de negocios y sus equipos), y de los visitantes de este sitio.",
+            "Respecto de los datos que cada negocio registra sobre sus propios clientes, proveedores y empleados (por ejemplo, nombre, teléfono, dirección de entrega o historial de compras), el negocio es el responsable del tratamiento y Spot actúa como encargado: los trata únicamente por cuenta y según las instrucciones del negocio, para prestarle el servicio. Las solicitudes sobre esos datos deben dirigirse primero al negocio correspondiente."
+          ]
+        },
+        {
+          "title": "3. Datos que tratamos",
+          "list": [
+            "Datos de cuenta: nombre, correo electrónico, teléfono y contraseña cifrada.",
+            "Datos del negocio: razón social, dirección, horarios, catálogo, precios, inventario, ventas, gastos y nómina que el negocio registre.",
+            "Datos de clientes finales registrados por los negocios o ingresados al hacer un pedido: nombre, teléfono, dirección y, si el cliente lo marca, la ubicación de entrega en el mapa.",
+            "Ubicación del repartidor: solo mientras tiene una entrega en curso y después de aceptar compartirla en su navegador. Se guarda la última posición conocida de esa entrega.",
+            "Datos técnicos y de uso: dirección IP, tipo de dispositivo y navegador, y registros de actividad necesarios para la seguridad y el funcionamiento del servicio."
+          ]
+        },
+        {
+          "title": "4. Finalidades",
+          "list": [
+            "Crear y administrar cuentas y prestar las funciones contratadas (página web, pedidos, caja, inventario, reservas, domicilios, reportes y demás).",
+            "Mostrar al cliente final el estado y la ubicación en tiempo real de su pedido a domicilio.",
+            "Brindar soporte, capacitación y comunicaciones sobre el servicio, la facturación y cambios en estas políticas.",
+            "Prevenir fraudes, garantizar la seguridad de la plataforma y cumplir obligaciones legales.",
+            "Enviar información comercial sobre Spot, solo si la persona lo autorizó; puede retirar esa autorización en cualquier momento.",
+            "Elaborar estadísticas agregadas y anónimas para mejorar el producto."
+          ]
+        },
+        {
+          "title": "5. Derechos de los titulares",
+          "paragraphs": ["Como titular de datos personales tienes derecho a:"],
+          "list": [
+            "Conocer, actualizar y rectificar tus datos.",
+            "Solicitar prueba de la autorización otorgada, salvo cuando la ley no la exija.",
+            "Ser informado sobre el uso que se ha dado a tus datos.",
+            "Presentar quejas ante la Superintendencia de Industria y Comercio por infracciones a la ley.",
+            "Revocar la autorización o pedir la supresión de tus datos cuando no exista un deber legal o contractual de conservarlos.",
+            "Acceder gratuitamente a tus datos personales."
+          ]
+        },
+        {
+          "title": "6. Cómo ejercer tus derechos",
+          "paragraphs": [
+            "Escribe a [CORREO DE PRIVACIDAD] indicando tu nombre, documento de identidad, la solicitud concreta y un dato de contacto.",
+            "Las consultas se responden en un máximo de diez (10) días hábiles, prorrogables por cinco (5) días hábiles más. Los reclamos se responden en un máximo de quince (15) días hábiles, prorrogables por ocho (8) días hábiles más. En ambos casos te informaremos el motivo de la prórroga.",
+            "Si tu solicitud se refiere a datos que un negocio registró sobre ti, la trasladaremos a ese negocio y te ayudaremos a que sea atendida."
+          ]
+        },
+        {
+          "title": "7. Proveedores y transferencia internacional",
+          "paragraphs": [
+            "Para prestar el servicio usamos proveedores que pueden tratar datos fuera de Colombia, con medidas de seguridad y confidencialidad adecuadas: Supabase (base de datos, autenticación y tiempo real), Vercel (hosting de la aplicación), Google (modelo de IA del asistente, que solo recibe el contenido de la conversación y el catálogo del negocio), OpenStreetMap (mapas, que recibe la dirección IP al cargar el mapa) y WhatsApp (cuando decides abrir una conversación desde Spot). Al aceptar esta política autorizas estas transmisiones y transferencias."
+          ]
+        },
+        {
+          "title": "8. Seguridad y conservación",
+          "paragraphs": [
+            "Aplicamos cifrado en tránsito, aislamiento de los datos de cada negocio, control de acceso por usuario y copias de seguridad. Ningún sistema es infalible; si detectamos un incidente que afecte tus datos te informaremos y lo reportaremos a la autoridad cuando corresponda.",
+            "Conservamos los datos mientras exista la relación con el negocio y durante el tiempo necesario para cumplir obligaciones legales. Cuando un negocio cancela el servicio, le entregamos sus datos y los eliminamos dentro de los noventa (90) días siguientes, salvo lo que la ley obligue a conservar."
+          ]
+        },
+        {
+          "title": "9. Menores de edad",
+          "paragraphs": [
+            "Spot no está dirigido a menores de edad y no recolecta intencionalmente sus datos. Si un negocio registra datos de menores, debe contar con la autorización de sus representantes legales y respetar sus derechos prevalentes."
+          ]
+        },
+        {
+          "title": "10. Cambios y vigencia",
+          "paragraphs": [
+            "Esta política rige desde la fecha de actualización indicada arriba. Si hacemos cambios importantes, los publicaremos en esta página y los comunicaremos a los usuarios del panel antes de aplicarlos."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Términos y condiciones del servicio",
+      "intro": "Estos términos regulan el uso de Spot, una plataforma en línea para que negocios locales vendan y administren su operación. Al contratar o usar el servicio aceptas estos términos.",
+      "sections": [
+        {
+          "title": "1. Quiénes somos",
+          "paragraphs": [
+            "El servicio lo presta [RAZÓN SOCIAL], NIT [NIT], con domicilio en [DIRECCIÓN], [CIUDAD], Colombia (\"Spot\"). Contacto: [CORREO DE CONTACTO]."
+          ]
+        },
+        {
+          "title": "2. El servicio",
+          "paragraphs": [
+            "Spot ofrece, según el plan contratado: página web con catálogo y pedidos, caja POS, inventario, reservas, domicilios con seguimiento, clientes y créditos, finanzas, nómina, reportes y un asistente con inteligencia artificial. Las funciones de cada plan se describen en la página de precios vigente al momento de contratar."
+          ]
+        },
+        {
+          "title": "3. Implementación",
+          "paragraphs": [
+            "La implementación es un servicio de pago único con una duración aproximada de un (1) mes. Incluye la configuración del negocio, la carga del catálogo dentro del límite del plan, la página web, los usuarios y las capacitaciones indicadas en el plan.",
+            "El cumplimiento de los tiempos depende de que el negocio entregue a tiempo la información necesaria (productos, precios, fotos, logo e inventario). Los ajustes o desarrollos fuera del alcance acordado se cotizan por separado."
+          ]
+        },
+        {
+          "title": "4. Pagos y facturación",
+          "list": [
+            "La implementación se paga antes de iniciarla. La mensualidad se paga por anticipado cada mes o, si se elige pago anual, por todo el año.",
+            "Los precios están en pesos colombianos y no incluyen IVA.",
+            "Si un pago se atrasa más de quince (15) días, Spot puede suspender el acceso al panel, previo aviso, hasta que se ponga al día. La página pública del negocio también puede quedar inactiva durante la suspensión.",
+            "Spot puede ajustar sus precios avisando con al menos treinta (30) días de anticipación. Los pagos anuales ya realizados conservan su precio hasta el final del periodo."
+          ]
+        },
+        {
+          "title": "5. Cambio de plan y cancelación",
+          "paragraphs": [
+            "Puedes cambiar de plan en cualquier momento; el nuevo valor aplica desde el siguiente periodo de facturación. Puedes cancelar avisando con treinta (30) días de anticipación. La implementación y los periodos ya pagados no son reembolsables, salvo incumplimiento de Spot.",
+            "Al terminar el servicio, Spot entregará al negocio, si lo pide dentro de los treinta (30) días siguientes, una exportación de sus datos en un formato de uso común."
+          ]
+        },
+        {
+          "title": "6. Obligaciones del negocio",
+          "list": [
+            "Dar información verdadera y mantener seguras las credenciales de sus usuarios.",
+            "Usar Spot de forma legal y ser responsable de los productos, precios, promociones, contenidos e imágenes que publique.",
+            "Obtener las autorizaciones necesarias de sus clientes, empleados y repartidores para el tratamiento de sus datos personales, incluida la ubicación del repartidor durante las entregas.",
+            "Cumplir sus obligaciones tributarias, incluida la facturación electrónica ante la DIAN, que no está incluida en Spot.",
+            "No intentar acceder a datos de otros negocios ni afectar el funcionamiento de la plataforma."
+          ]
+        },
+        {
+          "title": "7. Disponibilidad y soporte",
+          "paragraphs": [
+            "Spot hace su mejor esfuerzo para mantener el servicio disponible todo el tiempo, pero pueden existir interrupciones por mantenimiento, fallas de proveedores o causas fuera de su control. Los mantenimientos programados se avisarán con anticipación cuando sea posible. El soporte se presta por WhatsApp en los horarios de cada plan."
+          ]
+        },
+        {
+          "title": "8. Servicios de terceros",
+          "paragraphs": [
+            "Spot se integra con servicios de terceros como mapas, WhatsApp y modelos de inteligencia artificial. Su funcionamiento depende de esos proveedores. Las respuestas del asistente con IA son orientativas y el negocio debe revisar la información que publica en su catálogo."
+          ]
+        },
+        {
+          "title": "9. Propiedad intelectual",
+          "paragraphs": [
+            "El software, la marca y el diseño de Spot pertenecen a [RAZÓN SOCIAL]. Los datos, el catálogo, las fotos y la marca del negocio le pertenecen al negocio, que autoriza a Spot a usarlos solo para prestar el servicio."
+          ]
+        },
+        {
+          "title": "10. Limitación de responsabilidad",
+          "paragraphs": [
+            "En la máxima medida permitida por la ley, Spot no responde por lucro cesante ni por daños indirectos. La responsabilidad total de Spot frente al negocio se limita al valor pagado por el servicio en los tres (3) meses anteriores al hecho que la origina."
+          ]
+        },
+        {
+          "title": "11. Datos personales",
+          "paragraphs": [
+            "El tratamiento de datos personales se rige por nuestra Política de privacidad y tratamiento de datos personales, que forma parte de estos términos."
+          ]
+        },
+        {
+          "title": "12. Ley aplicable",
+          "paragraphs": [
+            "Estos términos se rigen por las leyes de la República de Colombia. Cualquier diferencia se intentará resolver primero de forma directa y, si no es posible, ante los jueces de [CIUDAD]."
+          ]
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Política de cookies",
+      "intro": "Spot usa cookies y almacenamiento local del navegador solo para que el servicio funcione. No usamos cookies de publicidad ni de seguimiento de terceros.",
+      "sections": [
+        {
+          "title": "1. Qué son",
+          "paragraphs": [
+            "Las cookies y el almacenamiento local son pequeños archivos o datos que tu navegador guarda para recordar información entre una visita y otra."
+          ]
+        },
+        {
+          "title": "2. Cuáles usamos",
+          "list": [
+            "Sesión (cookies sb-*): mantienen iniciada tu sesión en el panel de forma segura. Son necesarias.",
+            "Negocio activo (spot-business-id): recuerda qué negocio estabas administrando. Es necesaria.",
+            "Tema (almacenamiento local): recuerda si prefieres el modo claro u oscuro.",
+            "Pedido activo (almacenamiento local): en la página de un negocio, recuerda tu último pedido a domicilio para que puedas volver a ver su seguimiento durante 12 horas."
+          ]
+        },
+        {
+          "title": "3. Contenido de terceros",
+          "paragraphs": [
+            "Los mapas se cargan desde OpenStreetMap y algunas imágenes de las demos desde Unsplash. Estos servicios reciben tu dirección IP al cargar su contenido, según sus propias políticas. Hoy no usamos herramientas de analítica; si las incorporamos, actualizaremos esta política y pediremos tu consentimiento cuando sea necesario."
+          ]
+        },
+        {
+          "title": "4. Cómo controlarlas",
+          "paragraphs": [
+            "Puedes borrar o bloquear las cookies desde la configuración de tu navegador. Si bloqueas las cookies necesarias no podrás iniciar sesión en el panel."
+          ]
+        },
+        {
+          "title": "5. Contacto",
+          "paragraphs": [
+            "Si tienes preguntas sobre esta política, escríbenos a [CORREO DE PRIVACIDAD]."
+          ]
+        }
+      ]
+    }
+  }
+}

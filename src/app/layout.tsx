@@ -6,6 +6,7 @@ import { ServiceWorkerRegistrar } from "@/components/shared/sw-registrar";
 import "./globals.css";
 import "@/styles/storefront.css";
 import "@/styles/delivery.css";
+import "@/styles/marketing.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
