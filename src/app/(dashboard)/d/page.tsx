@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/get-active-business";
+import { BUSINESS_TYPES, type BusinessType } from "@/lib/constants";
 import { NoBusinessSelected } from "@/components/dashboard/no-business-selected";
 import { Greeting } from "@/components/dashboard/greeting";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
@@ -430,7 +431,7 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="p-3 rounded-lg bg-accent/50">
                 <p className="text-muted-foreground text-xs uppercase font-semibold mb-1.5">Tipo</p>
-                <p className="font-semibold capitalize">{business.type.replace("_", " ")}</p>
+                <p className="font-semibold">{BUSINESS_TYPES[business.type as BusinessType]?.label ?? business.type}</p>
               </div>
               <div className="p-3 rounded-lg bg-accent/50">
                 <p className="text-muted-foreground text-xs uppercase font-semibold mb-1.5">Slug</p>

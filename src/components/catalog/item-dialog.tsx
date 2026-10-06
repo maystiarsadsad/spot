@@ -256,6 +256,8 @@ export function CatalogItemDialog({
       case "retail": return { name: "Ej: Camiseta Básica Blanca", sku: "CAM-001" };
       case "services": return { name: "Ej: Corte de cabello", sku: "SER-001" };
       case "agency": return { name: "Ej: Creación de página web", sku: "WEB-001" };
+      case "logistics": return { name: "Ej: Envío urbano hasta 5 kg", sku: "ENV-001" };
+      case "hardware_store": return { name: "Ej: Taladro percutor 1/2\"", sku: "HER-001" };
       default: return { name: "Ej: Producto o Servicio", sku: "ABC-001" };
     }
   };
@@ -267,10 +269,12 @@ export function CatalogItemDialog({
         return [{ value: "product", label: "Platillo / Bebida" }];
       case "hotel": case "hostel":
         return [{ value: "room", label: "Habitación" }, { value: "service", label: "Servicio / Extra" }];
-      case "retail": case "boutique": case "grocery": case "pharmacy":
+      case "retail": case "boutique": case "grocery": case "pharmacy": case "hardware_store":
         return [{ value: "product", label: "Producto" }];
       case "services": case "agency": case "consulting":
         return [{ value: "service", label: "Servicio" }];
+      case "logistics":
+        return [{ value: "service", label: "Envío / Servicio" }, { value: "product", label: "Insumo (cajas, empaques)" }];
       case "gym": case "spa":
         return [{ value: "membership", label: "Membresía" }, { value: "service", label: "Servicio" }, { value: "product", label: "Producto" }];
       default:

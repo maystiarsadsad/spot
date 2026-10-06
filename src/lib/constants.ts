@@ -12,6 +12,8 @@ export type BusinessType =
   | 'laundry'
   | 'clothing'
   | 'veterinary'
+  | 'logistics'
+  | 'hardware_store'
   | 'custom';
 
 export const APP_NAME = 'Spot'
@@ -32,6 +34,8 @@ export const BUSINESS_TYPES: Record<BusinessType, { label: string; icon: string;
   laundry: { label: 'Lavandería', icon: '🧼', color: '#0ea5e9' },
   clothing: { label: 'Tienda de Ropa', icon: '👗', color: '#ec4899' },
   veterinary: { label: 'Veterinaria', icon: '🐕', color: '#84cc16' },
+  logistics: { label: 'Logística y Envíos', icon: '🚚', color: '#f59e0b' },
+  hardware_store: { label: 'Ferretería', icon: '🔧', color: '#64748b' },
   custom: { label: 'Personalizado', icon: '📱', color: '#6366f1' },
 }
 
@@ -61,6 +65,8 @@ export const DEFAULT_MODULES_BY_TYPE: Record<BusinessType, string[]> = {
   laundry: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
   clothing: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
   veterinary: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
+  logistics: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
+  hardware_store: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
   custom: ['catalog', 'transactions', 'reservations', 'finance', 'team', 'contacts', 'reports'],
 }
 
@@ -79,6 +85,8 @@ export const ROLES_BY_TYPE: Record<BusinessType, string[]> = {
   laundry: ['Operador(a) de Máquinas', 'Planchador(a)', 'Recepcionista', 'Repartidor(a)', 'Administrador(a)'],
   clothing: ['Vendedor(a)', 'Cajero(a)', 'Visual Merchandiser', 'Bodeguero(a)', 'Administrador(a)'],
   veterinary: ['Veterinario(a)', 'Auxiliar Veterinario(a)', 'Peluquero(a) Canino', 'Recepcionista', 'Administrador(a)'],
+  logistics: ['Mensajero(a)', 'Conductor(a)', 'Coordinador(a) de Despachos', 'Auxiliar de Bodega', 'Servicio al Cliente', 'Administrador(a)'],
+  hardware_store: ['Vendedor(a) de Mostrador', 'Cajero(a)', 'Bodeguero(a)', 'Asesor(a) Técnico(a)', 'Repartidor(a)', 'Administrador(a)'],
   custom: ['Administrador(a)', 'Asistente', 'Operario(a)', 'Vendedor(a)', 'Cajero(a)', 'Recepcionista', 'Repartidor(a)', 'Gerente'],
 }
 
@@ -97,6 +105,8 @@ export const DEPARTMENTS_BY_TYPE: Record<BusinessType, string[]> = {
   laundry: ['Lavado', 'Planchado', 'Recepción', 'Domicilios', 'Administración'],
   clothing: ['Ventas', 'Caja', 'Exhibición', 'Bodega', 'Administración'],
   veterinary: ['Consulta', 'Cirugía', 'Peluquería', 'Recepción', 'Administración'],
+  logistics: ['Operaciones', 'Flota', 'Bodega', 'Servicio al Cliente', 'Administración'],
+  hardware_store: ['Mostrador', 'Caja', 'Bodega', 'Domicilios', 'Administración'],
   custom: ['Operaciones', 'Ventas', 'Administración', 'Recepción', 'Logística'],
 }
 
