@@ -26,15 +26,30 @@ export default async function AuditLogsPage() {
   const supabase = await createClient();
 
   // Fetch audit logs
-  const { data: logs, error } = await supabase
+  // audit_log.user_id references auth.users, not profiles, so PostgREST can't
+  // embed profiles — look the authors up separately and merge by id.
+  const { data: rawLogs, error } = await supabase
     .from("audit_log")
     .select(`
         *,
-        profiles:user_id (display_name, email),
         businesses:business_id (name)
     `)
     .order("created_at", { ascending: false })
     .limit(50);
+
+  if (error) {
+    console.error("Failed to load audit logs:", error);
+  }
+
+  const userIds = [...new Set((rawLogs ?? []).map((l) => l.user_id).filter(Boolean))] as string[];
+  const { data: authors } = userIds.length
+    ? await supabase.from("profiles").select("id, display_name, email").in("id", userIds)
+    : { data: [] };
+  const authorById = new Map((authors ?? []).map((a) => [a.id, a]));
+  const logs = (rawLogs ?? []).map((l) => ({
+    ...l,
+    profiles: l.user_id ? authorById.get(l.user_id) ?? null : null,
+  }));
 
   const getActionBadge = (action: string) => {
     const act = action.toLowerCase();

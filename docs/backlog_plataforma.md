@@ -1,7 +1,7 @@
 # BACKLOG EJECUTABLE — Plataforma Unificada (Spot)
 
 > Última auditoría completa: 2026-08-29
-> Tablas en BD: 25 | RLS habilitado: 25/25 | Migraciones: 3 (initial_schema, create_reservations, sync_remote_drift)
+> Tablas en BD: 25 | RLS habilitado: 25/25 | Migraciones: 4 (initial_schema, create_reservations, sync_remote_drift, audit_log_insert_policy)
 
 ## Leyenda
 
@@ -50,7 +50,7 @@
 | BUS-005 | Detalle negocio (SuperAdmin)   | ✅     | `/sa/businesses/[id]` — tabs: overview, módulos, subs   |
 | BUS-006 | Contexto negocio (cookie)      | ✅     | Cookie `spot-business-id`, persistencia 30 días         |
 | BUS-007 | Settings del negocio (tenant)  | ✅     | `/d/settings` — perfil, contacto, color de marca (con selector de texto legible automático) |
-| BUS-008 | Handoff UI (transferir owner)  | ❌     | Solo hay `ownerEmail` opcional al crear; no hay UI para transferir un negocio ya existente |
+| BUS-008 | Handoff UI (transferir owner)  | ✅     | `transferBusinessOwnership()` + diálogo en `/sa/businesses/[id]`. Probado en vivo (2026-10-06): validaciones, transferencia, ruta inversa; el dueño anterior queda como `admin` |
 
 ---
 
@@ -84,7 +84,7 @@
 | MT-001 | Relaciones FK en schema        | ✅     | Todas las tablas tienen `business_id` FK                 |
 | MT-002 | RLS policies                   | 🟡     | 25 tablas con RLS habilitado, políticas básicas creadas   |
 | MT-003 | Filtrado por business_id       | ✅     | `getActiveBusiness()` helper + dashboard filtrado        |
-| MT-004 | QA multi-tenant                | ❌     | No hay framework de tests (jest/vitest/playwright) ni tests de aislamiento |
+| MT-004 | QA multi-tenant                | 🟡     | Vitest instalado y configurado (`npm run test`), primeros tests reales sobre `lib/utils.ts` (2026-09-28). Falta lo que da nombre a la tarea: tests de aislamiento entre negocios contra Supabase — necesita decidir estrategia de DB de pruebas (local vía Docker vs. proyecto Supabase dedicado) antes de escribirlos |
 
 > ✅ `getActiveBusiness()` en `src/lib/get-active-business.ts` — helper reutilizable para todos los módulos.
 
@@ -112,9 +112,9 @@
 | SA-002 | Lista negocios                 | ✅     | `/sa/businesses` con tabla, badges, búsqueda             |
 | SA-003 | Detalle + módulos              | ✅     | `/sa/businesses/[id]` con tabs y BusinessModulesManager  |
 | SA-004 | Lista usuarios                 | ✅     | `/sa/users` con data real                                |
-| SA-005 | Suspender / Activar negocio    | ✅     | `suspendBusiness` / reactivar en `superadmin.ts`, con razón y audit log |
+| SA-005 | Suspender / Activar negocio    | ✅     | `SuspendBusinessDialog` en `/sa/businesses/[id]` (antes el backend existía sin botón). Probado en vivo con motivo y reactivación |
 | SA-006 | Analytics globales             | ❌     | `/sa/analytics` directorio vacío                         |
-| SA-007 | Logs de auditoría              | ✅     | `/sa/logs` — UI real sobre tabla `audit_log`             |
+| SA-007 | Logs de auditoría              | ✅     | `/sa/logs`. Estuvo vacío hasta 2026-10-06: faltaba la política INSERT en `audit_log` y el embed de `profiles` no existe (FK a `auth.users`) |
 
 ---
 
@@ -201,9 +201,9 @@
 
 ## 🎯 Prioridades Inmediatas (Próximas 3 tareas)
 
-1. **BUS-008** — UI para transferir la propiedad de un negocio ya existente
+1. **MT-004** — Decidir estrategia de DB de pruebas (Supabase local vía Docker vs. proyecto dedicado) para poder escribir tests de aislamiento multi-tenant reales
 2. **EPIC 11** — Decidir si el Builder (proposals/templates) sigue vigente o se cierra
-3. **MT-004** — Elegir framework de testing e introducir los primeros tests de aislamiento multi-tenant
+3. **Pendiente de sesión** — Revisar login role de la CLI de Supabase (`supabase db push` devuelve 403 y pide `SUPABASE_DB_PASSWORD`); hoy se aplicó la migración vía conector
 
 ## 📊 Resumen de Progreso
 
@@ -211,10 +211,10 @@
 | ------------------------ | ----- | -- | -- | -- | ----- |
 | 1. Foundation             | 5     | 5  | 0  | 0  | 100%  |
 | 2. Auth                   | 6     | 6  | 0  | 0  | 100%  |
-| 3. Businesses              | 8     | 7  | 0  | 1  | 88%   |
+| 3. Businesses              | 8     | 8  | 0  | 0  | 100%  |
 | 4. Orders                  | 5     | 5  | 0  | 0  | 100%  |
 | 5. Dashboard                | 4     | 4  | 0  | 0  | 100%  |
-| 6. Multi-Tenant             | 4     | 2  | 1  | 1  | 63%   |
+| 6. Multi-Tenant             | 4     | 2  | 2  | 0  | 75%   |
 | 7. Módulos                  | 7     | 7  | 0  | 0  | 100%  |
 | 8. SuperAdmin                | 7     | 6  | 0  | 1  | 86%   |
 | 9. Web Pública                | 3     | 3  | 0  | 0  | 100%  |
@@ -225,11 +225,25 @@
 | 14. Inventario Avanzado               | 3     | 3  | 0  | 0  | 100%  |
 | 15. Agente IA                           | 3     | 3  | 0  | 0  | 100%  |
 | 16. PWA                                   | 3     | 2  | 1  | 0  | 83%   |
-| **TOTAL**                                 | **69**| **59** | **2** | **8** | **87%** |
+| **TOTAL**                                 | **69**| **60** | **3** | **6** | **89%** |
 
 ---
 
 ## 📝 Historial de sesiones
+
+### 2026-10-06 — Negocio activo tras login, verificación en vivo y audit log
+
+- **Negocio activo tras login**: el layout elegía el primer negocio solo para pintar el sidebar, pero no podía escribir la cookie `spot-business-id`, y las páginas (`getActiveBusiness()`) solo leían la cookie → "Sin negocio seleccionado" hasta hacer click. Ahora `get-user-businesses.ts` resuelve el negocio en un solo lugar (cookie válida o primero) y el sidebar persiste la cookie.
+- **BUS-008 y SA-005 probados en vivo** sobre "Restaurante Mock" (revertido): suspender/reactivar, validaciones de email, transferencia y ruta inversa.
+- **Bug encontrado — `audit_log` nunca escribió**: solo tenía políticas SELECT, así que todo `logAudit()` fallaba en silencio por RLS. Migración `20261006104622_audit_log_insert_policy.sql` (aplicada vía conector, `db push` daba 403).
+- **Bug encontrado — `/sa/logs` vacía aunque hubiera filas**: embebía `profiles:user_id`, pero `audit_log.user_id` referencia `auth.users`. Ahora se consultan los autores aparte. Las acciones de negocio ahora pasan `businessId` al log.
+
+### 2026-09-28 — BUS-008, SA-005 y arranque de MT-004
+
+- **Transferencia de propiedad de negocio** (BUS-008): `transferBusinessOwnership()` en `superadmin.ts` + `TransferOwnershipDialog`. El dueño anterior pasa a `admin` en `business_members` en vez de perder acceso.
+- **Corregido un gap que yo mismo había marcado ✅ sin verificar**: `suspendBusiness`/`reactivateBusiness` (SA-005) existían en el backend desde antes pero no estaban conectados a ningún botón. Ahora tienen `SuspendBusinessDialog` en `/sa/businesses/[id]`.
+- **No probado en vivo**: sin credenciales de login en este entorno, y crear un usuario de prueba desechable vía el Admin API falló por falta de salida de red en el sandbox de Bash. `tsc --noEmit` y `npm run lint` sí pasan limpio.
+- **MT-004 arrancado**: Vitest instalado y configurado (`npm run test` / `test:watch`), primeros tests reales pasando sobre `lib/utils.ts` (9 tests, incluye el caso que motivó `readableTextColor()`). Falta la estrategia de DB de pruebas para poder testear aislamiento multi-tenant de verdad.
 
 ### 2026-08-29 — Re-auditoría completa + fixes de infraestructura
 

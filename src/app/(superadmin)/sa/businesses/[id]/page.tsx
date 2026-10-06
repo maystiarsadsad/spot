@@ -27,6 +27,8 @@ import Link from "next/link";
 import { BusinessModulesManager } from "@/components/superadmin/business-modules-manager";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EditBusinessDialog } from "@/components/superadmin/edit-business-dialog";
+import { SuspendBusinessDialog } from "@/components/superadmin/suspend-business-dialog";
+import { TransferOwnershipDialog } from "@/components/superadmin/transfer-ownership-dialog";
 
 interface BusinessDetailPageProps {
   params: Promise<{ id: string }>;
@@ -92,6 +94,11 @@ export default async function BusinessDetailPage({ params }: BusinessDetailPageP
           ) : (
             <Badge variant="secondary" className="h-7 px-3">Inactivo</Badge>
           )}
+          <SuspendBusinessDialog
+            businessId={business.id}
+            businessName={business.name}
+            suspended={!!business.suspended}
+          />
           <EditBusinessDialog business={{
             id: business.id,
             name: business.name,
@@ -134,14 +141,19 @@ export default async function BusinessDetailPage({ params }: BusinessDetailPageP
                   </div>
                 )}
               </div>
-              <Button 
-                variant="outline" 
-                className="w-full text-xs h-8" 
+              <Button
+                variant="outline"
+                className="w-full text-xs h-8"
                 render={<Link href={`/sa/users?id=${owner?.id}`} />}
                 nativeButton={false}
               >
                 Ver Perfil Completo
               </Button>
+              <TransferOwnershipDialog
+                businessId={business.id}
+                businessName={business.name}
+                currentOwnerEmail={owner?.email ?? null}
+              />
             </CardContent>
           </Card>
 

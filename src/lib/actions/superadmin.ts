@@ -115,6 +115,7 @@ export async function suspendBusiness(businessId: string, reason: string) {
     action: "suspend_business",
     entityType: "business",
     entityId: businessId,
+    businessId,
     changes: {
       business_name: business?.name,
       reason,
@@ -164,11 +165,117 @@ export async function reactivateBusiness(businessId: string) {
     action: "reactivate_business",
     entityType: "business",
     entityId: businessId,
+    businessId,
   });
 
   revalidatePath("/sa/businesses");
   revalidatePath(`/sa/businesses/${businessId}`);
   return { success: true };
+}
+
+/**
+ * Transfer a business's ownership to another registered user (superadmin only).
+ * The previous owner keeps access as an "admin" member instead of being
+ * removed, so they don't lose the ability to help the new owner get set up.
+ */
+export async function transferBusinessOwnership(businessId: string, newOwnerEmail: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "No autorizado" };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("platform_role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.platform_role !== "superadmin") {
+    return { error: "No tienes permisos" };
+  }
+
+  const email = newOwnerEmail?.trim();
+  if (!email) {
+    return { error: "Ingresa el email del nuevo propietario" };
+  }
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name, owner_id")
+    .eq("id", businessId)
+    .single();
+
+  if (!business) {
+    return { error: "Negocio no encontrado" };
+  }
+
+  const { data: newOwner, error: lookupError } = await supabase
+    .from("profiles")
+    .select("id, display_name, email")
+    .eq("email", email)
+    .single();
+
+  if (lookupError || !newOwner) {
+    return { error: `No se encontró un usuario con el email ${email}. Debe estar registrado en la plataforma.` };
+  }
+
+  if (newOwner.id === business.owner_id) {
+    return { error: "Ese usuario ya es el propietario de este negocio" };
+  }
+
+  const previousOwnerId = business.owner_id;
+
+  const { error: updateError } = await supabase
+    .from("businesses")
+    .update({ owner_id: newOwner.id, updated_at: new Date().toISOString() })
+    .eq("id", businessId);
+
+  if (updateError) {
+    return { error: `Error al transferir: ${updateError.message}` };
+  }
+
+  // Ensure the new owner has an active "owner" membership row.
+  const { error: memberError } = await supabase.from("business_members").upsert(
+    {
+      business_id: businessId,
+      user_id: newOwner.id,
+      role: "owner",
+      status: "active",
+    },
+    { onConflict: "business_id,user_id" }
+  );
+  if (memberError) {
+    console.error("Error upserting new owner membership:", memberError);
+  }
+
+  // Downgrade the previous owner to admin rather than revoking access.
+  if (previousOwnerId) {
+    await supabase
+      .from("business_members")
+      .update({ role: "admin" })
+      .eq("business_id", businessId)
+      .eq("user_id", previousOwnerId);
+  }
+
+  await logAudit({
+    action: "transfer_business_ownership",
+    entityType: "business",
+    entityId: businessId,
+    businessId,
+    changes: {
+      business_name: business.name,
+      previous_owner_id: previousOwnerId,
+      new_owner_id: newOwner.id,
+      new_owner_email: newOwner.email,
+    },
+  });
+
+  revalidatePath("/sa/businesses");
+  revalidatePath(`/sa/businesses/${businessId}`);
+  revalidatePath("/d");
+  return { success: true, newOwnerName: newOwner.display_name || newOwner.email };
 }
 
 /**
@@ -235,6 +342,7 @@ export async function updateBusinessAsSuperadmin(
     action: "update_business",
     entityType: "business",
     entityId: businessId,
+    businessId,
     changes: { name, slug, description },
   });
 
