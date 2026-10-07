@@ -19,7 +19,9 @@ import {
   ShieldCheck,
   CalendarDays,
   Globe,
- Bot } from "lucide-react";
+  Bot,
+  CalendarClock,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -57,7 +59,8 @@ interface UserInfo {
 
 const navItems = [
   { label: "Panel", href: "/d", icon: LayoutDashboard }, // always show
-  { label: "Reservas", href: "/d/reservations", icon: CalendarDays, moduleKey: 'reservations' },
+  { label: "Agenda", href: "/d/agenda", icon: CalendarClock, moduleKey: 'reservations', onlyFor: ['appointments'] },
+  { label: "Reservas", href: "/d/reservations", icon: CalendarDays, moduleKey: 'reservations', hideFor: ['appointments'] },
   { label: "Pedidos", href: "/d/orders", icon: ShoppingCart, moduleKey: 'transactions' },
   { label: "Caja (POS)", href: "/d/pos", icon: CreditCard, moduleKey: 'transactions' },
   { label: "Catálogo", href: "/d/catalog", icon: Package, moduleKey: 'catalog' },
@@ -73,6 +76,7 @@ const navItems = [
 import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { DEFAULT_MODULES_BY_TYPE, type BusinessType } from "@/lib/constants";
+import { verticalOf } from "@/lib/verticals";
 
 interface BusinessInfo {
   id: string;
@@ -203,6 +207,10 @@ export function DashboardSidebar({ user: initialUser, businesses = [], initialAc
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
+                // Each vertical (appointments, orders…) has its own screens
+                const vertical = verticalOf(activeBusiness?.type);
+                if ("onlyFor" in item && item.onlyFor && !item.onlyFor.includes(vertical)) return null;
+                if ("hideFor" in item && item.hideFor && item.hideFor.includes(vertical)) return null;
                 if (item.moduleKey && activeBusiness?.type) {
                   // Layer 1: Check DB-stored enabled modules (from business_modules table)
                   if (enabledModules) {

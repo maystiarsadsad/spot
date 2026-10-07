@@ -317,6 +317,7 @@ export type Database = {
           ai_agent_greeting: string | null
           ai_agent_prompt: string | null
           assigned_to: string | null
+          booking_settings: Json
           business_hours: Json | null
           city: string | null
           country: string | null
@@ -360,6 +361,7 @@ export type Database = {
           ai_agent_greeting?: string | null
           ai_agent_prompt?: string | null
           assigned_to?: string | null
+          booking_settings?: Json
           business_hours?: Json | null
           city?: string | null
           country?: string | null
@@ -403,6 +405,7 @@ export type Database = {
           ai_agent_greeting?: string | null
           ai_agent_prompt?: string | null
           assigned_to?: string | null
+          booking_settings?: Json
           business_hours?: Json | null
           city?: string | null
           country?: string | null
@@ -958,9 +961,51 @@ export type Database = {
           },
         ]
       }
+      employee_services: {
+        Row: {
+          business_id: string
+          catalog_item_id: string
+          employee_id: string
+        }
+        Insert: {
+          business_id: string
+          catalog_item_id: string
+          employee_id: string
+        }
+        Update: {
+          business_id?: string
+          catalog_item_id?: string
+          employee_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_services_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_services_catalog_item_id_fkey"
+            columns: ["catalog_item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_services_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          bookable: boolean
           business_id: string
           created_at: string | null
           department: string | null
@@ -983,6 +1028,8 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          bookable?: boolean
           business_id: string
           created_at?: string | null
           department?: string | null
@@ -1005,6 +1052,8 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          bookable?: boolean
           business_id?: string
           created_at?: string | null
           department?: string | null
@@ -1371,46 +1420,61 @@ export type Database = {
       reservations: {
         Row: {
           business_id: string
+          contact_id: string | null
           created_at: string
           customer_email: string | null
           customer_name: string
           customer_phone: string | null
+          employee_id: string | null
           end_time: string | null
           id: string
           item_id: string | null
+          manage_token: string | null
           notes: string | null
           party_size: number | null
+          price: number | null
           reservation_time: string
+          source: string
           status: string
           updated_at: string
         }
         Insert: {
           business_id: string
+          contact_id?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name: string
           customer_phone?: string | null
+          employee_id?: string | null
           end_time?: string | null
           id?: string
           item_id?: string | null
+          manage_token?: string | null
           notes?: string | null
           party_size?: number | null
+          price?: number | null
           reservation_time: string
+          source?: string
           status?: string
           updated_at?: string
         }
         Update: {
           business_id?: string
+          contact_id?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string | null
+          employee_id?: string | null
           end_time?: string | null
           id?: string
           item_id?: string | null
+          manage_token?: string | null
           notes?: string | null
           party_size?: number | null
+          price?: number | null
           reservation_time?: string
+          source?: string
           status?: string
           updated_at?: string
         }
@@ -1420,6 +1484,20 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -1478,6 +1556,51 @@ export type Database = {
           },
           {
             foreignKeyName: "shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_time_off: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          employee_id: string
+          ends_at: string
+          id: string
+          reason: string | null
+          starts_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          employee_id: string
+          ends_at: string
+          id?: string
+          reason?: string | null
+          starts_at: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          employee_id?: string
+          ends_at?: string
+          id?: string
+          reason?: string | null
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_time_off_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_time_off_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
@@ -1808,6 +1931,7 @@ export type Database = {
           ai_agent_greeting: string | null
           ai_agent_prompt: string | null
           assigned_to: string | null
+          booking_settings: Json
           business_hours: Json | null
           city: string | null
           country: string | null

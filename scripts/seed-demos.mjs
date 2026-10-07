@@ -470,6 +470,46 @@ const DEMOS = [
   },
 ];
 
+/* ── appointment demos: who takes bookings ───────────── */
+// position → service categories they perform (null = every service) + bios
+const APPOINTMENT_TYPES = new Set(["barbershop", "tattoo", "veterinary", "custom"]);
+const PROS = {
+  "demo-barberia": {
+    cats: { "Barbero(a)": null },
+    bios: ["Especialista en fades y diseños a navaja.", "Cortes clásicos y arreglo de barba con toalla caliente.", "Experto en cortes para niños y estilos modernos."],
+  },
+  "demo-tattoo": {
+    cats: { "Tatuador(a)": ["Tatuajes"], "Piercer": ["Piercing"] },
+    bios: ["Fine line y minimalismo.", "Realismo en blanco y negro.", "Piercing con joyería de titanio grado implante."],
+  },
+  "demo-veterinaria": {
+    cats: { "Veterinario(a)": ["Consultas"], "Peluquero(a) Canino": ["Peluquería"] },
+    bios: ["Medicina general y vacunación.", "Cirugía y medicina interna.", "Baño y estética para perros y gatos."],
+  },
+  "demo-estudio-creativo": {
+    cats: { "Operario(a)": ["Fotografía"], "Administrador(a)": null },
+    bios: ["Fotógrafo de producto y retrato.", "Dirección creativa y diseño de marca."],
+  },
+};
+
+/** Mon–Sat business hours with a lunch break (Sunday off); `shift` varies people a bit. */
+function proSchedule(hours, shift) {
+  const [open, close] = hours;
+  const lunch = [{ start: open, end: "13:00" }, { start: "14:00", end: close }].filter((r) => r.start < r.end);
+  const ranges = open < "13:00" && close > "14:00" ? lunch : [{ start: open, end: close }];
+  const days = ["mon", "tue", "wed", "thu", "fri", "sat"];
+  return Object.fromEntries(days.map((d, i) => [d, shift > 0 && i === shift % 6 ? [] : ranges]));
+}
+
+/** Bogotá wall-clock (UTC-5, no DST) for a day offset from today + minutes after midnight. */
+function atBogota(offsetDays, minutes) {
+  const local = new Date(Date.now() - 5 * 3600e3);
+  local.setUTCDate(local.getUTCDate() + offsetDays);
+  return new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate()) + (minutes + 300) * 60000);
+}
+const DAY_KEY = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+const hm = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+
 /* ── product options (Rappi-style modifiers) ─────────── */
 // Same shape as src/lib/item-options.ts → OptionGroup
 let optSeq = 0;
@@ -654,14 +694,22 @@ async function seedDemo(d, ownerId, broken) {
     };
   })).select(), "contacts");
 
-  // ── team
-  await must(sb.from("employees").insert(d.staff.map(([position, department], i) => ({
-    business_id: bid, full_name: fullName(), position, department,
-    phone: `30100${String(20000 + i * 113).slice(-5)}`,
-    salary: [1300000, 1500000, 1800000, 2200000, 2800000][Math.min(4, int(0, 4))],
-    salary_type: "monthly", status: i === d.staff.length - 1 && d.staff.length > 4 ? "on_leave" : "active",
-    hire_date: daysAgo(int(60, 700)).toISOString().slice(0, 10),
-  }))), "employees");
+  // ── team (appointment demos: professionals with weekly hours + services)
+  const pros = APPOINTMENT_TYPES.has(d.type) ? PROS[d.slug] : null;
+  let bioIdx = 0;
+  const employees = await must(sb.from("employees").insert(d.staff.map(([position, department], i) => {
+    const bookable = !!pros && position in pros.cats;
+    return {
+      business_id: bid, full_name: fullName(), position, department,
+      phone: `30100${String(20000 + i * 113).slice(-5)}`,
+      salary: [1300000, 1500000, 1800000, 2200000, 2800000][Math.min(4, int(0, 4))],
+      salary_type: "monthly", status: !bookable && i === d.staff.length - 1 && d.staff.length > 4 ? "on_leave" : "active",
+      hire_date: daysAgo(int(60, 700)).toISOString().slice(0, 10),
+      bookable,
+      bio: bookable ? pros.bios[bioIdx++ % pros.bios.length] : null,
+      schedule: bookable ? proSchedule(d.hours, i) : {},
+    };
+  })).select("id, position, bookable, schedule"), "employees");
 
   // ── 30 days of transactions
   const sellable = items.filter((it) => it.price > 0);
@@ -778,8 +826,63 @@ async function seedDemo(d, ownerId, broken) {
     sb.from("contacts").update({ total_spent: s.spent, total_visits: s.visits, last_visit_at: s.last }).eq("id", id)
   ));
 
-  // ── reservations: past week + next two weeks
-  if (d.reservations) {
+  // ── appointments: per-professional agenda, never overlapping (past week + next two)
+  if (pros) {
+    const services = items.filter((it) => it.type === "service");
+    const itemCat = new Map();
+    {
+      const cats = await must(sb.from("catalog_categories").select("id, name").eq("business_id", bid), "categories");
+      const nameById = new Map(cats.map((c) => [c.id, c.name]));
+      for (const it of items) itemCat.set(it.id, nameById.get(it.category_id));
+    }
+    const links = [];
+    const proServices = new Map();
+    for (const e of employees.filter((x) => x.bookable)) {
+      const allowed = pros.cats[e.position];
+      const mine = services.filter((sv) => !allowed || allowed.includes(itemCat.get(sv.id)));
+      proServices.set(e.id, mine);
+      for (const sv of mine) links.push({ employee_id: e.id, catalog_item_id: sv.id, business_id: bid });
+    }
+    if (links.length) await must(sb.from("employee_services").insert(links), "employee_services");
+
+    const appts = [];
+    const now = Date.now();
+    for (let day = -7; day <= 14; day++) {
+      const dow = DAY_KEY[atBogota(day, 12 * 60).getUTCDay()];
+      for (const e of employees.filter((x) => x.bookable)) {
+        const mine = proServices.get(e.id) ?? [];
+        if (!mine.length) continue;
+        for (const range of e.schedule[dow] ?? []) {
+          let cursor = hm(range.start);
+          const close = hm(range.end);
+          while (cursor < close) {
+            const sv = pick(mine);
+            const dur = sv.duration_minutes || 30;
+            if (cursor + dur > close) break;
+            // ~55% occupancy, a little busier on weekends
+            if (rand() < (dow === "fri" || dow === "sat" ? 0.7 : 0.5)) {
+              const start = atBogota(day, cursor);
+              const end = new Date(start.getTime() + dur * 60000);
+              const past = end.getTime() < now;
+              const contact = pick(contacts);
+              appts.push({
+                business_id: bid, item_id: sv.id, employee_id: e.id, contact_id: contact.id,
+                customer_name: contact.full_name, customer_phone: contact.phone, customer_email: contact.email,
+                reservation_time: start.toISOString(), end_time: end.toISOString(), party_size: 1, price: sv.price,
+                status: past ? (rand() < 0.08 ? "cancelled" : "completed") : day <= 1 || rand() < 0.75 ? "confirmed" : "pending",
+                source: rand() < 0.6 ? "web" : "dashboard",
+                notes: rand() < 0.15 ? pick(["Primera vez", "Cliente frecuente", "Pide el mismo estilo de la última vez", "Llega 5 min tarde"]) : null,
+              });
+              cursor += dur;
+            } else {
+              cursor += 30;
+            }
+          }
+        }
+      }
+    }
+    for (let i = 0; i < appts.length; i += 300) await must(sb.from("reservations").insert(appts.slice(i, i + 300)), "appointments");
+  } else if (d.reservations) {
     const bookable = items.filter((it) => it.type !== "product" || ["restaurant", "bar"].includes(d.type));
     const res = [];
     for (let day = -7; day <= 14; day++) {

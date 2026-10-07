@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { parseOptionGroups } from "@/lib/item-options";
 import { DEFAULT_CLAUDE_MODEL, DEFAULT_DAILY_CAP_USD } from "./models";
 import type { KbContext, KbFaq, KbItem } from "./keyword-engine";
+import { verticalOf } from "@/lib/verticals";
 
 export interface AssistantSettings {
   claudeEnabled: boolean;
@@ -125,6 +126,7 @@ export async function loadAssistantContext(businessId: string) {
     extraInfo: settings.extraInfo,
     items: kbItems,
     categories: (categories ?? []).map((c: { name: string }) => c.name),
+    booking: verticalOf(info.type) === "appointments",
   };
 
   return { info, settings, kb };

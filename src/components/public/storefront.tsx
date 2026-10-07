@@ -90,12 +90,15 @@ interface PublicStorefrontProps {
   business: Business;
   categories: Category[];
   items: CatalogItem[];
+  /** Appointment businesses: replaces the product grid + cart with the booking flow */
+  booking?: React.ReactNode;
 }
 
 export function PublicStorefront({
   business,
   categories,
   items,
+  booking,
 }: PublicStorefrontProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -398,6 +401,10 @@ export function PublicStorefront({
         </div>
       </header>
 
+      {booking ? (
+        <main className="store-main">{booking}</main>
+      ) : (
+      <>
       {/* Sticky Nav */}
       <nav className="store-nav">
         <div className="store-nav-inner">
@@ -504,6 +511,8 @@ export function PublicStorefront({
           </div>
         )}
       </main>
+      </>
+      )}
 
       {/* Product Detail Modal */}
       {selectedItem && (
@@ -882,6 +891,7 @@ export function PublicStorefront({
         </button>
 
         {/* Cart FAB */}
+        {!booking && (
         <button
           className="store-fab store-fab-cart"
           onClick={() => {
@@ -894,6 +904,7 @@ export function PublicStorefront({
             <span className="store-fab-badge">{cartCount}</span>
           )}
         </button>
+        )}
       </div>
 
       {/* Footer */}

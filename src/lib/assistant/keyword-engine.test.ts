@@ -100,3 +100,19 @@ describe("keywordAnswer", () => {
     expect(keywordAnswer("xyz", ctx, fmt).text).toMatch(/Puedo ayudarte/);
   });
 });
+
+describe("keywordAnswer — appointment businesses", () => {
+  it("points customers to the online booking", () => {
+    const r = keywordAnswer("tienen turno para mañana?", { ...ctx, booking: true }, fmt);
+    expect(r.text).toMatch(/agendar tu cita/);
+  });
+  it("does not talk about booking for shops", () => {
+    expect(keywordAnswer("tienen turno para mañana?", ctx, fmt).text).not.toMatch(/agendar tu cita/);
+  });
+});
+
+describe("keywordAnswer — hours still win over booking", () => {
+  it("answers hours for 'a qué hora abren hoy' in an appointment business", () => {
+    expect(keywordAnswer("a que hora abren hoy?", { ...ctx, booking: true }, fmt).text).toMatch(/horario/);
+  });
+});

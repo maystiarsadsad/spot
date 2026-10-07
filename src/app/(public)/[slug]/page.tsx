@@ -2,6 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PublicStorefront } from "@/components/public/storefront";
+import { BookingFlow } from "@/components/public/booking-flow";
+import { verticalOf, appointmentTerms } from "@/lib/verticals";
+import { bookableDates } from "@/lib/booking/availability";
+import { loadBookingBusiness, loadServices, loadStaff } from "@/lib/booking/data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -65,11 +69,40 @@ export default async function PublicBusinessPage({ params }: PageProps) {
     .eq("active", true)
     .order("sort_order", { ascending: true });
 
+  // Appointment businesses (barbershop, tattoo, vet…) get the booking flow instead of a cart
+  let booking: React.ReactNode = null;
+  if (verticalOf(business.type) === "appointments") {
+    const [bookingBusiness, services, staff] = await Promise.all([
+      loadBookingBusiness(business.id),
+      loadServices(business.id),
+      loadStaff(business.id),
+    ]);
+    if (bookingBusiness && staff.length > 0) {
+      booking = (
+        <BookingFlow
+          business={{
+            id: business.id,
+            name: business.name,
+            slug: business.slug,
+            currency: bookingBusiness.currency,
+            whatsapp: bookingBusiness.whatsapp,
+            address: [business.address, business.city].filter(Boolean).join(", ") || null,
+          }}
+          services={services}
+          staff={staff}
+          dates={bookableDates(staff.map((s) => s.schedule), bookingBusiness.timeZone, bookingBusiness.settings)}
+          terms={appointmentTerms(business.type)}
+        />
+      );
+    }
+  }
+
   return (
     <PublicStorefront
       business={business}
       categories={categories || []}
       items={items || []}
+      booking={booking}
     />
   );
 }

@@ -34,6 +34,8 @@ export interface KbContext {
   categories: string[];
   /** Short text description of the customer's cart, if any */
   cart?: string | null;
+  /** Appointment businesses: customers book on the page instead of ordering */
+  booking?: boolean;
 }
 
 export interface AssistantAction {
@@ -256,7 +258,12 @@ export function keywordAnswer(question: string, ctx: KbContext, fmt: (n: number)
     };
   }
 
-  // 4. Business info
+  // 4. Booking (appointment businesses)
+  if (ctx.booking && hasAny(q, ["cita", "citas", "turno", "turnos", "agendar", "agenda", "reservar", "reserva", "disponibilidad", "cupo", "cupos"])) {
+    return { text: "Puedes agendar tu cita aquí mismo en la página: eliges el servicio, el profesional (o el primero disponible) y ves los horarios libres en tiempo real. 📅" };
+  }
+
+  // 5. Business info
   if (hasAny(q, ["horario", "horarios", "abren", "abierto", "abiertos", "cierran", "cierra", "atienden"]) || mentions(qNorm, ["a que hora", "que hora"])) {
     const hours = formatHours(ctx.hours);
     return { text: hours ? `Nuestro horario es:\n${hours}` : `No tengo el horario cargado todavía.${contact}` };
