@@ -24,14 +24,23 @@
     "subtitle": "Página web con pedidos, caja, inventario, domicilios con mapa en vivo y reportes en una sola app. No te entregamos un software para que lo configures tú: en 30 días te lo dejamos funcionando.",
     "primaryCta": "Agenda una demo por WhatsApp",
     "secondaryCta": "Ver demos en vivo",
-    "proof": ["Sin comisión por venta", "Funciona en celular, tablet o PC", "Soporte por WhatsApp"],
+    "proof": [
+      "Sin comisión por venta",
+      "Funciona en celular, tablet o PC",
+      "Soporte por WhatsApp"
+    ],
     "mock": {
       "store": "Burger Brothers",
       "order": "Pedido WEB-1042",
       "status": "En camino",
       "eta": "Llega en ~6 min",
       "courier": "Sofía va hacia tu dirección · 1.2 km",
-      "steps": ["Recibido", "Preparando", "En camino", "Entregado"],
+      "steps": [
+        "Recibido",
+        "Preparando",
+        "En camino",
+        "Entregado"
+      ],
       "salesLabel": "Ventas hoy",
       "salesValue": "$ 927.500",
       "stockLabel": "Stock bajo",
@@ -46,16 +55,56 @@
     "title": "Deja de saltar entre el cuaderno, el Excel y el WhatsApp",
     "subtitle": "Spot reúne lo que tu negocio necesita para vender y para organizarse, y todo se conecta: una venta descuenta inventario, suma a la caja del día y alimenta tus reportes.",
     "items": [
-      { "icon": "Globe", "title": "Página web con tu marca", "body": "Catálogo con fotos, precios y carrito. Tus clientes piden para recoger o a domicilio desde el celular, sin descargar nada." },
-      { "icon": "Bike", "title": "Domicilios con mapa en vivo", "body": "El cliente marca su ubicación y ve en tiempo real dónde va su pedido. El repartidor solo abre un link, sin instalar ninguna app." },
-      { "icon": "ScanBarcode", "title": "Caja POS con escáner", "body": "Vende en mostrador desde cualquier dispositivo y escanea códigos de barras con la cámara. Efectivo, tarjeta o transferencia." },
-      { "icon": "Warehouse", "title": "Inventario con alertas", "body": "Stock por producto o insumo, movimientos y avisos cuando algo se está acabando, antes de que te quedes sin vender." },
-      { "icon": "CalendarDays", "title": "Reservas y agenda", "body": "Mesas, citas, habitaciones o clases en un calendario, con el estado de cada reserva." },
-      { "icon": "Contact", "title": "Clientes y fiado", "body": "Historial de compras de cada cliente, cuentas de crédito y abonos, sin libreta." },
-      { "icon": "Wallet", "title": "Finanzas, caja y nómina", "body": "Apertura y cierre de caja, gastos, nómina del equipo y la utilidad real del mes." },
-      { "icon": "BarChart3", "title": "Reportes claros", "body": "Qué se vende, a qué hora, quiénes son tus mejores clientes y cómo vas frente al mes pasado." },
-      { "icon": "Bot", "title": "Asistente con IA", "body": "Un agente en tu página responde preguntas sobre productos, precios y horarios, también de noche." },
-      { "icon": "Users", "title": "Equipo y permisos", "body": "Cada persona entra con su usuario y ve solo lo que le corresponde. Maneja varios negocios desde una sola cuenta." }
+      {
+        "icon": "Globe",
+        "title": "Página web con tu marca",
+        "body": "Catálogo con fotos, precios y carrito. Tus clientes piden para recoger o a domicilio desde el celular, sin descargar nada."
+      },
+      {
+        "icon": "Bike",
+        "title": "Domicilios con mapa en vivo",
+        "body": "El cliente marca su ubicación y ve en tiempo real dónde va su pedido. El repartidor solo abre un link, sin instalar ninguna app."
+      },
+      {
+        "icon": "ScanBarcode",
+        "title": "Caja POS con escáner",
+        "body": "Vende en mostrador desde cualquier dispositivo y escanea códigos de barras con la cámara. Efectivo, tarjeta o transferencia."
+      },
+      {
+        "icon": "Warehouse",
+        "title": "Inventario con alertas",
+        "body": "Stock por producto o insumo, movimientos y avisos cuando algo se está acabando, antes de que te quedes sin vender."
+      },
+      {
+        "icon": "CalendarDays",
+        "title": "Reservas y agenda",
+        "body": "Mesas, citas, habitaciones o clases en un calendario, con el estado de cada reserva."
+      },
+      {
+        "icon": "Contact",
+        "title": "Clientes y fiado",
+        "body": "Historial de compras de cada cliente, cuentas de crédito y abonos, sin libreta."
+      },
+      {
+        "icon": "Wallet",
+        "title": "Finanzas, caja y nómina",
+        "body": "Apertura y cierre de caja, gastos, nómina del equipo y la utilidad real del mes."
+      },
+      {
+        "icon": "BarChart3",
+        "title": "Reportes claros",
+        "body": "Qué se vende, a qué hora, quiénes son tus mejores clientes y cómo vas frente al mes pasado."
+      },
+      {
+        "icon": "Bot",
+        "title": "Asistente 24/7",
+        "body": "Responde a tus clientes precios, opciones de cada producto, horarios y domicilios, también de noche. En el plan Profesional conectas Claude, la IA de Anthropic, con tope de gasto diario."
+      },
+      {
+        "icon": "Users",
+        "title": "Equipo y permisos",
+        "body": "Cada persona entra con su usuario y ve solo lo que le corresponde. Maneja varios negocios desde una sola cuenta."
+      }
     ]
   },
   "process": {
@@ -63,10 +112,26 @@
     "title": "Un mes de implementación y te acompañamos después",
     "subtitle": "La mayoría de los negocios no tiene tiempo de configurar un sistema. Por eso el primer mes lo hacemos contigo: llegas al día 30 vendiendo con Spot.",
     "steps": [
-      { "week": "Semana 1", "title": "Diagnóstico y configuración", "body": "Entendemos cómo vendes, activamos los módulos que necesitas y creamos los usuarios de tu equipo con sus permisos." },
-      { "week": "Semana 2", "title": "Catálogo y página web", "body": "Cargamos tus productos o servicios con fotos y precios, y dejamos tu página lista con tus colores, logo y horarios." },
-      { "week": "Semana 3", "title": "Inventario y capacitación", "body": "Registramos el inventario inicial y capacitamos a tu equipo en caja, pedidos, domicilios y cierre del día." },
-      { "week": "Semana 4", "title": "Salida en vivo", "body": "Empiezas a vender con Spot y estamos pendientes por WhatsApp para resolver cualquier duda en el momento." }
+      {
+        "week": "Semana 1",
+        "title": "Diagnóstico y configuración",
+        "body": "Entendemos cómo vendes, activamos los módulos que necesitas y creamos los usuarios de tu equipo con sus permisos."
+      },
+      {
+        "week": "Semana 2",
+        "title": "Catálogo y página web",
+        "body": "Cargamos tus productos o servicios con fotos y precios, y dejamos tu página lista con tus colores, logo y horarios."
+      },
+      {
+        "week": "Semana 3",
+        "title": "Inventario y capacitación",
+        "body": "Registramos el inventario inicial y capacitamos a tu equipo en caja, pedidos, domicilios y cierre del día."
+      },
+      {
+        "week": "Semana 4",
+        "title": "Salida en vivo",
+        "body": "Empiezas a vender con Spot y estamos pendientes por WhatsApp para resolver cualquier duda en el momento."
+      }
     ],
     "after": {
       "title": "Después: mantenimiento mensual",
@@ -76,7 +141,7 @@
   "pricing": {
     "eyebrow": "Precios",
     "title": "Implementación una sola vez y luego una mensualidad fija",
-    "subtitle": "Sin comisiones por venta ni costos escondidos. Todos los precios son en pesos colombianos y no incluyen IVA.",
+    "subtitle": "Sin comisiones por venta ni costos escondidos. La implementación es un mes de trabajo dedicado a dejar tu negocio funcionando. Precios en pesos colombianos, no incluyen IVA.",
     "setupLabel": "Implementación (pago único)",
     "monthlyLabel": "/mes",
     "annualNote": "o {price} al año (2 meses gratis)",
@@ -88,13 +153,14 @@
         "key": "starter",
         "name": "Esencial",
         "tagline": "Para empezar a vender en línea y ordenar la caja.",
-        "setup": 1200000,
+        "setup": 2600000,
         "monthly": 149900,
         "features": [
           "Página web con tu marca y catálogo (hasta 80 productos cargados por nosotros)",
           "Pedidos web para recoger o a domicilio",
           "Caja POS con escáner por cámara",
           "Clientes, caja diaria y gastos",
+          "Asistente automático 24/7 en tu página (precios, opciones, horarios, domicilios)",
           "Hasta 3 usuarios",
           "2 sesiones de capacitación",
           "Soporte por WhatsApp de lunes a viernes"
@@ -104,7 +170,7 @@
         "key": "pro",
         "name": "Profesional",
         "tagline": "Para negocios con domicilios, inventario o agenda.",
-        "setup": 1800000,
+        "setup": 4400000,
         "monthly": 249900,
         "popular": true,
         "features": [
@@ -114,7 +180,7 @@
           "Inventario con alertas de stock",
           "Reservas y agenda",
           "Fiado, nómina y reportes avanzados",
-          "Asistente con IA en tu página",
+          "Asistente con IA Claude incluido: conectas tu cuenta de Anthropic, pagas solo lo que uses y fijas un tope diario",
           "Hasta 10 usuarios y 4 sesiones de capacitación",
           "Soporte prioritario todos los días"
         ]
@@ -123,7 +189,7 @@
         "key": "enterprise",
         "name": "Empresa",
         "tagline": "Para varias sedes o equipos grandes.",
-        "setup": 3000000,
+        "setup": 7000000,
         "monthly": 449900,
         "fromPrice": true,
         "features": [
@@ -139,7 +205,7 @@
     ],
     "compare": {
       "title": "¿Por qué este precio?",
-      "body": "Por separado, un POS para negocios cuesta entre $60.000 y $270.000 al mes, una tienda en línea entre $200.000 y $600.000 al mes (más comisiones) y una agencia cobra desde $1.800.000 por montar la página. Con Spot tienes todo conectado, sin comisiones, y alguien que lo deja funcionando por ti."
+      "body": "Por separado, un POS para negocios cuesta entre $60.000 y $270.000 al mes, una tienda en línea entre $200.000 y $600.000 al mes (más comisiones) y una agencia cobra desde $1.800.000 por montar la página. Con Spot tienes todo conectado, sin comisiones, y alguien que lo deja funcionando por ti. La implementación equivale a 1,5, 2,5 y 4 salarios mínimos de 2026 (SMMLV $1.750.905)."
     }
   },
   "demos": {
@@ -153,13 +219,38 @@
     "eyebrow": "Preguntas frecuentes",
     "title": "Lo que nos suelen preguntar",
     "items": [
-      { "q": "¿Qué incluye exactamente la implementación?", "a": "Configuración de tu negocio y sus módulos, carga del catálogo con fotos y precios, tu página web con tu marca, inventario inicial, usuarios para tu equipo, capacitaciones y acompañamiento durante la salida en vivo. Al terminar el mes, tu negocio queda vendiendo con Spot." },
-      { "q": "¿Tengo que comprar equipos?", "a": "No. Spot funciona en el navegador de cualquier celular, tablet o computador, y se puede instalar como app. El escáner de códigos de barras usa la cámara del dispositivo. Si ya tienes impresora o lector, lo revisamos en la implementación." },
-      { "q": "¿Cobran comisión por cada venta?", "a": "No. Pagas la implementación una sola vez y luego la mensualidad de tu plan. Lo que vendes es tuyo." },
-      { "q": "¿Incluye facturación electrónica DIAN?", "a": "Por ahora no. Spot registra tus ventas, pedidos y caja, y la facturación electrónica la sigues haciendo con tu proveedor actual. Si la necesitas, te contamos las opciones en la demo." },
-      { "q": "¿Cómo funciona el seguimiento de domicilios?", "a": "Cuando el cliente pide a domicilio, marca su ubicación en un mapa. Tú le envías al repartidor un link por WhatsApp; al abrirlo comparte su ubicación y el cliente ve en tiempo real cuánto le falta. No hay que instalar ninguna app." },
-      { "q": "¿Puedo cambiar de plan o cancelar?", "a": "Sí. Puedes subir o bajar de plan cuando quieras y cancelar avisando con 30 días. Si cancelas, te entregamos tus datos en un archivo para que no pierdas tu información." },
-      { "q": "¿Mis datos están seguros?", "a": "Cada negocio está aislado del resto: nadie más puede ver tu información. Hacemos copias de seguridad y tratamos los datos de acuerdo con la Ley 1581 de 2012. Puedes leer nuestra política de privacidad." }
+      {
+        "q": "¿Qué incluye exactamente la implementación?",
+        "a": "Configuración de tu negocio y sus módulos, carga del catálogo con fotos y precios, tu página web con tu marca, inventario inicial, usuarios para tu equipo, capacitaciones y acompañamiento durante la salida en vivo. Al terminar el mes, tu negocio queda vendiendo con Spot."
+      },
+      {
+        "q": "¿Tengo que comprar equipos?",
+        "a": "No. Spot funciona en el navegador de cualquier celular, tablet o computador, y se puede instalar como app. El escáner de códigos de barras usa la cámara del dispositivo. Si ya tienes impresora o lector, lo revisamos en la implementación."
+      },
+      {
+        "q": "¿Cobran comisión por cada venta?",
+        "a": "No. Pagas la implementación una sola vez y luego la mensualidad de tu plan. Lo que vendes es tuyo."
+      },
+      {
+        "q": "¿Incluye facturación electrónica DIAN?",
+        "a": "Por ahora no. Spot registra tus ventas, pedidos y caja, y la facturación electrónica la sigues haciendo con tu proveedor actual. Si la necesitas, te contamos las opciones en la demo."
+      },
+      {
+        "q": "¿Cómo funciona el seguimiento de domicilios?",
+        "a": "Cuando el cliente pide a domicilio, marca su ubicación en un mapa. Tú le envías al repartidor un link por WhatsApp; al abrirlo comparte su ubicación y el cliente ve en tiempo real cuánto le falta. No hay que instalar ninguna app."
+      },
+      {
+        "q": "¿Cómo funciona el asistente con IA?",
+        "a": "Todos los planes incluyen un asistente automático que responde con tu catálogo, tus horarios y las preguntas frecuentes que le enseñes. Desde el plan Profesional puedes conectar Claude, la IA de Anthropic, con tu propia cuenta: Anthropic te cobra solo lo que se use (unos pocos centavos de dólar por respuesta), tú eliges el modelo y pones un tope diario. Si se llega al tope, sigue respondiendo el asistente automático."
+      },
+      {
+        "q": "¿Puedo cambiar de plan o cancelar?",
+        "a": "Sí. Puedes subir o bajar de plan cuando quieras y cancelar avisando con 30 días. Si cancelas, te entregamos tus datos en un archivo para que no pierdas tu información."
+      },
+      {
+        "q": "¿Mis datos están seguros?",
+        "a": "Cada negocio está aislado del resto: nadie más puede ver tu información. Hacemos copias de seguridad y tratamos los datos de acuerdo con la Ley 1581 de 2012. Puedes leer nuestra política de privacidad."
+      }
     ]
   },
   "finalCta": {
@@ -223,7 +314,9 @@
         },
         {
           "title": "5. Derechos de los titulares",
-          "paragraphs": ["Como titular de datos personales tienes derecho a:"],
+          "paragraphs": [
+            "Como titular de datos personales tienes derecho a:"
+          ],
           "list": [
             "Conocer, actualizar y rectificar tus datos.",
             "Solicitar prueba de la autorización otorgada, salvo cuando la ley no la exija.",
@@ -244,7 +337,7 @@
         {
           "title": "7. Proveedores y transferencia internacional",
           "paragraphs": [
-            "Para prestar el servicio usamos proveedores que pueden tratar datos fuera de Colombia, con medidas de seguridad y confidencialidad adecuadas: Supabase (base de datos, autenticación y tiempo real), Vercel (hosting de la aplicación), Google (modelo de IA del asistente, que solo recibe el contenido de la conversación y el catálogo del negocio), OpenStreetMap (mapas, que recibe la dirección IP al cargar el mapa) y WhatsApp (cuando decides abrir una conversación desde Spot). Al aceptar esta política autorizas estas transmisiones y transferencias."
+            "Para prestar el servicio usamos proveedores que pueden tratar datos fuera de Colombia, con medidas de seguridad y confidencialidad adecuadas: Supabase (base de datos, autenticación y tiempo real), Vercel (hosting de la aplicación), Anthropic (modelo Claude del asistente, solo cuando el negocio lo activa con su propia cuenta; recibe la conversación y la información pública del negocio), OpenStreetMap (mapas, que recibe la dirección IP al cargar el mapa) y WhatsApp (cuando decides abrir una conversación desde Spot). Al aceptar esta política autorizas estas transmisiones y transferencias."
           ]
         },
         {
