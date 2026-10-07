@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          business_id: string
+          cache_read_tokens: number
+          cache_write_tokens: number
+          cost_usd: number
+          created_at: string
+          engine: string
+          error: string | null
+          id: string
+          input_tokens: number
+          model: string | null
+          output_tokens: number
+          question: string | null
+          source: string
+          status: string
+        }
+        Insert: {
+          business_id: string
+          cache_read_tokens?: number
+          cache_write_tokens?: number
+          cost_usd?: number
+          created_at?: string
+          engine: string
+          error?: string | null
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          output_tokens?: number
+          question?: string | null
+          source?: string
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          cache_read_tokens?: number
+          cache_write_tokens?: number
+          cost_usd?: number
+          created_at?: string
+          engine?: string
+          error?: string | null
+          id?: string
+          input_tokens?: number
+          model?: string | null
+          output_tokens?: number
+          question?: string | null
+          source?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -56,6 +115,65 @@ export type Database = {
             foreignKeyName: "audit_log_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_ai_settings: {
+        Row: {
+          business_id: string
+          claude_enabled: boolean
+          created_at: string | null
+          daily_cap_usd: number
+          extra_info: string | null
+          faqs: Json
+          greeting: string | null
+          instructions: string | null
+          key_last4: string | null
+          key_secret_id: string | null
+          key_verified_at: string | null
+          model: string
+          monthly_cap_usd: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          business_id: string
+          claude_enabled?: boolean
+          created_at?: string | null
+          daily_cap_usd?: number
+          extra_info?: string | null
+          faqs?: Json
+          greeting?: string | null
+          instructions?: string | null
+          key_last4?: string | null
+          key_secret_id?: string | null
+          key_verified_at?: string | null
+          model?: string
+          monthly_cap_usd?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          claude_enabled?: boolean
+          created_at?: string | null
+          daily_cap_usd?: number
+          extra_info?: string | null
+          faqs?: Json
+          greeting?: string | null
+          instructions?: string | null
+          key_last4?: string | null
+          key_secret_id?: string | null
+          key_verified_at?: string | null
+          model?: string
+          monthly_cap_usd?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_ai_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -1680,6 +1798,7 @@ export type Database = {
         Args: { d: Database["public"]["Tables"]["deliveries"]["Row"] }
         Returns: Json
       }
+      get_business_ai_key: { Args: { p_business_id: string }; Returns: string }
       get_business_as_superadmin: {
         Args: { business_id: string }
         Returns: {
@@ -1737,6 +1856,10 @@ export type Database = {
       is_business_member: { Args: { b_id: string }; Returns: boolean }
       is_business_owner_or_admin: { Args: { b_id: string }; Returns: boolean }
       is_superadmin: { Args: never; Returns: boolean }
+      set_business_ai_key: {
+        Args: { p_business_id: string; p_key: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -17,12 +17,14 @@ interface ProductCustomizerProps {
   basePrice: number;
   groups: OptionGroup[];
   formatPrice: (n: number) => string;
+  /** Options already chosen (e.g. the assistant suggested "Sin cebolla") */
+  initialSelection?: OptionSelection | null;
   onAdd: (selection: OptionSelection, note: string, quantity: number) => void;
 }
 
 /** Option groups + special instructions + quantity, inside the product modal. */
-export function ProductCustomizer({ basePrice, groups, formatPrice, onAdd }: ProductCustomizerProps) {
-  const [selection, setSelection] = useState<OptionSelection>(() => defaultSelection(groups));
+export function ProductCustomizer({ basePrice, groups, formatPrice, initialSelection, onAdd }: ProductCustomizerProps) {
+  const [selection, setSelection] = useState<OptionSelection>(() => ({ ...defaultSelection(groups), ...(initialSelection ?? {}) }));
   const [note, setNote] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [showMissing, setShowMissing] = useState(false);

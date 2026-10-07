@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import type { Database } from "@/types/database";
 import { publicChatMessage } from "@/lib/actions/public-chat";
+import type { AssistantAction } from "@/lib/assistant/keyword-engine";
 import { createPublicOrder } from "@/lib/actions/orders";
 import { LocationPicker } from "@/components/maps/location-picker";
 import { ProductCustomizer } from "@/components/public/product-customizer";
@@ -103,10 +104,10 @@ export function PublicStorefront({
   const [cartOpen, setCartOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
-  const aiEnabled = business.ai_agent_enabled || false;
-  const aiGreeting = business.ai_agent_greeting || `¡Hola! 👋 Soy el asistente de ${business.name}. ¿En qué te puedo ayudar?`;
+  const aiGreeting = business.ai_agent_greeting || `¡Hola! 👋 Soy el asistente de ${business.name}. Pregúntame por precios, opciones de los productos, horarios o domicilios.`;
+  const [presetSelection, setPresetSelection] = useState<OptionSelection | null>(null);
   const [chatMessages, setChatMessages] = useState<
-    { role: "user" | "assistant"; text: string }[]
+    { role: "user" | "assistant"; text: string; action?: AssistantAction }[]
   >([
     {
       role: "assistant",
@@ -262,69 +263,45 @@ export function PublicStorefront({
     }
   };
 
-  // Build cart context string for AI
-  const cartContext = cart.length > 0
-    ? `\n[CONTEXTO DEL CARRITO DEL CLIENTE: ${cart.map((c) => `${c.item.name}${c.options.length ? ` [${describeOptions(c.options).join('; ')}]` : ''} x${c.quantity} ($${c.unitPrice * c.quantity})`).join(', ')}. Total: $${cartTotal}]`
-    : '\n[CONTEXTO: El carrito del cliente está vacío]';
+  // Cart summary sent to the assistant so it can answer "¿cuánto llevo?"
+  const cartSummary = cart.length > 0
+    ? `${cart.map((c) => `${c.item.name}${c.options.length ? ` (${describeOptions(c.options).join('; ')})` : ''} x${c.quantity} = ${formatPrice(c.unitPrice * c.quantity)}`).join('; ')}. Total: ${formatPrice(cartTotal)}`
+    : null;
 
-  // Chat handler — uses Gemini AI when enabled, falls back to keyword logic
+  // Chat handler — the server picks the engine (Claude or the automatic assistant)
   const handleSendChat = async () => {
     if (!chatInput.trim() || chatLoading) return;
     const userMsg = chatInput.trim();
+    const history = chatMessages.slice(1).map((m) => ({ role: m.role, text: m.text }));
     setChatInput("");
     setChatMessages((prev) => [...prev, { role: "user", text: userMsg }]);
     setChatLoading(true);
-
-    // Try AI first — include cart context
-    if (aiEnabled) {
-      try {
-        const msgWithContext = userMsg + cartContext;
-        const result = await publicChatMessage(business.id, msgWithContext);
-        if (result.success && result.response) {
-          setChatMessages((prev) => [...prev, { role: "assistant", text: result.response! }]);
-          setChatLoading(false);
-          return;
-        }
-      } catch {
-        // Fall through to keyword logic
-      }
+    try {
+      const result = await publicChatMessage(business.id, userMsg, history, cartSummary);
+      setChatMessages((prev) => [...prev, { role: "assistant", text: result.response, action: result.action }]);
+    } catch {
+      setChatMessages((prev) => [...prev, { role: "assistant", text: "No pude responder en este momento. Intenta de nuevo en un momento 🙏" }]);
     }
-
-    // Fallback: keyword-based logic
-    let response = "";
-    const lower = userMsg.toLowerCase();
-
-    if (lower.includes("menú") || lower.includes("menu") || lower.includes("productos") || lower.includes("catálogo")) {
-      const catNames = categories.map((c) => c.name).join(", ");
-      response = `Tenemos las siguientes categorías: ${catNames}. ¿Qué te gustaría pedir?`;
-    } else if (lower.includes("precio") || lower.includes("cuánto") || lower.includes("cuanto") || lower.includes("cuesta")) {
-      const matchedItem = items.find((item) => lower.includes(item.name.toLowerCase()));
-      response = matchedItem
-        ? `${matchedItem.name} tiene un precio de ${formatPrice(matchedItem.price)}. ¿Te lo agrego al carrito?`
-        : `Puedes ver los precios en el catálogo arriba. ¿De qué producto necesitas el precio?`;
-    } else if (lower.includes("pedir") || lower.includes("ordenar") || lower.includes("quiero")) {
-      const matchedItem = items.find((item) => lower.includes(item.name.toLowerCase()));
-      if (matchedItem) {
-        addToCart(matchedItem);
-        response = `¡Listo! Agregué "${matchedItem.name}" a tu carrito (${formatPrice(matchedItem.price)}). ¿Algo más?`;
-      } else {
-        response = `¡Claro! ¿Qué te gustaría pedir? Puedes decirme el nombre del producto o navegar el catálogo.`;
-      }
-    } else if (lower.includes("carrito") || lower.includes("pedido") || lower.includes("total") || lower.includes("carro")) {
-      if (cart.length === 0) {
-        response = `Tu carrito está vacío. Explora nuestro catálogo y agrega lo que te guste. 🛒`;
-      } else {
-        const summary = cart.map((c) => `• ${c.item.name} x${c.quantity} — ${formatPrice(c.unitPrice * c.quantity)}`).join("\n");
-        response = `Tu pedido actual:\n${summary}\n\n💰 Total: ${formatPrice(cartTotal)}\n\nPara confirmar, usa el botón del carrito 🛒`;
-      }
-    } else if (lower.includes("hola") || lower.includes("hi") || lower.includes("buenas")) {
-      response = `¡Hola! 👋 ¿En qué puedo ayudarte?`;
-    } else {
-      response = `¿Puedo ayudarte con algo?\n• 🛒 Hacer un pedido\n• 💰 Consultar precios\n• 📋 Ver el menú`;
-    }
-
-    setChatMessages((prev) => [...prev, { role: "assistant", text: response }]);
     setChatLoading(false);
+  };
+
+  /** "Personalizar X" button from the assistant: opens the product with the suggested option. */
+  const handleChatAction = (action: AssistantAction) => {
+    const item = items.find((it) => it.id === action.itemId);
+    if (!item) return;
+    if (isCustomizable(item)) {
+      setPresetSelection(action.selection ?? null);
+      setSelectedItem(item);
+      setChatOpen(false);
+    } else {
+      addLine(item);
+      setChatMessages((prev) => [...prev, { role: "assistant", text: `¡Listo! Agregué ${item.name} a tu carrito 🛒` }]);
+    }
+  };
+
+  const closeItem = () => {
+    setSelectedItem(null);
+    setPresetSelection(null);
   };
 
   // ── Theme: apply business-level design customization ──
@@ -532,12 +509,12 @@ export function PublicStorefront({
       {selectedItem && (
         <div
           className="store-modal-overlay"
-          onClick={() => setSelectedItem(null)}
+          onClick={closeItem}
         >
           <div className="store-modal" onClick={(e) => e.stopPropagation()}>
             <button
               className="store-modal-close"
-              onClick={() => setSelectedItem(null)}
+              onClick={closeItem}
             >
               <X size={16} />
             </button>
@@ -569,13 +546,14 @@ export function PublicStorefront({
               {/* Add to cart controls */}
               {isCustomizable(selectedItem) ? (
                 <ProductCustomizer
-                  key={selectedItem.id}
+                  key={`${selectedItem.id}-${JSON.stringify(presetSelection)}`}
                   basePrice={selectedItem.price}
                   groups={groupsById.get(selectedItem.id) ?? []}
                   formatPrice={formatPrice}
+                  initialSelection={presetSelection}
                   onAdd={(selection, note, quantity) => {
                     addLine(selectedItem, selection, note, quantity);
-                    setSelectedItem(null);
+                    closeItem();
                   }}
                 />
               ) : (
@@ -860,6 +838,11 @@ export function PublicStorefront({
                 className={`store-chat-msg ${msg.role === "user" ? "user" : "assistant"}`}
               >
                 <p style={{ whiteSpace: "pre-line" }}>{msg.text}</p>
+                {msg.action && (
+                  <button type="button" className="store-chat-action" onClick={() => handleChatAction(msg.action!)}>
+                    {msg.action.label}
+                  </button>
+                )}
               </div>
             ))}
             {chatLoading && (

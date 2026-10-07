@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   CalendarDays,
   Globe,
-} from "lucide-react";
+ Bot } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -67,6 +67,7 @@ const navItems = [
   { label: "Clientes", href: "/d/contacts", icon: Contact, moduleKey: 'contacts' },
   { label: "Reportes", href: "/d/reports", icon: BarChart3, moduleKey: 'reports' },
   { label: "Mi Página", href: "/d/webpage", icon: Globe },
+  { label: "Asistente IA", href: "/d/asistente", icon: Bot }, // always show
 ];
 
 import { useEffect, useState } from "react";

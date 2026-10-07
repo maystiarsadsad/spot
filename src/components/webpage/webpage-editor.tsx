@@ -8,7 +8,7 @@ import {
   Mail, MapPin, MessageCircle, Bot, AtSign, Share2,
   MessageSquare, Clock, Palette, Hash,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import type { Database } from "@/types/database";
 import { updateBusinessWebpage } from "@/lib/actions/webpage";
-import { AiAgentTab } from "./ai-agent-tab";
+import Link from "next/link";
 
 type Business = Database["public"]["Tables"]["businesses"]["Row"];
 
@@ -365,7 +365,15 @@ export function WebpageEditor({ business, itemCount, categoryCount }: WebpageEdi
 
         {/* AI Agent Tab */}
         <TabsContent value="ai" className="space-y-4 mt-4">
-          <AiAgentTab business={business} />
+          <Card>
+            <CardContent className="flex flex-wrap items-center justify-between gap-3 py-6">
+              <div>
+                <p className="font-semibold">El asistente ahora tiene su propia sección</p>
+                <p className="text-sm text-muted-foreground">Entrénalo, conecta Claude, pon un tope de gasto y revisa el uso.</p>
+              </div>
+              <Link href="/d/asistente" className={buttonVariants()}>Ir a Asistente IA</Link>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 

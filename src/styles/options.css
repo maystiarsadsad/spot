@@ -211,3 +211,18 @@
 /* Dashboard order detail: options under the item name */
 .orders-item-row:has(.opt-lines) { align-items: flex-start; }
 .orders-item-row .opt-lines { font-weight: 400; margin-top: 3px; }
+
+/* Assistant suggestion button inside a chat bubble */
+.store-chat-action {
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--store-primary, var(--accent));
+  background: transparent;
+  color: var(--store-primary, var(--accent));
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.store-chat-action:hover { background: color-mix(in srgb, var(--store-primary, var(--accent)) 12%, transparent); }
