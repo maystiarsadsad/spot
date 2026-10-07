@@ -6,6 +6,8 @@ import { BookingFlow } from "@/components/public/booking-flow";
 import { verticalOf, appointmentTerms } from "@/lib/verticals";
 import { bookableDates } from "@/lib/booking/availability";
 import { loadBookingBusiness, loadServices, loadStaff } from "@/lib/booking/data";
+import { GymPage } from "@/components/public/gym-page";
+import { loadClassSessions, loadPlans } from "@/lib/memberships/data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -95,6 +97,19 @@ export default async function PublicBusinessPage({ params }: PageProps) {
         />
       );
     }
+  }
+
+  // Gyms: plans + weekly classes with spots instead of a cart
+  if (verticalOf(business.type) === "memberships") {
+    const timeZone = business.timezone || "America/Bogota";
+    const [plans, sessions] = await Promise.all([loadPlans(business.id), loadClassSessions(business.id, timeZone, 7)]);
+    booking = (
+      <GymPage
+        business={{ id: business.id, slug: business.slug, currency: business.currency || "COP", whatsapp: business.whatsapp || business.phone || null }}
+        plans={plans}
+        sessions={sessions}
+      />
+    );
   }
 
   return (

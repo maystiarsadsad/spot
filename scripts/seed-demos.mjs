@@ -510,6 +510,33 @@ function atBogota(offsetDays, minutes) {
 const DAY_KEY = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 const hm = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
 
+/* ── gym demo: plan rules, classes ──────────────────── */
+const PLAN_RULES = {
+  "Plan mensual": { days: 30, sessions: null },
+  "Plan trimestral": { days: 90, sessions: null },
+  "Tiquetera 10 días": { days: 60, sessions: 10 },
+};
+// [name, weekdays (1=Mon), "HH:MM", minutes, capacity, catalog service name, instructor position]
+const GYM_CLASSES = [
+  ["Spinning", [1, 3, 5], "06:00", 45, 18, "Spinning", "Instructor(a) de Clases"],
+  ["Spinning", [1, 3, 5], "18:30", 45, 18, "Spinning", "Instructor(a) de Clases"],
+  ["Yoga", [2, 4], "07:00", 60, 15, "Clase de yoga", "Instructor(a) de Clases"],
+  ["Yoga", [6], "09:00", 60, 15, "Clase de yoga", "Instructor(a) de Clases"],
+  ["Funcional", [1, 2, 3, 4, 5], "19:30", 50, 20, null, "Entrenador(a) Personal"],
+  ["Glúteo y pierna", [2, 4], "18:00", 50, 16, null, "Entrenador(a) Personal"],
+];
+/** Bogotá calendar date ("YYYY-MM-DD") shifted by offset days */
+function bogotaDay(offset) {
+  const d = new Date(Date.now() - 5 * 3600e3);
+  d.setUTCDate(d.getUTCDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+const plusDays = (date, n) => {
+  const d = new Date(`${date}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
 /* ── product options (Rappi-style modifiers) ─────────── */
 // Same shape as src/lib/item-options.ts → OptionGroup
 let optSeq = 0;
@@ -668,6 +695,8 @@ async function seedDemo(d, ownerId, broken) {
         duration_minutes: extra.duration ?? null, capacity: extra.capacity ?? null,
         featured: sort <= 3, sort_order: sort, active: true, inventory_id: inventoryId,
         options: itemOptions(d.slug, name),
+        membership_days: (extra.type || d.itemType) === "membership" ? PLAN_RULES[name]?.days ?? 30 : null,
+        membership_sessions: (extra.type || d.itemType) === "membership" ? PLAN_RULES[name]?.sessions ?? null : null,
       }).select().single(), "item");
       items.push(item);
     }
@@ -882,7 +911,7 @@ async function seedDemo(d, ownerId, broken) {
       }
     }
     for (let i = 0; i < appts.length; i += 300) await must(sb.from("reservations").insert(appts.slice(i, i + 300)), "appointments");
-  } else if (d.reservations) {
+  } else if (d.reservations && d.type !== "gym") {
     const bookable = items.filter((it) => it.type !== "product" || ["restaurant", "bar"].includes(d.type));
     const res = [];
     for (let day = -7; day <= 14; day++) {
@@ -922,7 +951,111 @@ async function seedDemo(d, ownerId, broken) {
     recurring_interval: ["operation", "utilities"].includes(category) ? "monthly" : null,
   }))), "expenses");
 
+  // ── gym: members, renewals, check-ins, classes and bookings
+  if (d.type === "gym") await seedGym(bid, items, employees, contacts);
+
   return { items: items.length, txns: inserted.length, contacts: contacts.length };
+}
+
+async function seedGym(bid, items, employees, baseContacts) {
+  const plans = items.filter((it) => it.type === "membership");
+  const byName = Object.fromEntries(plans.map((p) => [p.name, p]));
+  const monthly = byName["Plan mensual"], quarterly = byName["Plan trimestral"], card = byName["Tiquetera 10 días"];
+
+  // More members than the generic 18 customers
+  const extra = await must(sb.from("contacts").insert(Array.from({ length: 42 }, (_, i) => ({
+    business_id: bid, full_name: fullName(), phone: `30001${String(30000 + i * 41).slice(-5)}`,
+    created_at: daysAgo(int(10, 200)).toISOString(),
+  }))).select(), "gym contacts");
+  const people = [...baseContacts, ...extra];
+  const today = bogotaDay(0);
+
+  const codes = new Set();
+  const memberships = [];
+  const identities = [];
+  for (const person of people) {
+    let code;
+    do code = String(int(100000, 999999)); while (codes.has(code));
+    codes.add(code);
+    identities.push({ id: person.id, member_code: code, portal_token: crypto.randomUUID().replace(/-/g, "") });
+
+    const r = rand();
+    const add = (plan, start, extraFields = {}) => {
+      const end = plusDays(start, (plan.membership_days ?? 30) - 1);
+      memberships.push({
+        business_id: bid, contact_id: person.id, plan_id: plan.id, plan_name: plan.name, status: "active",
+        starts_on: start, ends_on: end, sessions_total: plan.membership_sessions ?? null, sessions_used: 0,
+        price: plan.price, source: rand() < 0.3 ? "web" : "desk", ...extraFields,
+      });
+      return end;
+    };
+    if (r < 0.55) {
+      // active monthly, often with a previous month as history
+      const start = plusDays(today, -int(0, 24));
+      if (rand() < 0.6) add(monthly, plusDays(start, -30));
+      add(rand() < 0.2 ? quarterly : monthly, start);
+    } else if (r < 0.67) {
+      // expiring within 5 days
+      add(monthly, plusDays(today, -int(25, 29)));
+    } else if (r < 0.82) {
+      // expired 1–40 days ago
+      add(monthly, plusDays(today, -int(31, 70)));
+    } else if (r < 0.92) {
+      // punch card, partly used (some used up)
+      add(card, plusDays(today, -int(5, 40)), { sessions_used: rand() < 0.25 ? 10 : int(1, 8) });
+    } else if (r < 0.96) {
+      // renewed early: current + next scheduled
+      const end = add(monthly, plusDays(today, -int(20, 27)));
+      add(monthly, plusDays(end, 1));
+    } else {
+      // online sign-up waiting for payment
+      memberships.push({
+        business_id: bid, contact_id: person.id, plan_id: monthly.id, plan_name: monthly.name, status: "pending",
+        starts_on: today, ends_on: plusDays(today, 29), sessions_total: null, sessions_used: 0, price: monthly.price, source: "web",
+      });
+    }
+  }
+  for (const idn of identities) await sb.from("contacts").update({ member_code: idn.member_code, portal_token: idn.portal_token }).eq("id", idn.id);
+  const savedMemberships = await must(sb.from("memberships").insert(memberships).select("id, contact_id, status, starts_on, ends_on"), "memberships");
+
+  // Check-ins: ~3 per week for whoever was covered that day
+  const checkIns = [];
+  for (const m of savedMemberships.filter((x) => x.status === "active")) {
+    for (let day = -30; day <= 0; day++) {
+      const date = bogotaDay(day);
+      if (date < m.starts_on || date > m.ends_on || rand() > 0.42) continue;
+      const minutes = pick([5 * 60 + 30, 6 * 60, 6 * 60 + 30, 12 * 60, 17 * 60 + 30, 18 * 60, 18 * 60 + 30, 19 * 60, 20 * 60]) + int(0, 25);
+      const at = atBogota(day, minutes);
+      if (at.getTime() > Date.now()) continue;
+      checkIns.push({ business_id: bid, contact_id: m.contact_id, membership_id: m.id, checked_at: at.toISOString() });
+    }
+  }
+  for (let i = 0; i < checkIns.length; i += 500) await must(sb.from("check_ins").insert(checkIns.slice(i, i + 500)), "check_ins");
+
+  // Class timetable with instructors
+  const instructorFor = (position) => employees.find((e) => e.position === position)?.id ?? null;
+  const serviceId = (name) => items.find((it) => it.name === name)?.id ?? null;
+  const classRows = GYM_CLASSES.flatMap(([name, days, time, minutes, capacity, service, position]) =>
+    days.map((weekday) => ({
+      business_id: bid, name, weekday, start_time: time, duration_minutes: minutes, capacity,
+      item_id: service ? serviceId(service) : null, instructor_id: instructorFor(position),
+    }))
+  );
+  const classes = await must(sb.from("gym_classes").insert(classRows).select("id, weekday, capacity"), "gym_classes");
+
+  // Bookings for the coming week from members covered on that date
+  const bookings = [];
+  for (let day = 0; day <= 6; day++) {
+    const date = bogotaDay(day);
+    const weekday = ((new Date(`${date}T12:00:00Z`).getUTCDay() + 6) % 7) + 1;
+    const covered = [...new Set(savedMemberships.filter((m) => m.status === "active" && m.starts_on <= date && date <= m.ends_on).map((m) => m.contact_id))];
+    for (const c of classes.filter((x) => x.weekday === weekday)) {
+      const target = Math.min(covered.length, Math.round(c.capacity * (0.35 + rand() * 0.6)));
+      const pool = [...covered].sort(() => rand() - 0.5).slice(0, target);
+      for (const contactId of pool) bookings.push({ business_id: bid, class_id: c.id, class_date: date, contact_id: contactId, status: "booked" });
+    }
+  }
+  for (let i = 0; i < bookings.length; i += 500) await must(sb.from("class_bookings").insert(bookings.slice(i, i + 500)), "class_bookings");
 }
 
 /* ── main ────────────────────────────────────────────── */

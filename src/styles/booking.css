@@ -111,3 +111,55 @@
 .bk-status { align-self: flex-start; padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: var(--store-surface); }
 .bk-status.is-confirmed { background: hsl(142 70% 35% / 0.15); color: hsl(142 70% 30%); }
 .bk-status.is-cancelled { background: rgb(220 38 38 / 0.12); color: #dc2626; }
+
+/* ── Gym (memberships) public page ──────────────────── */
+.gym { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+.gym section { display: flex; flex-direction: column; gap: 12px; }
+.gym-plans { display: grid; gap: 12px; }
+@media (min-width: 640px) { .gym-plans { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
+.gym-plan {
+  position: relative; display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: 16px;
+  background: var(--store-card-bg); border: 1px solid var(--store-border);
+}
+.gym-plan.is-featured { border-color: var(--store-primary); box-shadow: 0 0 0 1px var(--store-primary); }
+.gym-plan-badge {
+  position: absolute; top: -10px; left: 16px; padding: 2px 10px; border-radius: 999px;
+  background: var(--store-primary); color: #fff; font-size: 0.7rem; font-weight: 700;
+}
+.gym-plan h3 { font-size: 1.05rem; font-weight: 800; }
+.gym-plan-price { font-size: 1.6rem; font-weight: 800; color: var(--store-primary); }
+.gym-plan-length { font-size: 0.8rem; font-weight: 600; color: var(--store-muted); }
+.gym-plan-desc { font-size: 0.85rem; color: var(--store-muted); flex: 1; }
+.gym-plan .store-checkout-submit { margin-top: 8px; }
+.gym-panel { padding: 16px; border-radius: 16px; background: var(--store-surface); border: 1px solid var(--store-border); }
+.gym-panel-title { font-size: 0.95rem; }
+.gym-panel-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; }
+.gym-date { width: auto; padding: 8px 14px; text-transform: capitalize; font-size: 0.85rem; font-weight: 700; }
+.gym-classes { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.gym-class { padding: 12px; border-radius: 14px; background: var(--store-card-bg); border: 1px solid var(--store-border); }
+.gym-class-main { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 12px; }
+.gym-class-main > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
+.gym-class-time { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.gym-class-meta { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; color: var(--store-muted); }
+.gym-class-spots { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 700; color: hsl(142 70% 35%); white-space: nowrap; }
+.gym-class-spots.is-low { color: #c2410c; }
+.gym-class-spots.is-full { color: var(--store-muted); }
+.gym-class-btn {
+  display: inline-flex; align-items: center; gap: 4px; padding: 7px 14px; border-radius: 999px;
+  background: var(--store-primary); color: #fff; font-weight: 700; font-size: 0.8rem; border: none; cursor: pointer; text-decoration: none;
+}
+.gym-class-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.gym-class-btn.is-done { background: hsl(142 70% 35%); }
+.gym-class-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 10px; }
+.gym-class-form input {
+  padding: 10px 12px; border-radius: 10px; border: 1px solid var(--store-border); background: var(--store-surface); color: var(--store-text);
+}
+.gym-class-form .bk-error { grid-column: 1 / -1; }
+@media (max-width: 520px) {
+  .gym-class-main { grid-template-columns: auto 1fr; }
+  .gym-class-spots, .gym-class-btn { justify-self: start; }
+}
+/* Member card */
+.gym-code { font-size: 2.2rem; font-weight: 800; letter-spacing: 0.3em; font-variant-numeric: tabular-nums; text-align: center; }
+.gym-meter { height: 8px; border-radius: 999px; background: var(--store-surface); overflow: hidden; }
+.gym-meter > span { display: block; height: 100%; background: var(--store-primary); border-radius: 999px; }

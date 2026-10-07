@@ -67,7 +67,7 @@ export function toSettings(row: Record<string, unknown> | null): AssistantSettin
 
 export async function loadAssistantContext(businessId: string) {
   const admin = createAdminClient();
-  const [{ data: business }, { data: settingsRow }, { data: items }, { data: categories }] = await Promise.all([
+  const [{ data: business }, { data: settingsRow }, { data: items }, { data: categories }, { data: gymClasses }] = await Promise.all([
     admin
       .from("businesses")
       .select("id, name, type, subscription_plan, description, tagline, address, city, phone, whatsapp, currency, timezone, business_hours, ai_agent_greeting, active")
@@ -82,6 +82,7 @@ export async function loadAssistantContext(businessId: string) {
       .order("sort_order")
       .limit(200),
     admin.from("catalog_categories").select("id, name").eq("business_id", businessId).eq("active", true).order("sort_order"),
+    admin.from("gym_classes").select("name, weekday, start_time").eq("business_id", businessId).eq("active", true).order("weekday").order("start_time"),
   ]);
 
   if (!business || business.active === false) return null;
@@ -127,6 +128,16 @@ export async function loadAssistantContext(businessId: string) {
     items: kbItems,
     categories: (categories ?? []).map((c: { name: string }) => c.name),
     booking: verticalOf(info.type) === "appointments",
+    gym:
+      verticalOf(info.type) === "memberships"
+        ? {
+            classes: (gymClasses ?? []).map((c: { name: string; weekday: number; start_time: string }) => ({
+              name: c.name,
+              day: ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"][c.weekday - 1] ?? "",
+              time: String(c.start_time).slice(0, 5),
+            })),
+          }
+        : undefined,
   };
 
   return { info, settings, kb };

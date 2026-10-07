@@ -41,7 +41,9 @@ export function buildSystemPrompt(info: BusinessInfo, settings: AssistantSetting
     `Reglas:
 - Usa solo la información de este mensaje. Nunca inventes productos, precios, opciones, horarios, promociones ni tiempos de entrega.
 - Los precios están en ${info.currency}. Si el cliente pregunta cuánto cuesta algo con opciones, suma el precio base más el de las opciones.
-- ${kb.booking
+- ${kb.gym
+      ? "Es un gimnasio: el cliente se inscribe a un plan desde esta página (botón Inscribirme) y lo paga en recepción o por WhatsApp; los socios reservan cupo en las clases con su celular en la sección de clases. Tú no ves cupos en tiempo real ni puedes inscribir: invítalo a hacerlo en la página."
+      : kb.booking
       ? "Para agendar, el cliente usa esta misma página: elige el servicio, el profesional (o el primero disponible) y un horario libre en tiempo real, y recibe un enlace para cancelar. Tú no ves la disponibilidad ni puedes agendar: invítalo a hacerlo en la página."
       : "Para pedir, el cliente agrega productos al carrito desde la página; al tocar un producto elige sus opciones y puede escribir instrucciones especiales. Luego confirma desde el carrito, para recoger o a domicilio (con seguimiento en mapa). Tú no puedes crear pedidos, cobrar ni reservar."}
 - Si algo no está en esta información, dilo con honestidad${contact ? ` y sugiere escribir por WhatsApp al ${contact}` : ""}.
@@ -57,6 +59,9 @@ export function buildSystemPrompt(info: BusinessInfo, settings: AssistantSetting
   if (settings.instructions?.trim()) sections.push(`Indicaciones del negocio para ti:\n${settings.instructions.trim()}`);
   if (settings.faqs.length) sections.push(`Preguntas frecuentes (respóndelas tal cual):\n${settings.faqs.map((f) => `P: ${f.q}\nR: ${f.a}`).join("\n\n")}`);
   if (settings.extraInfo?.trim()) sections.push(`Información adicional del negocio:\n${settings.extraInfo.trim()}`);
+  if (kb.gym?.classes.length) {
+    sections.push(`Horario semanal de clases:\n${kb.gym.classes.map((c) => `- ${c.day} ${c.time}: ${c.name}`).join("\n")}`);
+  }
   sections.push(`Catálogo (solo productos activos):\n${catalogText(kb, info.currency) || "Sin productos cargados."}`);
   return sections.join("\n\n");
 }

@@ -21,6 +21,7 @@ import {
   Globe,
   Bot,
   CalendarClock,
+  IdCard,
 } from "lucide-react";
 import {
   Sidebar,
@@ -60,7 +61,8 @@ interface UserInfo {
 const navItems = [
   { label: "Panel", href: "/d", icon: LayoutDashboard }, // always show
   { label: "Agenda", href: "/d/agenda", icon: CalendarClock, moduleKey: 'reservations', onlyFor: ['appointments'] },
-  { label: "Reservas", href: "/d/reservations", icon: CalendarDays, moduleKey: 'reservations', hideFor: ['appointments'] },
+  { label: "Socios", href: "/d/socios", icon: IdCard, onlyFor: ['memberships'] },
+  { label: "Reservas", href: "/d/reservations", icon: CalendarDays, moduleKey: 'reservations', hideFor: ['appointments', 'memberships'] },
   { label: "Pedidos", href: "/d/orders", icon: ShoppingCart, moduleKey: 'transactions' },
   { label: "Caja (POS)", href: "/d/pos", icon: CreditCard, moduleKey: 'transactions' },
   { label: "Catálogo", href: "/d/catalog", icon: Package, moduleKey: 'catalog' },

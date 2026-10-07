@@ -116,3 +116,28 @@ describe("keywordAnswer — hours still win over booking", () => {
     expect(keywordAnswer("a que hora abren hoy?", { ...ctx, booking: true }, fmt).text).toMatch(/horario/);
   });
 });
+
+describe("keywordAnswer — gyms", () => {
+  const gymCtx: KbContext = {
+    ...ctx,
+    businessName: "Iron Fit",
+    items: [
+      { id: "p1", name: "Plan mensual", description: null, price: 120000, category: "Planes", featured: true, groups: [] },
+      { id: "p2", name: "Tiquetera 10 días", description: null, price: 70000, category: "Planes", featured: false, groups: [] },
+    ],
+    gym: { classes: [{ name: "Spinning", day: "lun", time: "06:00" }, { name: "Spinning", day: "mié", time: "18:30" }, { name: "Yoga", day: "mar", time: "07:00" }] },
+  };
+  it("gives the timetable of a named class", () => {
+    const r = keywordAnswer("a que hora es spinning?", gymCtx, fmt);
+    expect(r.text).toContain("Spinning: lun 06:00, mié 18:30");
+    expect(r.text).not.toContain("Yoga");
+  });
+  it("lists every class when asked generally", () => {
+    expect(keywordAnswer("que clases tienen?", gymCtx, fmt).text).toContain("Yoga: mar 07:00");
+  });
+  it("explains plans and sign-up", () => {
+    const r = keywordAnswer("como me inscribo?", gymCtx, fmt);
+    expect(r.text).toContain("Plan mensual — $120.000");
+    expect(r.text).toMatch(/Inscribirme/);
+  });
+});

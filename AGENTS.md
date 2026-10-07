@@ -141,7 +141,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 Each business type maps to a vertical in `src/lib/verticals.ts`, with its own public page and dashboard flow:
 - **orders** (restaurant, fast_food, cafe, bar, supermarket, clothing, hardware_store): cart + product options + delivery tracking.
 - **appointments** (barbershop, tattoo, veterinary, custom): `/[slug]` shows the booking flow (service → professional → slot); `/d/agenda` day view per professional. Professionals = `employees.bookable` with `employees.schedule` (weekly hours) and `employee_services`; appointments live in `reservations` (with `employee_id`) and the DB exclusion constraint `reservations_no_overlap` prevents double booking. Availability logic: `src/lib/booking/availability.ts` (pure, tested).
-- **stays** (hotel, hostel), **memberships** (gym), **service_orders** (logistics, laundry): planned; they still use the generic screens.
+- **memberships** (gym): `/[slug]` shows plans ("Inscribirme" → pending membership) and the weekly class timetable with spots; `/[slug]/socio/[token]` is the member's private page; `/d/socios` has front desk check-in, members (renew/charge, reminders), classes and plans. Plans = catalog items type `membership` with `membership_days`/`membership_sessions`; periods in `memberships` (one row per purchase); `check_ins`; `gym_classes` + `class_bookings` with capacity enforced by `book_class_spot()`. Rules: `src/lib/memberships/status.ts` (pure, tested).
+- **stays** (hotel, hostel), **service_orders** (logistics, laundry): planned; they still use the generic screens.
 
 ## Existing Businesses
 - **Real clients**: Briago (bar, `briago`), Comidas Rapidas Santo Domingo (fast food, `comidas-rapidas-santo-domingo`), CostiAlitas (fast food, `costialitas`) — never seed or modify their data.

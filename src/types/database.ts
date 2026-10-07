@@ -554,6 +554,8 @@ export type Database = {
           image_url: string | null
           images: Json | null
           inventory_id: string | null
+          membership_days: number | null
+          membership_sessions: number | null
           metadata: Json | null
           name: string
           options: Json | null
@@ -578,6 +580,8 @@ export type Database = {
           image_url?: string | null
           images?: Json | null
           inventory_id?: string | null
+          membership_days?: number | null
+          membership_sessions?: number | null
           metadata?: Json | null
           name: string
           options?: Json | null
@@ -602,6 +606,8 @@ export type Database = {
           image_url?: string | null
           images?: Json | null
           inventory_id?: string | null
+          membership_days?: number | null
+          membership_sessions?: number | null
           metadata?: Json | null
           name?: string
           options?: Json | null
@@ -635,6 +641,107 @@ export type Database = {
           },
         ]
       }
+      check_ins: {
+        Row: {
+          business_id: string
+          checked_at: string
+          contact_id: string
+          id: string
+          membership_id: string | null
+          note: string | null
+        }
+        Insert: {
+          business_id: string
+          checked_at?: string
+          contact_id: string
+          id?: string
+          membership_id?: string | null
+          note?: string | null
+        }
+        Update: {
+          business_id?: string
+          checked_at?: string
+          contact_id?: string
+          id?: string
+          membership_id?: string | null
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_ins_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_ins_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_bookings: {
+        Row: {
+          business_id: string
+          class_date: string
+          class_id: string
+          contact_id: string
+          created_at: string | null
+          id: string
+          status: string
+        }
+        Insert: {
+          business_id: string
+          class_date: string
+          class_id: string
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          class_date?: string
+          class_id?: string
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_bookings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_bookings_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "gym_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_bookings_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           address: string | null
@@ -647,9 +754,11 @@ export type Database = {
           full_name: string
           id: string
           last_visit_at: string | null
+          member_code: string | null
           metadata: Json | null
           notes: string | null
           phone: string | null
+          portal_token: string | null
           tags: Json | null
           total_spent: number | null
           total_visits: number | null
@@ -666,9 +775,11 @@ export type Database = {
           full_name: string
           id?: string
           last_visit_at?: string | null
+          member_code?: string | null
           metadata?: Json | null
           notes?: string | null
           phone?: string | null
+          portal_token?: string | null
           tags?: Json | null
           total_spent?: number | null
           total_visits?: number | null
@@ -685,9 +796,11 @@ export type Database = {
           full_name?: string
           id?: string
           last_visit_at?: string | null
+          member_code?: string | null
           metadata?: Json | null
           notes?: string | null
           phone?: string | null
+          portal_token?: string | null
           tags?: Json | null
           total_spent?: number | null
           total_visits?: number | null
@@ -1137,6 +1250,70 @@ export type Database = {
           },
         ]
       }
+      gym_classes: {
+        Row: {
+          active: boolean
+          business_id: string
+          capacity: number
+          created_at: string | null
+          duration_minutes: number
+          id: string
+          instructor_id: string | null
+          item_id: string | null
+          name: string
+          start_time: string
+          weekday: number
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          capacity?: number
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          instructor_id?: string | null
+          item_id?: string | null
+          name: string
+          start_time: string
+          weekday: number
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          capacity?: number
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          instructor_id?: string | null
+          item_id?: string | null
+          name?: string
+          start_time?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_classes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gym_classes_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gym_classes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           active: boolean | null
@@ -1255,6 +1432,92 @@ export type Database = {
             columns: ["inventory_id"]
             isOneToOne: false
             referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memberships: {
+        Row: {
+          business_id: string
+          contact_id: string
+          created_at: string | null
+          ends_on: string
+          id: string
+          notes: string | null
+          plan_id: string | null
+          plan_name: string
+          price: number | null
+          sessions_total: number | null
+          sessions_used: number
+          source: string
+          starts_on: string
+          status: string
+          transaction_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          business_id: string
+          contact_id: string
+          created_at?: string | null
+          ends_on: string
+          id?: string
+          notes?: string | null
+          plan_id?: string | null
+          plan_name: string
+          price?: number | null
+          sessions_total?: number | null
+          sessions_used?: number
+          source?: string
+          starts_on: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          contact_id?: string
+          created_at?: string | null
+          ends_on?: string
+          id?: string
+          notes?: string | null
+          plan_id?: string | null
+          plan_name?: string
+          price?: number | null
+          sessions_total?: number | null
+          sessions_used?: number
+          source?: string
+          starts_on?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memberships_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memberships_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memberships_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
@@ -1903,6 +2166,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      book_class_spot: {
+        Args: {
+          p_business_id: string
+          p_class_id: string
+          p_contact_id: string
+          p_date: string
+        }
+        Returns: string
+      }
       courier_set_status: {
         Args: { p_name?: string; p_status: string; p_token: string }
         Returns: boolean
