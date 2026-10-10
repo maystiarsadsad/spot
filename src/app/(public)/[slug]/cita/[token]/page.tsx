@@ -22,6 +22,8 @@ const STATUS: Record<string, { label: string; className: string }> = {
   cancelled: { label: "Cancelada", className: "is-cancelled" },
 };
 
+const isFuture = (at: Date) => at.getTime() > Date.now();
+
 export default async function AppointmentPage({ params }: PageProps) {
   const { slug, token } = await params;
   if (!/^[a-f0-9]{32}$/.test(token)) notFound();
@@ -48,7 +50,7 @@ export default async function AppointmentPage({ params }: PageProps) {
   const when = whenRaw.charAt(0).toUpperCase() + whenRaw.slice(1);
   const status = STATUS[appt.status] ?? STATUS.pending;
   const active = appt.status === "pending" || appt.status === "confirmed";
-  const upcoming = start.getTime() > Date.now();
+  const upcoming = isFuture(start);
   const price = appt.price != null
     ? new Intl.NumberFormat("es-CO", { style: "currency", currency: business.currency, minimumFractionDigits: 0 }).format(Number(appt.price))
     : null;
