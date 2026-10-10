@@ -2,6 +2,7 @@
 
 import { answerQuestion } from "@/lib/assistant/answer";
 import type { ChatTurn } from "@/lib/assistant/claude";
+import { publicLimit } from "@/lib/rate-limit";
 
 /**
  * Storefront chat. Anonymous visitors: no auth, but the business must exist and
@@ -15,6 +16,9 @@ export async function publicChatMessage(
 ) {
   const question = typeof message === "string" ? message.trim() : "";
   if (!question) return { response: "¿En qué te puedo ayudar?" };
+  if (!(await publicLimit("chat", businessId))) {
+    return { response: "Estás escribiendo muy rápido 😅 Espera un momento y vuelve a preguntar." };
+  }
 
   const safeHistory = Array.isArray(history)
     ? history

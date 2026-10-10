@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { publicLimit, TOO_MANY } from "@/lib/rate-limit";
 import { localDate, pickStaff } from "@/lib/booking/availability";
 import { daySlots, loadBookingBusiness, loadServices, loadStaff, staffForService } from "@/lib/booking/data";
 
@@ -10,6 +11,7 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Free times for a service on a date ("cualquiera" when employeeId is null). Public. */
 export async function getAvailableSlots(businessId: string, serviceId: string, employeeId: string | null, date: string) {
   if (!DATE.test(date)) return { error: "Fecha inválida" };
+  if (!(await publicLimit("slots", businessId))) return { error: TOO_MANY };
   const business = await loadBookingBusiness(businessId);
   if (!business) return { error: "Negocio no disponible" };
   const [services, staff] = await Promise.all([loadServices(businessId), loadStaff(businessId)]);
@@ -38,6 +40,7 @@ export async function bookAppointment(businessId: string, input: BookingInput) {
   const notes = (input.notes ?? "").trim().slice(0, 500) || null;
   if (name.length < 2) return { error: "Escribe tu nombre" };
   if (phone.replace(/\D/g, "").length < 7) return { error: "Escribe un teléfono válido" };
+  if (!(await publicLimit("book", businessId, phone))) return { error: TOO_MANY };
 
   const business = await loadBookingBusiness(businessId);
   if (!business) return { error: "Negocio no disponible" };

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { publicLimit, TOO_MANY } from "@/lib/rate-limit";
 import { revalidatePath } from "next/cache";
 import { updateDailyCashOnSale } from "@/lib/actions/finance";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -206,6 +207,18 @@ function isValidLocation(loc: PublicOrderPayload["location"]): loc is { lat: num
 }
 
 export async function createPublicOrder(businessId: string, payload: PublicOrderPayload) {
+  payload = {
+    ...payload,
+    customer_name: String(payload.customer_name ?? "").trim().slice(0, 120),
+    customer_phone: String(payload.customer_phone ?? "").replace(/[^\d+]/g, "").slice(0, 20),
+    address: payload.address ? String(payload.address).trim().slice(0, 300) : undefined,
+    notes: payload.notes ? String(payload.notes).trim().slice(0, 500) : undefined,
+  };
+  if (payload.customer_name.length < 2) return { error: "Escribe tu nombre" };
+  if (payload.customer_phone.replace(/\D/g, "").length < 7) return { error: "Escribe un teléfono válido" };
+  if (!Array.isArray(payload.items) || payload.items.length === 0 || payload.items.length > 60) return { error: "El pedido está vacío" };
+  if (!(await publicLimit("order", businessId, payload.customer_phone))) return { error: TOO_MANY };
+
   const { createClient: createAnonClient } = await import("@/lib/supabase/server");
   const supabase = await createAnonClient();
 

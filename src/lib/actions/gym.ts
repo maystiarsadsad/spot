@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { publicLimit, TOO_MANY } from "@/lib/rate-limit";
 import { loadBookingBusiness } from "@/lib/booking/data";
 import { addDays, localDate, localTime, weekdayOf, DAY_KEYS } from "@/lib/booking/availability";
 import { canEnter, currentMembership, membershipState, periodEnd } from "@/lib/memberships/status";
@@ -15,6 +16,7 @@ export async function requestMembership(businessId: string, input: { planId: str
   const phone = normalizePhone(input.phone);
   if (name.length < 2) return { error: "Escribe tu nombre" };
   if (phone.replace(/\D/g, "").length < 7) return { error: "Escribe un celular válido" };
+  if (!(await publicLimit("signup", businessId))) return { error: TOO_MANY };
 
   const business = await loadBookingBusiness(businessId);
   if (!business) return { error: "Gimnasio no disponible" };
@@ -53,6 +55,7 @@ export async function bookClass(businessId: string, classId: string, date: strin
   if (!DATE.test(date)) return { error: "Fecha inválida" };
   const digits = normalizePhone(rawPhone).replace(/\D/g, "").slice(-10);
   if (digits.length < 7) return { error: "Escribe el celular con el que te inscribiste" };
+  if (!(await publicLimit("class", businessId))) return { error: TOO_MANY };
 
   const business = await loadBookingBusiness(businessId);
   if (!business) return { error: "Gimnasio no disponible" };

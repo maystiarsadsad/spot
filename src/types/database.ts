@@ -1680,6 +1680,24 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          hits?: number
+          key: string
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       reservations: {
         Row: {
           business_id: string
@@ -2252,6 +2270,10 @@ export type Database = {
       is_business_member: { Args: { b_id: string }; Returns: boolean }
       is_business_owner_or_admin: { Args: { b_id: string }; Returns: boolean }
       is_superadmin: { Args: never; Returns: boolean }
+      rate_limit_hit: {
+        Args: { p_key: string; p_max: number; p_window_seconds: number }
+        Returns: boolean
+      }
       set_business_ai_key: {
         Args: { p_business_id: string; p_key: string }
         Returns: undefined
