@@ -140,4 +140,16 @@ describe("keywordAnswer — gyms", () => {
     expect(r.text).toContain("Plan mensual — $120.000");
     expect(r.text).toMatch(/Inscribirme/);
   });
+  it("prefers the class timetable over a catalog item with the same name, without cart buttons", () => {
+    const withItem: KbContext = {
+      ...gymCtx,
+      items: [...gymCtx.items, { id: "s1", name: "Spinning", description: null, price: 20000, category: "Clases", featured: false, groups: [] }],
+    };
+    const r = keywordAnswer("a que hora es spinning?", withItem, fmt);
+    expect(r.text).toContain("Spinning: lun 06:00");
+    expect(r.action).toBeUndefined();
+    const price = keywordAnswer("cuanto cuesta spinning?", withItem, fmt);
+    expect(price.text).toContain("$20.000");
+    expect(price.action).toBeUndefined();
+  });
 });

@@ -207,9 +207,30 @@ export function keywordAnswer(question: string, ctx: KbContext, fmt: (n: number)
     return { text: "¡Con gusto! Si necesitas algo más, aquí estoy. 😊" };
   }
 
+  // Appointment and gym pages have no cart: answer without "Agregar" buttons
+  const act = (it: KbItem, selection?: OptionSelection) => (ctx.booking || ctx.gym ? undefined : addAction(it, selection));
+
+  // 3. Gyms: class timetable ("¿a qué hora es spinning?") wins over the catalog item of the same name
+  if (ctx.gym && !hasAny(q, ["precio", "cuanto", "vale", "cuesta", "valor"])) {
+    const classNames = [...new Set(ctx.gym.classes.map((c) => c.name))];
+    const named = classNames.filter((n) => contentTokens(n).some((t) => qc.some((w) => similar(w, t))));
+    if (named.length || hasAny(q, ["clase", "clases", "grupales"]) || mentions(qNorm, ["horario de clases"])) {
+      const pickNames = named.length ? named : classNames;
+      const lines = pickNames.map((n) => {
+        const slots = ctx.gym!.classes.filter((c) => c.name === n).map((c) => `${c.day} ${c.time}`);
+        return `• ${n}: ${slots.join(", ")}`;
+      });
+      return {
+        text: lines.length
+          ? `Horario de clases:\n${lines.join("\n")}\n\nReserva tu cupo en esta página con el celular con el que te inscribiste. 💪`
+          : "Por ahora no tenemos clases grupales publicadas.",
+      };
+    }
+  }
+
   const item = bestItem(qc, ctx.items);
 
-  // 3. Product-specific questions
+  // 4. Product-specific questions
   if (item) {
     const wantsRemove = mentions(qNorm, ["sin ", "quitar", "quita", "no le pongan", "no le echen", "no lleve"]);
     const wantsAdd = mentions(qNorm, ["con ", "agregar", "agregale", "adicion", "extra", "ponerle", "poner "]);
@@ -226,56 +247,42 @@ export function keywordAnswer(question: string, ctx: KbContext, fmt: (n: number)
         const extra = hit.choice.price > 0 ? ` por +${fmt(hit.choice.price)}` : "";
         return {
           text: `¡Sí! ${item.name} se puede pedir con la opción "${hit.choice.name}"${extra}. ¿Te la dejo lista así?`,
-          action: addAction(item, { [hit.group.id]: [hit.choice.id] }),
+          action: act(item, { [hit.group.id]: [hit.choice.id] }),
         };
       }
       return {
         text: `No tengo registrada esa opción para ${item.name}, pero al agregarlo puedes escribirla en "Instrucciones especiales" y el negocio la tendrá en cuenta.${contact}`,
-        action: addAction(item),
+        action: act(item),
       };
     }
 
     if (asksOptions || ((wantsRemove || wantsAdd) && item.groups.length)) {
       if (item.groups.length === 0) {
-        return { text: `${item.name} no tiene opciones para elegir, pero puedes dejar instrucciones especiales al pedirlo. Cuesta ${fmt(item.price)}.`, action: addAction(item) };
+        return { text: `${item.name} no tiene opciones para elegir, pero puedes dejar instrucciones especiales al pedirlo. Cuesta ${fmt(item.price)}.`, action: act(item) };
       }
-      return { text: `${item.name} (${fmt(item.price)}) se puede personalizar así:\n${describeGroups(item, fmt)}`, action: addAction(item) };
+      return { text: `${item.name} (${fmt(item.price)}) se puede personalizar así:\n${describeGroups(item, fmt)}`, action: act(item) };
     }
 
     if (asksPrice) {
       const extras = item.groups.flatMap((g) => g.choices.filter((c) => c.available && c.price > 0).map((c) => c.price));
       const extraNote = extras.length ? ` Las opciones adicionales van desde +${fmt(Math.min(...extras))}.` : "";
-      return { text: `${item.name} cuesta ${fmt(item.price)}.${extraNote}`, action: addAction(item) };
+      return { text: `${item.name} cuesta ${fmt(item.price)}.${extraNote}`, action: act(item) };
     }
 
     if (asksContent && item.description) {
       const opts = item.groups.length ? `\n\nPuedes elegir:\n${describeGroups(item, fmt)}` : "";
-      return { text: `${item.name}: ${item.description}${opts}`, action: addAction(item) };
+      return { text: `${item.name}: ${item.description}${opts}`, action: act(item) };
     }
 
     const opts = item.groups.length ? `\n\nOpciones:\n${describeGroups(item, fmt)}` : "";
     return {
       text: `Sí, tenemos ${item.name} a ${fmt(item.price)}.${item.description ? ` ${item.description}` : ""}${opts}`,
-      action: addAction(item),
+      action: act(item),
     };
   }
 
-  // 4. Gyms: class timetable, plans and sign-up
+  // 5. Gyms: plans and sign-up
   if (ctx.gym) {
-    const classNames = [...new Set(ctx.gym.classes.map((c) => c.name))];
-    const named = classNames.filter((n) => contentTokens(n).some((t) => qc.some((w) => similar(w, t))));
-    if (named.length || hasAny(q, ["clase", "clases", "grupales"]) || mentions(qNorm, ["horario de clases"])) {
-      const pickNames = named.length ? named : classNames;
-      const lines = pickNames.map((n) => {
-        const slots = ctx.gym!.classes.filter((c) => c.name === n).map((c) => `${c.day} ${c.time}`);
-        return `• ${n}: ${slots.join(", ")}`;
-      });
-      return {
-        text: lines.length
-          ? `Horario de clases:\n${lines.join("\n")}\n\nReserva tu cupo en esta página con el celular con el que te inscribiste. 💪`
-          : "Por ahora no tenemos clases grupales publicadas.",
-      };
-    }
     if (hasAny(q, ["inscribir", "inscribirme", "inscribo", "inscribe", "inscripcion", "matricula", "planes", "plan", "mensualidad", "afiliarme", "afilio", "afiliacion", "membresia", "entrenar"])) {
       const plans = ctx.items.filter((i) => /plan|tiquetera|membres/i.test(i.name)).slice(0, 5);
       const list = (plans.length ? plans : ctx.items.slice(0, 3)).map((p) => `• ${p.name} — ${fmt(p.price)}`).join("\n");
@@ -283,12 +290,12 @@ export function keywordAnswer(question: string, ctx: KbContext, fmt: (n: number)
     }
   }
 
-  // 5. Booking (appointment businesses)
+  // 6. Booking (appointment businesses)
   if (ctx.booking && hasAny(q, ["cita", "citas", "turno", "turnos", "agendar", "agenda", "reservar", "reserva", "disponibilidad", "cupo", "cupos"])) {
     return { text: "Puedes agendar tu cita aquí mismo en la página: eliges el servicio, el profesional (o el primero disponible) y ves los horarios libres en tiempo real. 📅" };
   }
 
-  // 6. Business info
+  // 7. Business info
   if (hasAny(q, ["horario", "horarios", "abren", "abierto", "abiertos", "cierran", "cierra", "atienden"]) || mentions(qNorm, ["a que hora", "que hora"])) {
     const hours = formatHours(ctx.hours);
     return { text: hours ? `Nuestro horario es:\n${hours}` : `No tengo el horario cargado todavía.${contact}` };
