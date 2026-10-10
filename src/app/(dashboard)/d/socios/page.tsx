@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requestOrigin } from "@/lib/site-url";
 import Link from "next/link";
 import { IdCard } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -163,7 +164,7 @@ export default async function MembersPage() {
     }
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const siteUrl = await requestOrigin();
 
   return (
     <div className="space-y-6">

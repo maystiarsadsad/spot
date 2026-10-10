@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requestOrigin } from "@/lib/site-url";
 import Link from "next/link";
 import { CalendarClock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -105,7 +106,7 @@ export default async function AgendaPage({ searchParams }: PageProps) {
     source: a.source,
   }));
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const siteUrl = await requestOrigin();
   const bookingUrl = `${siteUrl}/${biz?.slug ?? business.slug}`;
 
   return (

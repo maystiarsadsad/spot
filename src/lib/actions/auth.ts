@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { requestOrigin } from "@/lib/site-url";
 import { redirect } from "next/navigation";
 
 export async function login(formData: FormData) {
@@ -69,7 +70,7 @@ export async function forgotPassword(formData: FormData) {
   const email = formData.get("email") as string;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/reset-password`,
+    redirectTo: `${await requestOrigin()}/reset-password`,
   });
 
   if (error) {
