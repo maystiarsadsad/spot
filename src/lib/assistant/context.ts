@@ -9,6 +9,7 @@ import { parseOptionGroups } from "@/lib/item-options";
 import { DEFAULT_CLAUDE_MODEL, DEFAULT_DAILY_CAP_USD } from "./models";
 import type { KbContext, KbFaq, KbItem } from "./keyword-engine";
 import { verticalOf } from "@/lib/verticals";
+import { parseStaySettings } from "@/lib/stays/pricing";
 
 export interface AssistantSettings {
   claudeEnabled: boolean;
@@ -70,7 +71,7 @@ export async function loadAssistantContext(businessId: string) {
   const [{ data: business }, { data: settingsRow }, { data: items }, { data: categories }, { data: gymClasses }] = await Promise.all([
     admin
       .from("businesses")
-      .select("id, name, type, subscription_plan, description, tagline, address, city, phone, whatsapp, currency, timezone, business_hours, ai_agent_greeting, active")
+      .select("id, name, type, subscription_plan, description, tagline, address, city, phone, whatsapp, currency, timezone, business_hours, ai_agent_greeting, stay_settings, active")
       .eq("id", businessId)
       .single(),
     admin.from("business_ai_settings").select("*").eq("business_id", businessId).maybeSingle(),
@@ -128,6 +129,13 @@ export async function loadAssistantContext(businessId: string) {
     items: kbItems,
     categories: (categories ?? []).map((c: { name: string }) => c.name),
     booking: verticalOf(info.type) === "appointments",
+    stays:
+      verticalOf(info.type) === "stays"
+        ? (() => {
+            const st = parseStaySettings(business.stay_settings);
+            return { checkIn: st.checkInTime, checkOut: st.checkOutTime, cancelDays: st.cancelDays, depositPct: st.depositPct };
+          })()
+        : undefined,
     gym:
       verticalOf(info.type) === "memberships"
         ? {

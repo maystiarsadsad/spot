@@ -340,6 +340,7 @@ export type Database = {
           phone: string | null
           slug: string
           social_links: Json | null
+          stay_settings: Json
           subscription_plan: string | null
           subscription_started_at: string | null
           subscription_status: string | null
@@ -384,6 +385,7 @@ export type Database = {
           phone?: string | null
           slug: string
           social_links?: Json | null
+          stay_settings?: Json
           subscription_plan?: string | null
           subscription_started_at?: string | null
           subscription_status?: string | null
@@ -428,6 +430,7 @@ export type Database = {
           phone?: string | null
           slug?: string
           social_links?: Json | null
+          stay_settings?: Json
           subscription_plan?: string | null
           subscription_started_at?: string | null
           subscription_status?: string | null
@@ -1698,6 +1701,57 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_seasons: {
+        Row: {
+          adjustment_pct: number
+          business_id: string
+          created_at: string | null
+          ends_on: string
+          id: string
+          item_id: string | null
+          min_nights: number | null
+          name: string
+          starts_on: string
+        }
+        Insert: {
+          adjustment_pct?: number
+          business_id: string
+          created_at?: string | null
+          ends_on: string
+          id?: string
+          item_id?: string | null
+          min_nights?: number | null
+          name: string
+          starts_on: string
+        }
+        Update: {
+          adjustment_pct?: number
+          business_id?: string
+          created_at?: string | null
+          ends_on?: string
+          id?: string
+          item_id?: string | null
+          min_nights?: number | null
+          name?: string
+          starts_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rate_seasons_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rate_seasons_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reservations: {
         Row: {
           business_id: string
@@ -1783,6 +1837,60 @@ export type Database = {
           },
           {
             foreignKeyName: "reservations_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          active: boolean
+          business_id: string
+          created_at: string | null
+          floor: string | null
+          housekeeping: string
+          id: string
+          item_id: string
+          name: string
+          notes: string | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          created_at?: string | null
+          floor?: string | null
+          housekeeping?: string
+          id?: string
+          item_id: string
+          name: string
+          notes?: string | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          created_at?: string | null
+          floor?: string | null
+          housekeeping?: string
+          id?: string
+          item_id?: string
+          name?: string
+          notes?: string | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rooms_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "catalog_items"
@@ -1885,6 +1993,232 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stay_charges: {
+        Row: {
+          amount: number
+          business_id: string
+          created_at: string | null
+          description: string
+          id: string
+          item_id: string | null
+          quantity: number
+          stay_id: string
+        }
+        Insert: {
+          amount: number
+          business_id: string
+          created_at?: string | null
+          description: string
+          id?: string
+          item_id?: string | null
+          quantity?: number
+          stay_id: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          item_id?: string | null
+          quantity?: number
+          stay_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stay_charges_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stay_charges_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stay_charges_stay_id_fkey"
+            columns: ["stay_id"]
+            isOneToOne: false
+            referencedRelation: "stays"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stay_payments: {
+        Row: {
+          amount: number
+          business_id: string
+          created_at: string | null
+          id: string
+          method: string
+          note: string | null
+          stay_id: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          business_id: string
+          created_at?: string | null
+          id?: string
+          method: string
+          note?: string | null
+          stay_id: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          created_at?: string | null
+          id?: string
+          method?: string
+          note?: string | null
+          stay_id?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stay_payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stay_payments_stay_id_fkey"
+            columns: ["stay_id"]
+            isOneToOne: false
+            referencedRelation: "stays"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stay_payments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stays: {
+        Row: {
+          adults: number
+          arrival_time: string | null
+          business_id: string
+          check_in: string
+          check_out: string
+          checked_in_at: string | null
+          checked_out_at: string | null
+          children: number
+          code: string
+          contact_id: string | null
+          created_at: string | null
+          guest_document: string | null
+          guest_email: string | null
+          guest_name: string
+          guest_nationality: string | null
+          guest_phone: string | null
+          id: string
+          item_id: string | null
+          manage_token: string
+          nightly: Json
+          notes: string | null
+          room_id: string | null
+          room_total: number
+          source: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          adults?: number
+          arrival_time?: string | null
+          business_id: string
+          check_in: string
+          check_out: string
+          checked_in_at?: string | null
+          checked_out_at?: string | null
+          children?: number
+          code: string
+          contact_id?: string | null
+          created_at?: string | null
+          guest_document?: string | null
+          guest_email?: string | null
+          guest_name: string
+          guest_nationality?: string | null
+          guest_phone?: string | null
+          id?: string
+          item_id?: string | null
+          manage_token?: string
+          nightly?: Json
+          notes?: string | null
+          room_id?: string | null
+          room_total?: number
+          source?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          adults?: number
+          arrival_time?: string | null
+          business_id?: string
+          check_in?: string
+          check_out?: string
+          checked_in_at?: string | null
+          checked_out_at?: string | null
+          children?: number
+          code?: string
+          contact_id?: string | null
+          created_at?: string | null
+          guest_document?: string | null
+          guest_email?: string | null
+          guest_name?: string
+          guest_nationality?: string | null
+          guest_phone?: string | null
+          id?: string
+          item_id?: string | null
+          manage_token?: string
+          nightly?: Json
+          notes?: string | null
+          room_id?: string | null
+          room_total?: number
+          source?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stays_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -2193,6 +2527,17 @@ export type Database = {
         }
         Returns: string
       }
+      book_stay_rooms: {
+        Args: {
+          p_business_id: string
+          p_check_in: string
+          p_check_out: string
+          p_count: number
+          p_item_id: string
+          p_stay: Json
+        }
+        Returns: string
+      }
       courier_set_status: {
         Args: { p_name?: string; p_status: string; p_token: string }
         Returns: boolean
@@ -2244,6 +2589,7 @@ export type Database = {
           phone: string | null
           slug: string
           social_links: Json | null
+          stay_settings: Json
           subscription_plan: string | null
           subscription_started_at: string | null
           subscription_status: string | null

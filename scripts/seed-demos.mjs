@@ -537,6 +537,26 @@ const plusDays = (date, n) => {
   return d.toISOString().slice(0, 10);
 };
 
+/* ── stays demo: physical rooms per type, settings, seasons ── */
+const ROOM_UNITS = {
+  "Habitación Estándar": ["201", "202", "203", "204", "205", "206", "207", "208", "209", "210"],
+  "Habitación Superior": ["301", "302", "303", "304", "305", "306", "307", "308"],
+  "Suite Junior": ["401", "402", "403", "404"],
+  "Habitación Familiar": ["501", "502"],
+  "Cama en dormitorio de 8": Array.from({ length: 8 }, (_, i) => `Dorm 8 · Cama ${i + 1}`),
+  "Cama en dormitorio femenino de 6": Array.from({ length: 6 }, (_, i) => `Dorm F · Cama ${i + 1}`),
+  "Habitación privada doble": ["Privada 1", "Privada 2", "Privada 3"],
+};
+const STAY_SETTINGS = {
+  hotel: { checkInTime: "15:00", checkOutTime: "12:00", weekendPct: 0, minNights: 1, maxDaysAhead: 365, autoConfirm: true, cancelDays: 2, depositPct: 30 },
+  hostel: { checkInTime: "14:00", checkOutTime: "11:00", weekendPct: 15, minNights: 1, maxDaysAhead: 180, autoConfirm: true, cancelDays: 1, depositPct: 0 },
+};
+const STAY_CODE = () => `H-${Array.from({ length: 5 }, () => "23456789ABCDEFGHJKMNPQRSTUVWXYZ"[int(0, 30)]).join("")}`;
+const NATIONALITIES = {
+  hotel: ["Colombia", "Colombia", "Colombia", "Colombia", "Estados Unidos", "México", "España", "Perú"],
+  hostel: ["Colombia", "Alemania", "Francia", "Argentina", "Estados Unidos", "Países Bajos", "Chile", "Reino Unido"],
+};
+
 /* ── product options (Rappi-style modifiers) ─────────── */
 // Same shape as src/lib/item-options.ts → OptionGroup
 let optSeq = 0;
@@ -911,7 +931,7 @@ async function seedDemo(d, ownerId, broken) {
       }
     }
     for (let i = 0; i < appts.length; i += 300) await must(sb.from("reservations").insert(appts.slice(i, i + 300)), "appointments");
-  } else if (d.reservations && d.type !== "gym") {
+  } else if (d.reservations && !["gym", "hotel", "hostel"].includes(d.type)) {
     const bookable = items.filter((it) => it.type !== "product" || ["restaurant", "bar"].includes(d.type));
     const res = [];
     for (let day = -7; day <= 14; day++) {
@@ -953,6 +973,8 @@ async function seedDemo(d, ownerId, broken) {
 
   // ── gym: members, renewals, check-ins, classes and bookings
   if (d.type === "gym") await seedGym(bid, items, employees, contacts);
+  // ── hotels / hostels: rooms, stays, folio, seasons
+  if (d.type === "hotel" || d.type === "hostel") await seedStays(bid, d.type, items, contacts);
 
   return { items: items.length, txns: inserted.length, contacts: contacts.length };
 }
@@ -1056,6 +1078,128 @@ async function seedGym(bid, items, employees, baseContacts) {
     }
   }
   for (let i = 0; i < bookings.length; i += 500) await must(sb.from("class_bookings").insert(bookings.slice(i, i + 500)), "class_bookings");
+}
+
+async function seedStays(bid, type, items, contacts) {
+  const settings = STAY_SETTINGS[type];
+  await must(sb.from("businesses").update({ stay_settings: settings }).eq("id", bid), "stay settings");
+  const year = Number(bogotaDay(0).slice(0, 4));
+  await must(sb.from("rate_seasons").insert([
+    { business_id: bid, name: "Temporada alta de fin de año", starts_on: `${year}-12-15`, ends_on: `${year + 1}-01-15`, adjustment_pct: 25, min_nights: 2 },
+    { business_id: bid, name: "Semana Santa", starts_on: `${year + 1}-03-21`, ends_on: `${year + 1}-03-28`, adjustment_pct: 20, min_nights: null },
+    { business_id: bid, name: "Puente festivo", starts_on: `${year}-11-14`, ends_on: `${year}-11-15`, adjustment_pct: 15, min_nights: null },
+  ]), "rate seasons");
+
+  // Physical rooms (or beds) for each room type
+  const types = items.filter((it) => it.type === "room");
+  const roomRows = [];
+  for (const t of types) {
+    for (const [i, name] of (ROOM_UNITS[t.name] ?? [`${t.name} 1`]).entries()) {
+      roomRows.push({ business_id: bid, item_id: t.id, name, floor: /^\d/.test(name) ? `Piso ${name[0]}` : null, sort_order: i });
+    }
+  }
+  const rooms = await must(sb.from("rooms").insert(roomRows).select("id, item_id, name"), "rooms");
+  const typeById = Object.fromEntries(types.map((t) => [t.id, t]));
+  const services = items.filter((it) => it.type === "service");
+  const today = bogotaDay(0);
+  const maintenanceRoom = type === "hotel" ? rooms.find((r) => r.name === "208") : null;
+
+  const guest = () => (rand() < 0.4 ? pick(contacts) : { id: null, full_name: fullName(), phone: `3${int(10, 23)}${int(1000000, 9999999)}`, email: null });
+  const stays = [];
+  for (const room of rooms) {
+    const t = typeById[room.item_id];
+    let day = -int(28, 34);
+    const until = room === maintenanceRoom ? -2 : 45;
+    while (day < until) {
+      if (rand() < 0.35) day += int(1, 3); // empty nights between guests
+      const nights = type === "hostel" ? int(1, 4) : pick([1, 1, 2, 2, 2, 3, 3, 4, 5]);
+      const start = day;
+      day += nights;
+      if (day > until + 5) break;
+      const checkIn = bogotaDay(start), checkOut = bogotaDay(day);
+      const g = guest();
+      const nightly = Array.from({ length: nights }, (_, i) => {
+        const date = plusDays(checkIn, i);
+        const wd = new Date(`${date}T12:00:00Z`).getUTCDay();
+        return { date, price: round100(t.price * (wd === 5 || wd === 6 ? 1 + settings.weekendPct / 100 : 1)), season: null };
+      });
+      const roomTotal = nightly.reduce((a, n) => a + n.price, 0);
+      let status;
+      if (checkOut <= today) status = rand() < 0.06 ? "no_show" : "checked_out";
+      else if (checkIn < today) status = "checked_in";
+      else if (checkIn === today) status = rand() < 0.5 ? "checked_in" : "confirmed";
+      else status = rand() < (day - nights < 10 ? 0.06 : 0.01) ? "pending" : "confirmed";
+      // A departure scheduled for today is still in the house until check-out
+      if (checkOut === today && status === "checked_out" && rand() < 0.5) status = "checked_in";
+      const arrived = status === "checked_in" || status === "checked_out";
+      const source = pick(["web", "web", "desk", "phone", type === "hostel" ? "ota" : "web"]);
+      const adults = t.capacity === 1 ? 1 : int(1, t.capacity || 2);
+      stays.push({
+        business_id: bid, code: STAY_CODE(), item_id: t.id, room_id: room.id, contact_id: g.id,
+        guest_name: g.full_name, guest_phone: g.phone, guest_email: g.email ?? null,
+        guest_document: arrived ? String(int(10000000, 1099999999)) : null,
+        guest_nationality: arrived ? pick(NATIONALITIES[type]) : null,
+        adults, children: t.capacity >= 3 && rand() < 0.4 ? 1 : 0,
+        check_in: checkIn, check_out: checkOut, status, nightly, room_total: roomTotal, source,
+        arrival_time: source === "web" && rand() < 0.6 ? pick(["12:00 – 15:00", "15:00 – 18:00", "18:00 – 21:00", "Después de las 21:00"]) : null,
+        notes: rand() < 0.15 ? pick(["Aniversario 💐", "Piso alto, por favor", "Llega en vuelo nocturno", "Cliente frecuente", "Viaje de negocios: factura a empresa"]) : null,
+        checked_in_at: arrived ? atBogota(Math.min(0, start), hm("15:00") + int(0, 300)).toISOString() : null,
+        checked_out_at: status === "checked_out" ? atBogota(Math.min(0, day), hm("09:00") + int(0, 150)).toISOString() : null,
+        created_at: atBogota(Math.min(0, start) - int(1, 25), int(480, 1260)).toISOString(),
+      });
+    }
+  }
+  // A few cancellations (they don't hold a room)
+  for (let i = 0; i < 6; i++) {
+    const t = pick(types), g = guest(), offset = int(-20, 30), nights = int(1, 3);
+    stays.push({
+      business_id: bid, code: STAY_CODE(), item_id: t.id, room_id: null, contact_id: g.id, guest_name: g.full_name, guest_phone: g.phone,
+      guest_email: null, guest_document: null, guest_nationality: null, adults: 1, children: 0,
+      check_in: bogotaDay(offset), check_out: bogotaDay(offset + nights), status: "cancelled",
+      nightly: [], room_total: t.price * nights, source: pick(["web", "phone"]), arrival_time: null, notes: "Cancelada por el huésped",
+      checked_in_at: null, checked_out_at: null, created_at: atBogota(Math.min(0, offset) - 5, 600).toISOString(),
+    });
+  }
+  const saved = [];
+  for (let i = 0; i < stays.length; i += 400) saved.push(...await must(sb.from("stays").insert(stays.slice(i, i + 400)).select("id, status, room_total"), "stays"));
+
+  // Folio: extras for guests who stayed; payments (full for past stays, deposits otherwise)
+  const charges = [], payments = [];
+  const extrasPool = [
+    ...services.map((x) => [x.name, Number(x.price), x.id]),
+    ["Minibar", 18000, null], ["Minibar", 26000, null], ["Lavandería", 32000, null], ["Room service: club sándwich", 38000, null],
+  ];
+  for (const st of saved) {
+    let extras = 0;
+    if ((st.status === "checked_out" || st.status === "checked_in") && rand() < 0.5) {
+      for (let k = 0; k < int(1, 3); k++) {
+        const [description, price, itemId] = pick(extrasPool);
+        charges.push({ business_id: bid, stay_id: st.id, item_id: itemId, description, quantity: 1, amount: price });
+        extras += price;
+      }
+    }
+    const total = Number(st.room_total) + extras;
+    const method = () => pick(["card", "card", "transfer", "cash"]);
+    if (st.status === "checked_out") {
+      const dep = rand() < 0.5 ? round100(total * 0.3) : 0;
+      if (dep) payments.push({ business_id: bid, stay_id: st.id, amount: dep, method: "transfer", note: "Anticipo" });
+      payments.push({ business_id: bid, stay_id: st.id, amount: total - dep, method: method(), note: "Saldo al salir" });
+    } else if (st.status === "checked_in" && rand() < 0.7) {
+      payments.push({ business_id: bid, stay_id: st.id, amount: round100(Number(st.room_total) * pick([0.3, 0.5, 1])), method: method(), note: "Anticipo" });
+    } else if (st.status === "confirmed" && type === "hotel" && rand() < 0.5) {
+      payments.push({ business_id: bid, stay_id: st.id, amount: round100(Number(st.room_total) * 0.3), method: "transfer", note: "Anticipo" });
+    }
+  }
+  if (charges.length) await must(sb.from("stay_charges").insert(charges), "stay charges");
+  for (let i = 0; i < payments.length; i += 400) await must(sb.from("stay_payments").insert(payments.slice(i, i + 400)), "stay payments");
+
+  // Housekeeping: rooms whose guest left today wait for cleaning; one room under maintenance
+  const leftToday = new Set(stays.filter((x) => x.status === "checked_out" && x.check_out === today).map((x) => x.room_id));
+  for (const r of rooms) {
+    const hk = r === maintenanceRoom ? "maintenance" : leftToday.has(r.id) ? "dirty" : rand() < 0.08 ? "dirty" : rand() < 0.3 ? "inspected" : "clean";
+    if (hk !== "clean") await sb.from("rooms").update({ housekeeping: hk }).eq("id", r.id);
+  }
+  console.log(`   ${rooms.length} habitaciones, ${saved.length} estadías, ${charges.length} consumos, ${payments.length} pagos`);
 }
 
 /* ── main ────────────────────────────────────────────── */

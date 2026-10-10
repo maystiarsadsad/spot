@@ -8,6 +8,11 @@ import { bookableDates } from "@/lib/booking/availability";
 import { loadBookingBusiness, loadServices, loadStaff } from "@/lib/booking/data";
 import { GymPage } from "@/components/public/gym-page";
 import { loadClassSessions, loadPlans } from "@/lib/memberships/data";
+import { StaySearch } from "@/components/public/stay-search";
+import { loadRoomTypes, loadStayBusiness } from "@/lib/stays/data";
+import { addDays, localDate } from "@/lib/booking/availability";
+
+const todayIn = (timeZone: string) => localDate(new Date(), timeZone);
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -110,6 +115,32 @@ export default async function PublicBusinessPage({ params }: PageProps) {
         sessions={sessions}
       />
     );
+  }
+
+  // Hotels and hostels: search by dates → available room types → book
+  if (verticalOf(business.type) === "stays") {
+    const [stayBusiness, roomTypes] = await Promise.all([loadStayBusiness(business.id), loadRoomTypes(business.id)]);
+    if (stayBusiness) {
+      const today = todayIn(stayBusiness.timeZone);
+      booking = (
+        <StaySearch
+          business={{
+            id: business.id,
+            slug: business.slug,
+            currency: stayBusiness.currency,
+            whatsapp: stayBusiness.whatsapp,
+            checkInTime: stayBusiness.settings.checkInTime,
+            checkOutTime: stayBusiness.settings.checkOutTime,
+            cancelDays: stayBusiness.settings.cancelDays,
+            isHostel: business.type === "hostel",
+          }}
+          roomTypes={roomTypes.filter((t) => t.units > 0)}
+          today={today}
+          tomorrow={addDays(today, 1)}
+          maxDate={addDays(today, stayBusiness.settings.maxDaysAhead)}
+        />
+      );
+    }
   }
 
   return (

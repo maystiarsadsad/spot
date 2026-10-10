@@ -163,3 +163,41 @@
 .gym-code { font-size: 2.2rem; font-weight: 800; letter-spacing: 0.3em; font-variant-numeric: tabular-nums; text-align: center; }
 .gym-meter { height: 8px; border-radius: 999px; background: var(--store-surface); overflow: hidden; }
 .gym-meter > span { display: block; height: 100%; background: var(--store-primary); border-radius: 999px; }
+
+/* ── Stays (hotel, hostel) public page ──────────────── */
+.stay { max-width: 900px; }
+.stay-search { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; align-items: end; }
+.stay-search .store-checkout-field { margin: 0; }
+.stay-search .store-checkout-submit { grid-column: 1 / -1; }
+@media (min-width: 760px) {
+  .stay-search { grid-template-columns: 1.2fr 1.2fr 0.6fr 0.6fr auto; }
+  .stay-search .store-checkout-submit { grid-column: auto; white-space: nowrap; }
+}
+.stay-rooms { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.stay-room { border-radius: 16px; background: var(--store-card-bg); border: 1px solid var(--store-border); overflow: hidden; }
+.stay-room.is-open { border-color: var(--store-primary); }
+.stay-room-main { display: grid; grid-template-columns: 140px 1fr auto; gap: 14px; padding: 12px; align-items: center; }
+.stay-room-main > img, .stay-room-ph { width: 140px; height: 104px; border-radius: 12px; object-fit: cover; }
+.stay-room-ph { display: inline-flex; align-items: center; justify-content: center; background: var(--store-surface); color: var(--store-muted); }
+.stay-room-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.stay-room-body h3 { font-size: 1.05rem; font-weight: 800; }
+.stay-room-price { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; font-size: 0.78rem; color: var(--store-muted); min-width: 130px; }
+.stay-room-price strong { font-size: 1.25rem; font-weight: 800; color: var(--store-primary); }
+.stay-room-price .gym-class-btn { margin-top: 4px; }
+.stay-season { padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--store-primary) 14%, transparent); color: var(--store-primary); font-weight: 700; font-size: 0.7rem; }
+.stay-form { padding: 14px; border-top: 1px solid var(--store-border); background: var(--store-surface); }
+.stay-form-grid { display: grid; gap: 10px; }
+@media (min-width: 640px) { .stay-form-grid { grid-template-columns: 1fr 1fr; } }
+.stay-form-grid .store-checkout-field { margin: 0; }
+@media (max-width: 600px) {
+  .stay-room-main { grid-template-columns: 96px 1fr; }
+  .stay-room-main > img, .stay-room-ph { width: 96px; height: 80px; }
+  .stay-room-price { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; text-align: left; gap: 8px; }
+  .stay-room-price .gym-class-btn { margin: 0 0 0 auto; }
+}
+.stay .store-checkout-field select, .stay .store-checkout-field textarea {
+  width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--store-border);
+  background: var(--store-surface); color: var(--store-text); font-size: 0.9rem; outline: none; font-family: inherit;
+}
+.stay .store-checkout-field input[type="date"] { color-scheme: light dark; }
+.stay-form .store-checkout-field input, .stay-form .store-checkout-field select, .stay-form .store-checkout-field textarea { background: var(--store-card-bg); }

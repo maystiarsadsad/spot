@@ -41,7 +41,9 @@ export function buildSystemPrompt(info: BusinessInfo, settings: AssistantSetting
     `Reglas:
 - Usa solo la información de este mensaje. Nunca inventes productos, precios, opciones, horarios, promociones ni tiempos de entrega.
 - Los precios están en ${info.currency}. Si el cliente pregunta cuánto cuesta algo con opciones, suma el precio base más el de las opciones.
-- ${kb.gym
+- ${kb.stays
+      ? `Es un hotel/hostal: el huésped elige fechas y número de personas en "Reserva tu estadía" de esta página y ve al instante la disponibilidad y el precio exacto (la tarifa cambia por temporada y fines de semana). Check-in desde las ${kb.stays.checkIn}, check-out hasta las ${kb.stays.checkOut}; cancelación gratis hasta ${kb.stays.cancelDays} días antes${kb.stays.depositPct ? `; se pide un anticipo del ${kb.stays.depositPct}%` : ""}. Los precios del catálogo son la tarifa base por noche. Tú no ves la ocupación ni puedes reservar: invítalo a hacerlo en la página.`
+      : kb.gym
       ? "Es un gimnasio: el cliente se inscribe a un plan desde esta página (botón Inscribirme) y lo paga en recepción o por WhatsApp; los socios reservan cupo en las clases con su celular en la sección de clases. Tú no ves cupos en tiempo real ni puedes inscribir: invítalo a hacerlo en la página."
       : kb.booking
       ? "Para agendar, el cliente usa esta misma página: elige el servicio, el profesional (o el primero disponible) y un horario libre en tiempo real, y recibe un enlace para cancelar. Tú no ves la disponibilidad ni puedes agendar: invítalo a hacerlo en la página."

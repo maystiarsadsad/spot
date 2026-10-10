@@ -38,6 +38,8 @@ export interface KbContext {
   booking?: boolean;
   /** Gyms: plans are bought/signed up on the page; weekly class timetable */
   gym?: { classes: { name: string; day: string; time: string }[] };
+  /** Hotels/hostels: guests book by dates on the page */
+  stays?: { checkIn: string; checkOut: string; cancelDays: number; depositPct: number };
 }
 
 export interface AssistantAction {
@@ -208,7 +210,24 @@ export function keywordAnswer(question: string, ctx: KbContext, fmt: (n: number)
   }
 
   // Appointment and gym pages have no cart: answer without "Agregar" buttons
-  const act = (it: KbItem, selection?: OptionSelection) => (ctx.booking || ctx.gym ? undefined : addAction(it, selection));
+  const act = (it: KbItem, selection?: OptionSelection) => (ctx.booking || ctx.gym || ctx.stays ? undefined : addAction(it, selection));
+
+  // Hotels: check-in/out times, cancellation, availability → book on the page
+  if (ctx.stays) {
+    const st = ctx.stays;
+    if (hasAny(q, ["checkin", "check", "checkout", "entrada", "salida", "llegada", "llegar", "ingreso", "entregar"]) || mentions(qNorm, ["a que hora puedo llegar", "a que hora entrego"])) {
+      return { text: `Check-in desde las ${st.checkIn} y check-out hasta las ${st.checkOut}. Si llegas antes o sales más tarde, escríbenos y revisamos disponibilidad. 🛎️` };
+    }
+    if (hasAny(q, ["cancelar", "cancelacion", "reembolso", "devolucion"])) {
+      return { text: `Puedes cancelar gratis desde el enlace de tu reserva hasta ${st.cancelDays} ${st.cancelDays === 1 ? "día" : "días"} antes de la llegada.${contact}` };
+    }
+    if (hasAny(q, ["disponibilidad", "disponible", "disponibles", "reservar", "reserva", "habitacion", "habitaciones", "cupo", "noche", "noches", "tarifa", "tarifas", "cama", "camas", "hospedaje", "alojamiento", "quedarme", "hospedarme"])) {
+      const rooms = ctx.items.slice(0, 5).map((i) => `• ${i.name} — desde ${fmt(i.price)} por noche`).join("\n");
+      return {
+        text: `Elige tus fechas arriba en "Reserva tu estadía" y verás al instante qué hay disponible y el precio exacto (puede variar por temporada).${rooms ? `\n\n${rooms}` : ""}${st.depositPct > 0 ? `\n\nPara garantizar la reserva pedimos un anticipo del ${st.depositPct}%.` : ""}`,
+      };
+    }
+  }
 
   // 3. Gyms: class timetable ("¿a qué hora es spinning?") wins over the catalog item of the same name
   if (ctx.gym && !hasAny(q, ["precio", "cuanto", "vale", "cuesta", "valor"])) {

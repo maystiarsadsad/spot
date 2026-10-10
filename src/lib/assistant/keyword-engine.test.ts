@@ -153,3 +153,29 @@ describe("keywordAnswer — gyms", () => {
     expect(price.action).toBeUndefined();
   });
 });
+
+describe("keywordAnswer — hotels", () => {
+  const hotelCtx: KbContext = {
+    ...ctx,
+    businessName: "Hotel Mirador",
+    items: [
+      { id: "r1", name: "Habitación Estándar", description: "Cama doble", price: 260000, category: "Habitaciones", featured: true, groups: [] },
+      { id: "r2", name: "Suite Junior", description: "Con tina", price: 480000, category: "Habitaciones", featured: false, groups: [] },
+    ],
+    stays: { checkIn: "15:00", checkOut: "12:00", cancelDays: 2, depositPct: 30 },
+  };
+  it("answers check-in and check-out times", () => {
+    expect(keywordAnswer("a que hora es el check in?", hotelCtx, fmt).text).toContain("15:00");
+  });
+  it("sends availability questions to the date search, with base rates", () => {
+    const r = keywordAnswer("tienen habitaciones disponibles para el puente?", hotelCtx, fmt);
+    expect(r.text).toContain("Reserva tu estadía");
+    expect(r.text).toContain("Suite Junior — desde $480.000");
+    expect(r.text).toContain("30%");
+  });
+  it("prices a room type without cart buttons", () => {
+    const r = keywordAnswer("cuanto cuesta la suite?", hotelCtx, fmt);
+    expect(r.text).toContain("$480.000");
+    expect(r.action).toBeUndefined();
+  });
+});
