@@ -36,6 +36,7 @@ import {
   CheckCircle2,
   XCircle,
   Ban,
+  Receipt,
 } from "lucide-react";
 import { toast } from "sonner";
 import { DeliveryPanel, type DeliveryInfo } from "@/components/orders/delivery-panel";
@@ -490,6 +491,15 @@ function OrderRow({ txn, currency, businessSlug, s, ps, origin, OriginIcon, Stat
 
                 {/* Action buttons */}
                 <div className="orders-actions">
+                  <a
+                    className="orders-action-btn"
+                    href={`/comprobante/${txn.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Receipt size={16} /> Comprobante
+                  </a>
                   {txn.status === "pending" && (
                     <>
                       <button

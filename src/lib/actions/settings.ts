@@ -22,6 +22,8 @@ export async function updateBusinessSettings(businessId: string, formData: FormD
 
   const data = {
     name: formData.get("name")?.toString(),
+    legal_name: formData.get("legal_name")?.toString().trim().slice(0, 160) || null,
+    tax_id: formData.get("tax_id")?.toString().trim().slice(0, 30) || null,
     description: formData.get("description")?.toString() || null,
     phone: formData.get("phone")?.toString() || null,
     email: formData.get("email")?.toString() || null,

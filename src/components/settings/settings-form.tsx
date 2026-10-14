@@ -29,6 +29,8 @@ interface Business {
   address: string | null;
   city: string | null;
   currency: string | null;
+  legal_name?: string | null;
+  tax_id?: string | null;
   theme: { brandColor?: string } | null;
 }
 
@@ -84,6 +86,18 @@ export function SettingsForm({ business }: Props) {
           <div className="space-y-2">
             <Label htmlFor="name">Nombre Comercial *</Label>
             <Input id="name" name="name" defaultValue={business.name} required />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="legal_name">Razón social o nombre del titular</Label>
+              <Input id="legal_name" name="legal_name" defaultValue={business.legal_name || ""} placeholder="Como aparece en el RUT" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tax_id">NIT o cédula</Label>
+              <Input id="tax_id" name="tax_id" defaultValue={business.tax_id || ""} placeholder="900123456-7" />
+            </div>
+            <p className="text-xs text-muted-foreground sm:col-span-2">Aparecen en los comprobantes de venta que entregas a tus clientes.</p>
           </div>
 
           <div className="space-y-2">

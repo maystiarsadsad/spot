@@ -1,4 +1,5 @@
 import { getActiveBusiness } from "@/lib/get-active-business";
+import { SalesExport } from "@/components/shared/sales-export";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FinanceClient } from "@/components/finance/finance-client";
@@ -8,6 +9,8 @@ import { getContacts } from "@/lib/actions/contacts";
 import { format } from "date-fns";
 
 import { DollarSign } from "lucide-react";
+
+const currentMonth = (timeZone: string) => new Date().toLocaleDateString("en-CA", { timeZone }).slice(0, 7);
 
 export default async function FinancePage() {
   const business = await getActiveBusiness();
@@ -79,16 +82,19 @@ export default async function FinancePage() {
 
   return (
     <div className="space-y-6">
-      <div className="dash-header">
-        <h1 className="flex items-center gap-3">
-          <div className="section-header-icon">
-            <DollarSign className="h-5 w-5" />
-          </div>
-          Finanzas
-        </h1>
-        <p>
-          Gestiona los gastos, caja diaria y estado financiero de {business.name}.
-        </p>
+      <div className="dash-header flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="flex items-center gap-3">
+            <div className="section-header-icon">
+              <DollarSign className="h-5 w-5" />
+            </div>
+            Finanzas
+          </h1>
+          <p>
+            Gestiona los gastos, caja diaria y estado financiero de {business.name}.
+          </p>
+        </div>
+        <SalesExport defaultMonth={currentMonth(business.timezone || "America/Bogota")} />
       </div>
       <FinanceClient 
         businessId={business.id} 

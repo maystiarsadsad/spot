@@ -331,6 +331,7 @@ export type Database = {
           id: string
           internal_notes: string | null
           layout: Json | null
+          legal_name: string | null
           locale: string | null
           logo_url: string | null
           name: string
@@ -348,6 +349,7 @@ export type Database = {
           suspended: boolean | null
           suspended_reason: string | null
           tagline: string | null
+          tax_id: string | null
           theme: Json | null
           timezone: string | null
           trial_ends_at: string | null
@@ -377,6 +379,7 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           layout?: Json | null
+          legal_name?: string | null
           locale?: string | null
           logo_url?: string | null
           name: string
@@ -394,6 +397,7 @@ export type Database = {
           suspended?: boolean | null
           suspended_reason?: string | null
           tagline?: string | null
+          tax_id?: string | null
           theme?: Json | null
           timezone?: string | null
           trial_ends_at?: string | null
@@ -423,6 +427,7 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           layout?: Json | null
+          legal_name?: string | null
           locale?: string | null
           logo_url?: string | null
           name?: string
@@ -440,6 +445,7 @@ export type Database = {
           suspended?: boolean | null
           suspended_reason?: string | null
           tagline?: string | null
+          tax_id?: string | null
           theme?: Json | null
           timezone?: string | null
           trial_ends_at?: string | null
@@ -2859,6 +2865,7 @@ export type Database = {
           id: string
           internal_notes: string | null
           layout: Json | null
+          legal_name: string | null
           locale: string | null
           logo_url: string | null
           name: string
@@ -2876,6 +2883,7 @@ export type Database = {
           suspended: boolean | null
           suspended_reason: string | null
           tagline: string | null
+          tax_id: string | null
           theme: Json | null
           timezone: string | null
           trial_ends_at: string | null

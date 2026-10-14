@@ -231,6 +231,13 @@ export function POSClient({ businessId, items, categories, currency, creditAccou
       } else {
         toast.success("Venta completada");
       }
+      const saleId = result.transaction?.id as string | undefined;
+      if (saleId) {
+        toast("¿Le entregas comprobante?", {
+          action: { label: "Ver comprobante", onClick: () => window.open(`/comprobante/${saleId}`, "_blank") },
+          duration: 8000,
+        });
+      }
 
       setCart([]);
       setCheckoutOpen(false);
