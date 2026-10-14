@@ -43,7 +43,7 @@ export function StaysBoard(props: Props) {
 
   return (
     <>
-      <Tabs defaultValue={TABS.includes(props.tab) ? props.tab : "hoy"}>
+      <Tabs key={`${businessId}-${props.tab}`} defaultValue={TABS.includes(props.tab) ? props.tab : "hoy"}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <TabsList>
             <TabsTrigger value="hoy">Hoy</TabsTrigger>

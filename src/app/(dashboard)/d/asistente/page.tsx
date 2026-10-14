@@ -69,7 +69,8 @@ export default async function AssistantPage() {
         </p>
       </div>
 
-      <Tabs defaultValue={includesClaude ? "connection" : "training"}>
+      {/* key: a new business/plan starts on its own default tab (Base UI ignores defaultValue changes) */}
+      <Tabs key={`${business.id}-${includesClaude}`} defaultValue={includesClaude ? "connection" : "training"}>
         <TabsList>
           <TabsTrigger value="connection">Conexión</TabsTrigger>
           <TabsTrigger value="training">Entrenamiento</TabsTrigger>
