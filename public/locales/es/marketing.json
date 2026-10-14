@@ -182,7 +182,7 @@
           "Reservas y agenda",
           "Fiado, nómina y reportes avanzados",
           "Asistente con IA Claude incluido: conectas tu cuenta de Anthropic, pagas solo lo que uses y fijas un tope diario",
-          "Facturación electrónica DIAN (POS y factura) como adicional, con pago de implementación aparte",
+          "Facturación electrónica DIAN (POS y factura) disponible como adicional, con pago extra de implementación",
           "Hasta 10 usuarios y 4 sesiones de capacitación",
           "Soporte prioritario todos los días"
         ],
@@ -202,7 +202,7 @@
           "Catálogo ilimitado cargado por nosotros",
           "Capacitación continua y revisión mensual de resultados",
           "Acompañamiento con un asesor dedicado",
-          "Facturación electrónica DIAN (POS y factura) como adicional, con pago de implementación aparte",
+          "Facturación electrónica DIAN incluida (documento POS y factura electrónica, con habilitación ante la DIAN)",
           "Desarrollos e integraciones a medida (se cotizan aparte)"
         ],
         "setupNote": "Según sedes e integraciones"
@@ -239,7 +239,7 @@
       },
       {
         "q": "¿Incluye facturación electrónica DIAN?",
-        "a": "Sí, en los planes Profesional y Empresa como adicional. Conectamos tu caja y tus pedidos con un proveedor autorizado por la DIAN para emitir el documento equivalente POS electrónico y la factura electrónica, con su CUFE y código QR. Tiene un pago de implementación aparte, que cotizamos según tu negocio, e incluye el acompañamiento para habilitarte ante la DIAN. En el plan Esencial puedes seguir facturando con tu proveedor actual."
+        "a": "En el plan Empresa viene incluida. En el plan Profesional la puedes agregar con un pago extra de implementación, que cotizamos según tu negocio. Conectamos tu caja y tus pedidos con un proveedor autorizado por la DIAN para emitir el documento equivalente POS electrónico y la factura electrónica, con su CUFE y código QR, y te acompañamos en la habilitación ante la DIAN. En el plan Esencial puedes seguir facturando con tu proveedor actual."
       },
       {
         "q": "¿Cómo funciona el seguimiento de domicilios?",

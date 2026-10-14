@@ -254,9 +254,9 @@
 - **Fix**: el service worker (PWA) cacheaba JS/CSS con estrategia cache-first, sirviendo código viejo indefinidamente en dev y tras cada deploy en producción. Ahora network-first para JS/CSS; no se registra en desarrollo.
 - **Reconciliado drift de migraciones**: 7 migraciones aplicadas directo a producción entre abril-mayo nunca tuvieron archivo en el repo (`ai_agent_*` en `businesses`, `inventory.barcode`, `catalog_items.inventory_id`, tablas `catalog_item_ingredients` / `credit_accounts` / `credit_payments`). Reconstruidas en `supabase/migrations/20260829000000_sync_remote_drift.sql`.
 
-## Pendiente: Facturación electrónica DIAN (adicional de planes Profesional y Empresa)
+## Pendiente: Facturación electrónica DIAN (incluida en Empresa, adicional en Profesional)
 
-Se vende como adicional con pago de implementación aparte (cotizado por negocio). Se construye cuando haya el primer cliente que lo contrate.
+Incluida en el plan Empresa; en Profesional se vende como adicional con pago extra de implementación (cotizado por negocio). Se construye cuando haya el primer cliente que lo contrate.
 
 - **Por qué**: desde el 1-jul-2024 (Res. DIAN 165/2023 y 008/2024) quien está obligado a facturar debe emitir el documento equivalente electrónico POS; el tiquete en papel ya no vale.
 - **Cómo**: Spot arma el documento y un proveedor tecnológico autorizado lo firma y transmite (devuelve CUFE, QR y PDF). Candidatos: MATIAS API (paquete casas de software ~5.000 docs/año por $220.000; por NIT $20–50/doc), Nextpyme Plus (sandbox gratis, SDK Node), Plemsi, Factus. Precios publicados en oct-2026, sin confirmar.
