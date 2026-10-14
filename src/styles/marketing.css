@@ -448,3 +448,5 @@
   .mk-btn, .mk-feature, .mk-demo { transition: none; }
   .mk-mock-pin-courier { animation: none; }
 }
+.mk-plan-setup-note { flex-basis: 100%; font-size: 0.78rem; font-weight: 600; color: var(--success); }
+.mk-compare p + p { margin-top: 10px; }

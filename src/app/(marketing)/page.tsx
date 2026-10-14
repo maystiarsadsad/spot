@@ -197,6 +197,7 @@ export default async function HomePage() {
                   <div className="mk-plan-setup">
                     <span>{t.pricing.setupLabel}</span>
                     <strong>{from ? `${t.pricing.from} ` : ""}{formatCurrency(p.setup)}</strong>
+                    {"setupNote" in p && p.setupNote && <small className="mk-plan-setup-note">{p.setupNote}</small>}
                   </div>
                   <ul className="mk-plan-features">
                     {p.features.map((f) => (
@@ -218,6 +219,7 @@ export default async function HomePage() {
           <aside className="mk-compare">
             <h3>{t.pricing.compare.title}</h3>
             <p>{t.pricing.compare.body}</p>
+            <p>{t.pricing.compare.delivery}</p>
           </aside>
         </div>
       </section>
