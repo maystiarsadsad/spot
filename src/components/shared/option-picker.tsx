@@ -19,7 +19,7 @@ interface OptionPickerProps {
   showMissing?: boolean;
 }
 
-/** Rappi-style option groups: radios for single choice, checkboxes with a cap for multiple. */
+/** Delivery-app style option groups: radios for single choice, checkboxes with a cap for multiple. */
 export function OptionPicker({ groups, value, onChange, formatPrice, showMissing }: OptionPickerProps) {
   return (
     <div className="opt-picker">

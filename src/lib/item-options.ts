@@ -1,5 +1,5 @@
 /**
- * Product option groups ("modifiers"), Rappi/DiDi style:
+ * Product option groups ("modifiers"), as in delivery apps:
  * "Elige tu proteína" (1 obligatoria), "Adiciones" (0..3, con precio),
  * "¿Incluir cubiertos?" (Sí / No), "Quitar ingredientes" (0..n, gratis)…
  *

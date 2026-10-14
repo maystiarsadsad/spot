@@ -98,7 +98,7 @@ const DEMOS = [
       { name: "Bebidas", icon: "🥤", items: [
         ["Limonada de coco", 9500, "Refrescante limonada cremosa de coco.", "1621263764928-df1444c5e859"],
         ["Jugo natural en agua", 7000, "Mora, lulo, maracuyá o mango.", "1600271886742-f049cd451bba"],
-        ["Gaseosa", 5000, "Coca-Cola, Sprite o Quatro 400 ml.", "1622483767028-3f66f32aef97"],
+        ["Gaseosa", 5000, "Cola, limón o toronja 400 ml.", "1622483767028-3f66f32aef97"],
       ]},
       { name: "Postres", icon: "🍰", items: [
         ["Donas artesanales x2", 12000, "Glaseadas y decoradas a mano.", "1551024601-bec78aea704b"],
@@ -106,7 +106,7 @@ const DEMOS = [
       ]},
     ],
     staff: [["Chef", "Cocina"], ["Cocinero(a)", "Cocina"], ["Mesero(a)", "Salón"], ["Mesero(a)", "Salón"], ["Cajero(a)", "Caja"], ["Repartidor(a)", "Domicilios"]],
-    inventory: [["Pechuga de pollo", "kg", 18, 8, 16000, "Avícola El Dorado"], ["Papa criolla", "kg", 25, 10, 3500, "Corabastos"], ["Arroz", "kg", 40, 15, 4200, "Diana"], ["Aguacate hass", "und", 12, 20, 2500, "Corabastos"], ["Crema de leche", "lt", 6, 4, 9800, "Alpina"]],
+    inventory: [["Pechuga de pollo", "kg", 18, 8, 16000, "Avícola San Mateo"], ["Papa criolla", "kg", 25, 10, 3500, "Plaza Mayorista"], ["Arroz", "kg", 40, 15, 4200, "Granos del Llano"], ["Aguacate hass", "und", 12, 20, 2500, "Plaza Mayorista"], ["Crema de leche", "lt", 6, 4, 9800, "Lácteos La Pradera"]],
   },
   {
     type: "fast_food", slug: "demo-comidas-rapidas", name: "Burger Brothers",
@@ -132,11 +132,11 @@ const DEMOS = [
       ]},
       { name: "Bebidas", icon: "🥤", items: [
         ["Malteada de vainilla", 13000, "Helado artesanal y crema batida.", "1572490122747-3968b75cc699"],
-        ["Gaseosa 400 ml", 5000, "Coca-Cola, Sprite o Quatro.", "1622483767028-3f66f32aef97"],
+        ["Gaseosa 400 ml", 5000, "Cola, limón o toronja.", "1622483767028-3f66f32aef97"],
       ]},
     ],
     staff: [["Cocinero(a)", "Cocina"], ["Preparador(a)", "Cocina"], ["Cajero(a)", "Caja"], ["Repartidor(a)", "Domicilios"], ["Repartidor(a)", "Domicilios"]],
-    inventory: [["Carne de res molida", "kg", 22, 10, 24000, "Frigorífico Guadalupe"], ["Pan brioche", "und", 60, 80, 1200, "Panadería Artesanal"], ["Queso cheddar", "kg", 6, 3, 32000, "Alpina"], ["Papa pastusa", "kg", 50, 20, 2200, "Corabastos"], ["Tocineta", "kg", 4, 5, 38000, "Zenú"]],
+    inventory: [["Carne de res molida", "kg", 22, 10, 24000, "Carnes Santa Inés"], ["Pan brioche", "und", 60, 80, 1200, "Panadería Artesanal"], ["Queso cheddar", "kg", 6, 3, 32000, "Lácteos La Pradera"], ["Papa pastusa", "kg", 50, 20, 2200, "Plaza Mayorista"], ["Tocineta", "kg", 4, 5, 38000, "Embutidos La Granja"]],
   },
   {
     type: "supermarket", slug: "demo-supermercado", name: "Mercado Fresco La 80",
@@ -227,11 +227,11 @@ const DEMOS = [
       { name: "Para picar", icon: "🍗", items: [
         ["Nachos supremos", 32000, "Con queso, guacamole, pico de gallo y carne.", "1513456852971-30c0b8199d4d"],
         ["Alitas picantes x10", 34000, "Con salsa búfalo y apio.", "1608039755401-742074f0548d"],
-        ["Whisky en las rocas", 32000, "Whisky escocés etiqueta negra.", "1569529465841-dfecdab7503b"],
+        ["Whisky en las rocas", 32000, "Whisky escocés de 12 años.", "1569529465841-dfecdab7503b"],
       ]},
     ],
     staff: [["Barman", "Barra"], ["Barman", "Barra"], ["Mesero(a)", "Salón"], ["DJ", "Cabina DJ"], ["Guardia de Seguridad", "Seguridad"]],
-    inventory: [["Ron blanco", "botella", 9, 6, 52000, "Dislicores"], ["Tequila", "botella", 4, 6, 98000, "Dislicores"], ["Gin", "botella", 7, 4, 120000, "Dislicores"], ["Limón tahití", "kg", 10, 5, 4000, "Corabastos"], ["Cerveza nacional", "und", 180, 120, 2600, "Bavaria"]],
+    inventory: [["Ron blanco", "botella", 9, 6, 52000, "Licores del Norte"], ["Tequila", "botella", 4, 6, 98000, "Licores del Norte"], ["Gin", "botella", 7, 4, 120000, "Licores del Norte"], ["Limón tahití", "kg", 10, 5, 4000, "Plaza Mayorista"], ["Cerveza nacional", "und", 180, 120, 2600, "Distribuidora de Bebidas del Centro"]],
   },
   {
     type: "hotel", slug: "demo-hotel", name: "Hotel Mirador Andino",
@@ -253,7 +253,7 @@ const DEMOS = [
       ]},
     ],
     staff: [["Recepcionista", "Recepción"], ["Recepcionista", "Recepción"], ["Camarero(a) de Pisos", "Pisos"], ["Camarero(a) de Pisos", "Pisos"], ["Conserje", "Conserjería"], ["Gerente", "Gerencia"]],
-    inventory: [["Kit de amenidades", "und", 140, 60, 6500, "Hotel Supply"], ["Toallas", "und", 90, 50, 28000, "Textiles Lafayette"], ["Café para habitación", "und", 35, 40, 1800, "Juan Valdez"]],
+    inventory: [["Kit de amenidades", "und", 140, 60, 6500, "Suministros Hoteleros Andinos"], ["Toallas", "und", 90, 50, 28000, "Textiles del Valle"], ["Café para habitación", "und", 35, 40, 1800, "Café de la Montaña"]],
   },
   {
     type: "hostel", slug: "demo-hostal", name: "Casa Viajera Hostel",
@@ -300,7 +300,7 @@ const DEMOS = [
       ]},
     ],
     staff: [["Barista", "Barra"], ["Barista", "Barra"], ["Pastelero(a)", "Repostería"], ["Cajero(a)", "Caja"]],
-    inventory: [["Café verde Huila", "kg", 40, 20, 38000, "Finca La Esperanza"], ["Leche entera", "lt", 18, 24, 4100, "Alpina"], ["Mantequilla", "kg", 5, 3, 36000, "Colanta"], ["Vasos 12 oz", "und", 300, 200, 350, "Empaques Andinos"]],
+    inventory: [["Café verde Huila", "kg", 40, 20, 38000, "Finca La Esperanza"], ["Leche entera", "lt", 18, 24, 4100, "Lácteos La Pradera"], ["Mantequilla", "kg", 5, 3, 36000, "Lácteos La Pradera"], ["Vasos 12 oz", "und", 300, 200, 350, "Empaques Andinos"]],
   },
   {
     type: "gym", slug: "demo-gimnasio", name: "Iron Fit Gym",
@@ -396,7 +396,7 @@ const DEMOS = [
       ]},
     ],
     staff: [["Veterinario(a)", "Consulta"], ["Veterinario(a)", "Cirugía"], ["Auxiliar Veterinario(a)", "Consulta"], ["Peluquero(a) Canino", "Peluquería"], ["Recepcionista", "Recepción"]],
-    inventory: [["Vacuna antirrábica", "dosis", 30, 20, 18000, "Zoetis"], ["Antipulgas pipeta", "und", 6, 15, 22000, "Bayer"], ["Jeringas 3 ml", "und", 200, 100, 350, "Medisuministros"]],
+    inventory: [["Vacuna antirrábica", "dosis", 30, 20, 18000, "Biológicos Animales SAS"], ["Antipulgas pipeta", "und", 6, 15, 22000, "Laboratorios Vetsalud"], ["Jeringas 3 ml", "und", 200, 100, 350, "Medisuministros"]],
   },
   {
     type: "logistics", slug: "demo-logistica", name: "Rápido Express Mensajería",
@@ -458,7 +458,7 @@ const DEMOS = [
     categories: [
       { name: "Fotografía", icon: "📸", items: [
         ["Sesión de producto (10 fotos)", 350000, "Fondo blanco o ambientado, edición incluida.", "1516035069371-29a1b244cc32", { duration: 120 }],
-        ["Retrato profesional", 220000, "Para LinkedIn o portafolio, 5 fotos editadas.", "1507003211169-0a1dd7228f2d", { duration: 60 }],
+        ["Retrato profesional", 220000, "Para perfil profesional o portafolio, 5 fotos editadas.", "1507003211169-0a1dd7228f2d", { duration: 60 }],
         ["Alquiler de estudio por hora", 90000, "Set con iluminación y fondos.", "1471341971476-ae15ff5dd4ea", { duration: 60 }],
       ]},
       { name: "Diseño y contenido", icon: "🎨", items: [
@@ -557,7 +557,7 @@ const NATIONALITIES = {
   hostel: ["Colombia", "Alemania", "Francia", "Argentina", "Estados Unidos", "Países Bajos", "Chile", "Reino Unido"],
 };
 
-/* ── product options (Rappi-style modifiers) ─────────── */
+/* ── product options (delivery-app style modifiers) ─── */
 // Same shape as src/lib/item-options.ts → OptionGroup
 let optSeq = 0;
 const oid = () => `o${(++optSeq).toString(36)}`;
@@ -596,7 +596,7 @@ const ITEM_OPTIONS = {
       grp("Sabor", 1, 1, [["Mora"], ["Lulo"], ["Maracuyá"], ["Mango"]]),
       grp("Preparación", 1, 1, [["En agua", 0, true], ["En leche", 1500]]),
     ],
-    "Gaseosa": () => [grp("Sabor", 1, 1, [["Coca-Cola", 0, true], ["Sprite"], ["Quatro"]])],
+    "Gaseosa": () => [grp("Sabor", 1, 1, [["Cola", 0, true], ["Limón"], ["Toronja"]])],
   },
   "demo-comidas-rapidas": {
     "Clásica": () => [TERMINO(), ADICIONES(), QUITAR(), COMBO()],
@@ -607,7 +607,7 @@ const ITEM_OPTIONS = {
     "Perro americano": () => [ADICIONES(), QUITAR()],
     "Alitas BBQ x8": () => [SALSA_ALITAS(), CUBIERTOS()],
     "Malteada de vainilla": () => [grp("Sabor", 1, 1, [["Vainilla", 0, true], ["Chocolate"], ["Fresa"], ["Oreo", 2000]])],
-    "Gaseosa 400 ml": () => [grp("Sabor", 1, 1, [["Coca-Cola", 0, true], ["Sprite"], ["Quatro"]])],
+    "Gaseosa 400 ml": () => [grp("Sabor", 1, 1, [["Cola", 0, true], ["Limón"], ["Toronja"]])],
   },
   "demo-cafe": {
     "Cappuccino": () => [TAMANO_CAFE(), LECHE(), EXTRAS_CAFE()],
