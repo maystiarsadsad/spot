@@ -182,6 +182,7 @@
           "Reservas y agenda",
           "Fiado, nómina y reportes avanzados",
           "Asistente con IA Claude incluido: conectas tu cuenta de Anthropic, pagas solo lo que uses y fijas un tope diario",
+          "Facturación electrónica DIAN (POS y factura) como adicional, con pago de implementación aparte",
           "Hasta 10 usuarios y 4 sesiones de capacitación",
           "Soporte prioritario todos los días"
         ],
@@ -201,6 +202,7 @@
           "Catálogo ilimitado cargado por nosotros",
           "Capacitación continua y revisión mensual de resultados",
           "Acompañamiento con un asesor dedicado",
+          "Facturación electrónica DIAN (POS y factura) como adicional, con pago de implementación aparte",
           "Desarrollos e integraciones a medida (se cotizan aparte)"
         ],
         "setupNote": "Según sedes e integraciones"
@@ -237,7 +239,7 @@
       },
       {
         "q": "¿Incluye facturación electrónica DIAN?",
-        "a": "Por ahora no. Spot registra tus ventas, pedidos y caja, y la facturación electrónica la sigues haciendo con tu proveedor actual. Si la necesitas, te contamos las opciones en la demo."
+        "a": "Sí, en los planes Profesional y Empresa como adicional. Conectamos tu caja y tus pedidos con un proveedor autorizado por la DIAN para emitir el documento equivalente POS electrónico y la factura electrónica, con su CUFE y código QR. Tiene un pago de implementación aparte, que cotizamos según tu negocio, e incluye el acompañamiento para habilitarte ante la DIAN. En el plan Esencial puedes seguir facturando con tu proveedor actual."
       },
       {
         "q": "¿Cómo funciona el seguimiento de domicilios?",
