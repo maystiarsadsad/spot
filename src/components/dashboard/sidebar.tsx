@@ -23,6 +23,7 @@ import {
   CalendarClock,
   IdCard,
   BedDouble,
+  Truck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -64,8 +65,9 @@ const navItems = [
   { label: "Agenda", href: "/d/agenda", icon: CalendarClock, moduleKey: 'reservations', onlyFor: ['appointments'] },
   { label: "Socios", href: "/d/socios", icon: IdCard, onlyFor: ['memberships'] },
   { label: "Estadías", href: "/d/estadias", icon: BedDouble, moduleKey: 'reservations', onlyFor: ['stays'] },
+  { label: "Servicios", href: "/d/servicios", icon: Truck, onlyFor: ['service_orders'] },
   { label: "Reservas", href: "/d/reservations", icon: CalendarDays, moduleKey: 'reservations', hideFor: ['appointments', 'memberships', 'stays'] },
-  { label: "Pedidos", href: "/d/orders", icon: ShoppingCart, moduleKey: 'transactions' },
+  { label: "Pedidos", href: "/d/orders", icon: ShoppingCart, moduleKey: 'transactions', hideFor: ['service_orders'] },
   { label: "Caja (POS)", href: "/d/pos", icon: CreditCard, moduleKey: 'transactions' },
   { label: "Catálogo", href: "/d/catalog", icon: Package, moduleKey: 'catalog' },
   { label: "Inventario", href: "/d/inventory", icon: Warehouse, moduleKey: 'inventory' },

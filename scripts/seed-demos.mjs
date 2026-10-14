@@ -331,7 +331,7 @@ const DEMOS = [
     tagline: "Tu ropa limpia en 24 horas, la recogemos en tu casa", color: "#0284c7",
     description: "Lavado por kilo, lavado en seco, planchado y lavado de edredones. Servicio de recogida y entrega a domicilio sin costo adicional.",
     cover: "1545173168-9f1947eebb7f", logo: "1582735689369-4fe89db7114c", barrio: "Niza", hours: ["07:00", "19:00"],
-    itemType: "service", deliveries: true,
+    itemType: "service",
     categories: [
       { name: "Lavado", icon: "🧺", items: [
         ["Lavado por kilo", 9000, "Lavado, secado y doblado. Mínimo 3 kg.", "1545173168-9f1947eebb7f"],
@@ -403,7 +403,7 @@ const DEMOS = [
     tagline: "Tus envíos en Bogotá, rápidos y rastreables en tiempo real", color: "#d97706",
     description: "Mensajería urbana y envíos nacionales con seguimiento en vivo. Domicilios para negocios, documentos, paquetes y pequeñas mudanzas.",
     cover: "1586528116311-ad8dd3c8310d", logo: "1566576721346-d4a3b4eaeb55", barrio: "Puente Aranda", hours: ["06:00", "21:00"],
-    itemType: "service", deliveries: true, allDeliveries: true,
+    itemType: "service",
     categories: [
       { name: "Envíos urbanos", icon: "🛵", items: [
         ["Envío urbano estándar (hasta 5 kg)", 12000, "Entrega el mismo día en Bogotá.", "1566576721346-d4a3b4eaeb55"],
@@ -975,6 +975,8 @@ async function seedDemo(d, ownerId, broken) {
   if (d.type === "gym") await seedGym(bid, items, employees, contacts);
   // ── hotels / hostels: rooms, stays, folio, seasons
   if (d.type === "hotel" || d.type === "hostel") await seedStays(bid, d.type, items, contacts);
+  // ── couriers / laundries: service orders through every stage
+  if (d.type === "logistics" || d.type === "laundry") await seedServiceOrders(bid, d.type, items, contacts, employees);
 
   return { items: items.length, txns: inserted.length, contacts: contacts.length };
 }
@@ -1200,6 +1202,142 @@ async function seedStays(bid, type, items, contacts) {
     if (hk !== "clean") await sb.from("rooms").update({ housekeeping: hk }).eq("id", r.id);
   }
   console.log(`   ${rooms.length} habitaciones, ${saved.length} estadías, ${charges.length} consumos, ${payments.length} pagos`);
+}
+
+const SVC_CODE = (kind) => `${kind === "laundry" ? "L" : "E"}-${Array.from({ length: 5 }, () => "23456789ABCDEFGHJKMNPQRSTUVWXYZ"[int(0, 30)]).join("")}`;
+const kmBetween = (a, b) => {
+  const r = (x) => (x * Math.PI) / 180;
+  const h = Math.sin(r(b.lat - a.lat) / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(r(b.lng - a.lng) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+};
+const place = () => ({ address: `${pick(STREETS)}, ${pick(BARRIOS)}`, ...bogotaPoint() });
+
+async function seedServiceOrders(bid, type, items, contacts, employees) {
+  const kind = type === "laundry" ? "laundry" : "shipment";
+  const settings = kind === "shipment"
+    ? { includedKm: 5, perKm: 1500, maxKm: 40, roadFactor: 1.35, sizeFees: { small: 0, medium: 3000, large: 8000 }, homeServiceFee: 0, turnaroundHours: 24 }
+    : { includedKm: 5, perKm: 1500, maxKm: 40, roadFactor: 1.35, sizeFees: { small: 0, medium: 3000, large: 8000 }, homeServiceFee: 0, turnaroundHours: 24 };
+  await must(sb.from("businesses").update({ service_settings: settings }).eq("id", bid), "service settings");
+  const services = items.filter((it) => it.type === "service");
+  const urban = services.filter((x) => !/nacional|mudanza|hora/i.test(x.name));
+  const kilo = services.find((x) => /kilo/i.test(x.name));
+  const extras = services.filter((x) => x !== kilo);
+  const couriers = employees.filter((e) => /mensaj|repart|conduct/i.test(e.position ?? ""));
+  const flow = kind === "shipment" ? ["requested", "assigned", "in_transit", "delivered"] : ["requested", "received", "washing", "ready", "out_for_delivery", "delivered"];
+
+  // [status, how many] — closed history + a live board
+  const plan = kind === "shipment"
+    ? [["delivered", 70], ["cancelled", 4], ["requested", 4], ["assigned", 3], ["in_transit", 4], ["failed", 1]]
+    : [["delivered", 55], ["cancelled", 3], ["requested", 3], ["received", 5], ["washing", 6], ["ready", 6], ["out_for_delivery", 2]];
+
+  const orders = [], meta = [];
+  for (const [status, count] of plan) {
+    for (let n = 0; n < count; n++) {
+      const c = pick(contacts);
+      const closed = status === "delivered" || status === "cancelled";
+      const ageMin = closed ? int(60 * 6, 60 * 24 * 30) : status === "requested" ? int(5, 90) : int(60, 60 * 30);
+      const created = new Date(Date.now() - ageMin * 60000);
+      const code = SVC_CODE(kind);
+      let row;
+      if (kind === "shipment") {
+        const service = pick(urban.length ? urban : services);
+        const a = place(), b = place();
+        const km = Math.round(kmBetween(a, b) * settings.roadFactor * 10) / 10;
+        const size = pick(["small", "small", "small", "medium", "medium", "large"]);
+        const distanceFee = round100(Math.max(0, km - settings.includedKm) * settings.perKm);
+        const sizeFee = settings.sizeFees[size];
+        const total = round100(Number(service.price) + distanceFee + sizeFee);
+        const lines = [{ itemId: service.id, name: service.name, quantity: 1, unitPrice: Number(service.price), total: Number(service.price) }];
+        if (distanceFee) lines.push({ itemId: null, name: `Recorrido adicional (${String(km).replace(".", ",")} km)`, quantity: 1, unitPrice: distanceFee, total: distanceFee });
+        if (sizeFee) lines.push({ itemId: null, name: `Paquete ${size === "large" ? "grande" : "mediano"}`, quantity: 1, unitPrice: sizeFee, total: sizeFee });
+        row = {
+          pickup_address: a.address, pickup_lat: a.lat, pickup_lng: a.lng, dropoff_address: b.address, dropoff_lat: b.lat, dropoff_lng: b.lng,
+          recipient_name: fullName(), recipient_phone: `3${int(10, 23)}${int(1000000, 9999999)}`, distance_km: km, package_size: size,
+          package_description: pick(["Documentos firmados", "Caja con repuestos", "Pedido de tienda online", "Muestras de laboratorio", "Llaves", "Ropa", "Sobre con facturas"]),
+          items: lines, subtotal: Number(service.price), delivery_fee: distanceFee + sizeFee, total,
+        };
+      } else {
+        const kg = int(3, 9) + pick([0, 0.5]);
+        const lines = [{ itemId: kilo.id, name: `${kilo.name} · ${String(kg).replace(".", ",")} kg`, quantity: kg, unitPrice: Number(kilo.price), total: round100(kilo.price * kg) }];
+        if (rand() < 0.5) {
+          const x = pick(extras), q = /camisa|planchado/i.test(x.name) ? int(2, 6) : 1;
+          lines.push({ itemId: x.id, name: x.name, quantity: q, unitPrice: Number(x.price), total: round100(x.price * q) });
+        }
+        const handoff = rand() < 0.35 ? "pickup" : "store";
+        const returnMode = status === "out_for_delivery" ? "delivery" : rand() < 0.35 ? "delivery" : "store";
+        const home = place();
+        const subtotal = lines.reduce((acc, l) => acc + l.total, 0);
+        row = {
+          handoff, return_mode: returnMode, weight_kg: kg,
+          pickup_address: handoff === "pickup" ? home.address : null, pickup_lat: handoff === "pickup" ? home.lat : null, pickup_lng: handoff === "pickup" ? home.lng : null,
+          dropoff_address: returnMode === "delivery" ? home.address : null, dropoff_lat: returnMode === "delivery" ? home.lat : null, dropoff_lng: returnMode === "delivery" ? home.lng : null,
+          items: lines, subtotal, delivery_fee: 0, total: subtotal,
+          promised_at: new Date(created.getTime() + settings.turnaroundHours * 3600e3).toISOString(),
+        };
+      }
+      const paid = status === "delivered" ? rand() < 0.95 : status === "cancelled" ? false : rand() < 0.3;
+      const source = rand() < 0.6 ? "web" : "desk";
+      orders.push({
+        business_id: bid, code, kind, status, source, contact_id: c.id, customer_name: c.full_name, customer_phone: c.phone,
+        payment_status: paid ? "paid" : "pending", payment_method: paid ? pick(["cash", "transfer", "card"]) : null,
+        scheduled_for: status === "requested" && rand() < 0.5 ? new Date(Date.now() + int(30, 300) * 60000).toISOString() : null,
+        assigned_to: kind === "shipment" && ["assigned", "in_transit", "delivered"].includes(status) && couriers.length ? pick(couriers).id : null,
+        completed_at: status === "delivered" ? new Date(created.getTime() + int(60, kind === "shipment" ? 240 : 60 * 40) * 60000).toISOString() : null,
+        notes: rand() < 0.15 ? pick(["Preguntar en portería", "Llamar antes de llegar", "Sin suavizante", "Prendas delicadas"]) : null,
+        created_at: created.toISOString(), updated_at: created.toISOString(),
+        ...row,
+      });
+      meta.push({ created, status, paid });
+    }
+  }
+
+  // One transaction per order (shows in cash and reports once paid and delivered)
+  const txs = await must(sb.from("transactions").insert(orders.map((o) => ({
+    business_id: bid, type: "order", code: o.code,
+    status: o.status === "cancelled" ? "cancelled" : o.status === "delivered" && o.payment_status === "paid" ? "completed" : o.status === "requested" ? "pending" : "in_progress",
+    payment_status: o.payment_status, payment_method: o.payment_method ?? "pending",
+    subtotal: o.total, total: o.total, customer_name: o.customer_name, customer_phone: o.customer_phone, contact_id: o.contact_id,
+    address: o.dropoff_address, notes: kind === "shipment" ? `📦 Envío ${o.code}` : `🧺 Lavandería ${o.code}`,
+    created_at: o.created_at, completed_at: o.completed_at,
+  }))).select("id"), "service transactions");
+  orders.forEach((o, i) => { o.transaction_id = txs[i].id; });
+  const saved = await must(sb.from("service_orders").insert(orders).select("id, status, kind, return_mode, created_at, completed_at, transaction_id, dropoff_lat, dropoff_lng, pickup_lat, pickup_lng, assigned_to"), "service orders");
+
+  // Timeline events up to the current stage
+  const events = [];
+  for (const o of saved) {
+    const t0 = new Date(o.created_at).getTime();
+    const stages = kind === "laundry" && o.return_mode !== "delivery" ? flow.filter((x) => x !== "out_for_delivery") : flow;
+    const upto = o.status === "cancelled" ? 0 : o.status === "failed" ? stages.indexOf("in_transit") : stages.indexOf(o.status);
+    const end = o.completed_at ? new Date(o.completed_at).getTime() : Math.min(Date.now(), t0 + 3600e3 * 6);
+    for (let i = 0; i <= upto; i++) {
+      const at = new Date(t0 + ((end - t0) * i) / Math.max(1, upto));
+      events.push({ business_id: bid, order_id: o.id, status: stages[i], note: i === 0 ? "Solicitud recibida" : null, created_at: at.toISOString() });
+    }
+    if (o.status === "cancelled") events.push({ business_id: bid, order_id: o.id, status: "cancelled", note: "Cancelado por el cliente", created_at: new Date(t0 + 1800e3).toISOString() });
+    if (o.status === "failed") events.push({ business_id: bid, order_id: o.id, status: "failed", note: "No había nadie para recibir", created_at: new Date(Date.now() - 1800e3).toISOString() });
+  }
+  for (let i = 0; i < events.length; i += 500) await must(sb.from("service_order_events").insert(events.slice(i, i + 500)), "service events");
+
+  // Couriers on the road: live-tracking deliveries halfway through the route
+  const live = saved.filter((o) => ["assigned", "in_transit", "out_for_delivery"].includes(o.status) && o.dropoff_lat != null);
+  if (live.length) {
+    await must(sb.from("deliveries").insert(live.map((o) => {
+      const moving = o.status !== "assigned";
+      const from = o.pickup_lat != null ? { lat: o.pickup_lat, lng: o.pickup_lng } : { lat: 4.705, lng: -74.07 };
+      const f = 0.3 + rand() * 0.5;
+      return {
+        business_id: bid, transaction_id: o.transaction_id, dest_lat: o.dropoff_lat, dest_lng: o.dropoff_lng,
+        status: moving ? "on_the_way" : "pending",
+        courier_name: (employees.find((e) => e.id === o.assigned_to) ?? pick(couriers.length ? couriers : employees))?.full_name ?? "Mensajero",
+        courier_lat: moving ? from.lat + (o.dropoff_lat - from.lat) * f : null,
+        courier_lng: moving ? from.lng + (o.dropoff_lng - from.lng) * f : null,
+        location_updated_at: moving ? new Date(Date.now() - int(5, 60) * 1000).toISOString() : null,
+        started_at: moving ? new Date(Date.now() - int(10, 40) * 60000).toISOString() : null,
+      };
+    })), "service deliveries");
+  }
+  console.log(`   ${saved.length} órdenes de servicio, ${events.length} eventos, ${live.length} con mensajero`);
 }
 
 /* ── main ────────────────────────────────────────────── */

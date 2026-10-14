@@ -512,3 +512,17 @@
   color: var(--foreground);
   cursor: pointer;
 }
+
+/* Route picker (courier requests): A = pickup, B = drop-off */
+.map-pin-route { width: 34px; height: 34px; color: #fff; font-weight: 800; font-size: 0.9rem; border: 2px solid #fff; box-shadow: 0 4px 12px rgb(0 0 0 / 0.3); }
+.map-pin-pickup { background: #2563eb; }
+.map-pin-dropoff { background: #16a34a; }
+.route-picker-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+.route-picker-tabs button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px;
+  border: 1px solid var(--store-border, #ddd); background: var(--store-card-bg, transparent); color: var(--store-text, inherit); font-weight: 600; font-size: 0.85rem; cursor: pointer;
+}
+.route-picker-tabs button.is-active { border-color: var(--store-primary, #15140f); box-shadow: 0 0 0 1px var(--store-primary, #15140f); }
+.route-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 0.7rem; font-weight: 800; }
+.route-dot-pickup { background: #2563eb; }
+.route-dot-dropoff { background: #16a34a; }

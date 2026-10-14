@@ -10,6 +10,7 @@ import { DEFAULT_CLAUDE_MODEL, DEFAULT_DAILY_CAP_USD } from "./models";
 import type { KbContext, KbFaq, KbItem } from "./keyword-engine";
 import { verticalOf } from "@/lib/verticals";
 import { parseStaySettings } from "@/lib/stays/pricing";
+import { parseServiceSettings } from "@/lib/service-orders/flow";
 
 export interface AssistantSettings {
   claudeEnabled: boolean;
@@ -71,7 +72,7 @@ export async function loadAssistantContext(businessId: string) {
   const [{ data: business }, { data: settingsRow }, { data: items }, { data: categories }, { data: gymClasses }] = await Promise.all([
     admin
       .from("businesses")
-      .select("id, name, type, subscription_plan, description, tagline, address, city, phone, whatsapp, currency, timezone, business_hours, ai_agent_greeting, stay_settings, active")
+      .select("id, name, type, subscription_plan, description, tagline, address, city, phone, whatsapp, currency, timezone, business_hours, ai_agent_greeting, stay_settings, service_settings, active")
       .eq("id", businessId)
       .single(),
     admin.from("business_ai_settings").select("*").eq("business_id", businessId).maybeSingle(),
@@ -129,6 +130,13 @@ export async function loadAssistantContext(businessId: string) {
     items: kbItems,
     categories: (categories ?? []).map((c: { name: string }) => c.name),
     booking: verticalOf(info.type) === "appointments",
+    services:
+      verticalOf(info.type) === "service_orders"
+        ? (() => {
+            const sv = parseServiceSettings(business.service_settings);
+            return { kind: info.type === "laundry" ? ("laundry" as const) : ("shipment" as const), turnaroundHours: sv.turnaroundHours, includedKm: sv.includedKm, perKm: sv.perKm, maxKm: sv.maxKm, homeServiceFee: sv.homeServiceFee };
+          })()
+        : undefined,
     stays:
       verticalOf(info.type) === "stays"
         ? (() => {

@@ -9,6 +9,8 @@ import { loadBookingBusiness, loadServices, loadStaff } from "@/lib/booking/data
 import { GymPage } from "@/components/public/gym-page";
 import { loadClassSessions, loadPlans } from "@/lib/memberships/data";
 import { StaySearch } from "@/components/public/stay-search";
+import { ServiceRequest } from "@/components/public/service-request";
+import { loadServiceBusiness, loadServiceItems } from "@/lib/service-orders/data";
 import { loadRoomTypes, loadStayBusiness } from "@/lib/stays/data";
 import { addDays, localDate } from "@/lib/booking/availability";
 
@@ -138,6 +140,27 @@ export default async function PublicBusinessPage({ params }: PageProps) {
           today={today}
           tomorrow={addDays(today, 1)}
           maxDate={addDays(today, stayBusiness.settings.maxDaysAhead)}
+        />
+      );
+    }
+  }
+
+  // Couriers and laundries: request form (route + quote, or laundry services) instead of a cart
+  if (verticalOf(business.type) === "service_orders") {
+    const [serviceBusiness, serviceItems] = await Promise.all([loadServiceBusiness(business.id), loadServiceItems(business.id)]);
+    if (serviceBusiness && serviceItems.length > 0) {
+      booking = (
+        <ServiceRequest
+          business={{
+            id: business.id,
+            slug: business.slug,
+            currency: serviceBusiness.currency,
+            whatsapp: serviceBusiness.whatsapp,
+            kind: serviceBusiness.kind,
+            address: serviceBusiness.address,
+          }}
+          items={serviceItems}
+          settings={serviceBusiness.settings}
         />
       );
     }

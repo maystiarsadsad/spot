@@ -179,3 +179,32 @@ describe("keywordAnswer — hotels", () => {
     expect(r.action).toBeUndefined();
   });
 });
+
+describe("keywordAnswer — couriers and laundries", () => {
+  const base = { turnaroundHours: 24, includedKm: 5, perKm: 1500, maxKm: 40, homeServiceFee: 0 };
+  const courier: KbContext = {
+    ...ctx,
+    items: [{ id: "s1", name: "Envío urbano estándar", description: null, price: 12000, category: "Envíos", featured: true, groups: [] }],
+    services: { kind: "shipment", ...base },
+  };
+  const laundry: KbContext = {
+    ...ctx,
+    items: [{ id: "k1", name: "Lavado por kilo", description: null, price: 9000, category: "Lavado", featured: true, groups: [] }],
+    services: { kind: "laundry", ...base },
+  };
+  it("explains how a shipment is quoted", () => {
+    expect(keywordAnswer("cuanto cuesta un envio a usaquen?", courier, fmt).text).toContain("5 km");
+  });
+  it("explains tracking", () => {
+    expect(keywordAnswer("como puedo rastrear mi envio?", courier, fmt).text).toContain("mapa");
+  });
+  it("laundry turnaround and pickup", () => {
+    expect(keywordAnswer("cuanto se demora la ropa?", laundry, fmt).text).toContain("24 horas");
+    expect(keywordAnswer("recogen a domicilio?", laundry, fmt).text).toContain("sin costo");
+  });
+  it("prices a laundry service without cart buttons", () => {
+    const r = keywordAnswer("cuanto vale el lavado por kilo?", laundry, fmt);
+    expect(r.text).toContain("$9.000");
+    expect(r.action).toBeUndefined();
+  });
+});

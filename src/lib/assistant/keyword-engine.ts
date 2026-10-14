@@ -38,6 +38,8 @@ export interface KbContext {
   booking?: boolean;
   /** Gyms: plans are bought/signed up on the page; weekly class timetable */
   gym?: { classes: { name: string; day: string; time: string }[] };
+  /** Couriers and laundries: requests with a form on the page and a tracking link */
+  services?: { kind: "laundry" | "shipment"; turnaroundHours: number; includedKm: number; perKm: number; maxKm: number; homeServiceFee: number };
   /** Hotels/hostels: guests book by dates on the page */
   stays?: { checkIn: string; checkOut: string; cancelDays: number; depositPct: number };
 }
@@ -210,7 +212,32 @@ export function keywordAnswer(question: string, ctx: KbContext, fmt: (n: number)
   }
 
   // Appointment and gym pages have no cart: answer without "Agregar" buttons
-  const act = (it: KbItem, selection?: OptionSelection) => (ctx.booking || ctx.gym || ctx.stays ? undefined : addAction(it, selection));
+  const act = (it: KbItem, selection?: OptionSelection) => (ctx.booking || ctx.gym || ctx.stays || ctx.services ? undefined : addAction(it, selection));
+
+  // Couriers and laundries: tracking, timing, coverage, how to request
+  if (ctx.services) {
+    const sv = ctx.services;
+    if (hasAny(q, ["rastrear", "rastreo", "seguimiento", "seguir", "donde", "estado", "va", "llega", "llegara"]) && hasAny(q, ["envio", "paquete", "pedido", "orden", "ropa", "mensajero", "domicilio", "servicio"])) {
+      return { text: `Al hacer tu solicitud recibes un enlace para seguirla en tiempo real${sv.kind === "shipment" ? ", con el mensajero en el mapa" : ""}. Si no lo encuentras, escríbenos con tu código.${contact}` };
+    }
+    // "¿cuánto se demora?" is about time; only explicit price words make it a price question
+    const asksPrice = hasAny(q, ["precio", "vale", "cuesta", "valor", "tarifa", "cobran"]);
+    if (sv.kind === "laundry") {
+      if (!asksPrice && (hasAny(q, ["demora", "demoran", "tarda", "tardan", "listo", "lista", "tiempo", "horas"]) || mentions(qNorm, ["cuando esta", "cuando queda", "para cuando"]))) {
+        return { text: `Tu ropa queda lista en unas ${sv.turnaroundHours} horas desde que la recibimos. Te avisamos y puedes seguir el estado con tu enlace. 🧺` };
+      }
+      if (hasAny(q, ["recogen", "recoger", "domicilio", "casa", "entregan", "traen", "buscan"])) {
+        return { text: `¡Sí! Recogemos y entregamos a domicilio${sv.homeServiceFee ? ` por ${fmt(sv.homeServiceFee)}` : " sin costo"}. Pídelo en esta página: eliges los servicios, marcas tu dirección y listo.` };
+      }
+    } else {
+      if (hasAny(q, ["cuanto", "precio", "valor", "cuesta", "vale", "tarifa", "cotizar", "cotizacion"]) && hasAny(q, ["envio", "enviar", "mensajero", "domicilio", "paquete", "llevar"])) {
+        return { text: `Marca en el mapa de esta página dónde recogemos y dónde entregamos y te mostramos el precio exacto al instante. La tarifa base incluye ${sv.includedKm} km; cada km adicional cuesta ${fmt(sv.perKm)}.` };
+      }
+      if (hasAny(q, ["cobertura", "cubren", "llegan", "lejos", "municipios", "fuera"])) {
+        return { text: `Hacemos recorridos de hasta ${sv.maxKm} km. Para envíos más lejanos o nacionales escríbenos y te cotizamos.${contact}` };
+      }
+    }
+  }
 
   // Hotels: check-in/out times, cancellation, availability → book on the page
   if (ctx.stays) {

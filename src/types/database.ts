@@ -338,6 +338,7 @@ export type Database = {
           onboarding_step: number | null
           owner_id: string
           phone: string | null
+          service_settings: Json
           slug: string
           social_links: Json | null
           stay_settings: Json
@@ -383,6 +384,7 @@ export type Database = {
           onboarding_step?: number | null
           owner_id: string
           phone?: string | null
+          service_settings?: Json
           slug: string
           social_links?: Json | null
           stay_settings?: Json
@@ -428,6 +430,7 @@ export type Database = {
           onboarding_step?: number | null
           owner_id?: string
           phone?: string | null
+          service_settings?: Json
           slug?: string
           social_links?: Json | null
           stay_settings?: Json
@@ -1898,6 +1901,212 @@ export type Database = {
           },
         ]
       }
+      service_order_events: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_order_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_orders: {
+        Row: {
+          assigned_to: string | null
+          business_id: string
+          code: string
+          completed_at: string | null
+          contact_id: string | null
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          declared_value: number | null
+          delivery_fee: number
+          distance_km: number | null
+          dropoff_address: string | null
+          dropoff_lat: number | null
+          dropoff_lng: number | null
+          handoff: string | null
+          id: string
+          internal_notes: string | null
+          items: Json
+          kind: string
+          notes: string | null
+          package_description: string | null
+          package_size: string | null
+          payment_method: string | null
+          payment_status: string
+          pickup_address: string | null
+          pickup_lat: number | null
+          pickup_lng: number | null
+          promised_at: string | null
+          received_by: string | null
+          recipient_name: string | null
+          recipient_phone: string | null
+          return_mode: string | null
+          scheduled_for: string | null
+          source: string
+          status: string
+          subtotal: number
+          total: number
+          tracking_token: string
+          transaction_id: string | null
+          updated_at: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          business_id: string
+          code: string
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          declared_value?: number | null
+          delivery_fee?: number
+          distance_km?: number | null
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          handoff?: string | null
+          id?: string
+          internal_notes?: string | null
+          items?: Json
+          kind: string
+          notes?: string | null
+          package_description?: string | null
+          package_size?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          promised_at?: string | null
+          received_by?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          return_mode?: string | null
+          scheduled_for?: string | null
+          source?: string
+          status?: string
+          subtotal?: number
+          total?: number
+          tracking_token?: string
+          transaction_id?: string | null
+          updated_at?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          assigned_to?: string | null
+          business_id?: string
+          code?: string
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          declared_value?: number | null
+          delivery_fee?: number
+          distance_km?: number | null
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          handoff?: string | null
+          id?: string
+          internal_notes?: string | null
+          items?: Json
+          kind?: string
+          notes?: string | null
+          package_description?: string | null
+          package_size?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          promised_at?: string | null
+          received_by?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          return_mode?: string | null
+          scheduled_for?: string | null
+          source?: string
+          status?: string
+          subtotal?: number
+          total?: number
+          tracking_token?: string
+          transaction_id?: string | null
+          updated_at?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_orders_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_orders_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_orders_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_orders_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shifts: {
         Row: {
           business_id: string
@@ -2587,6 +2796,7 @@ export type Database = {
           onboarding_step: number | null
           owner_id: string
           phone: string | null
+          service_settings: Json
           slug: string
           social_links: Json | null
           stay_settings: Json
