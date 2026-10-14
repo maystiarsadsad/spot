@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { verticalOf } from "@/lib/verticals";
 import { Bot } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/get-active-business";
@@ -106,7 +107,7 @@ export default async function AssistantPage() {
           <UsagePanel stats={stats} />
         </TabsContent>
         <TabsContent value="test" className="pt-4">
-          <Playground businessId={business.id} sampleItem={firstItem?.name ?? null} />
+          <Playground businessId={business.id} sampleItem={firstItem?.name ?? null} vertical={verticalOf(business.type)} />
         </TabsContent>
       </Tabs>
     </div>

@@ -27,7 +27,10 @@ const shortDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("
 export function Reception({ businessId, currency, members, plans, todayCheckIns }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<MemberRow | null>(null);
+  // Keep only the id: the card always shows the latest server data (e.g. right after a renewal)
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = members.find((m) => m.contactId === selectedId) ?? null;
+  const setSelected = (m: MemberRow | null) => setSelectedId(m?.contactId ?? null);
   const [blocked, setBlocked] = useState<string | null>(null);
   const [sell, setSell] = useState<{ open: boolean; member: MemberRow | null }>({ open: false, member: null });
   const [isPending, startTransition] = useTransition();
@@ -97,7 +100,7 @@ export function Reception({ businessId, currency, members, plans, todayCheckIns 
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-lg font-bold">{selected.name}</p>
-                  <p className="text-sm text-muted-foreground">{selected.code ? `#${selected.code}` : ""} {selected.phone}</p>
+                  <p className="text-sm text-muted-foreground">{[selected.code ? `#${selected.code}` : null, selected.phone].filter(Boolean).join(" · ")}</p>
                 </div>
                 <Badge variant={ok ? "secondary" : "destructive"} className="text-sm">{STATE_LABELS[selected.state]}</Badge>
               </div>

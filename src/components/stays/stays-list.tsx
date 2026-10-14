@@ -96,7 +96,7 @@ export function StaysList({ stays, rooms, roomTypes, currency, today, onOpen }: 
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {shortDate(s.checkIn)} → {shortDate(s.checkOut)}
-                    <div className="text-xs text-muted-foreground">{nightsCount(s.checkIn, s.checkOut)} noches · {s.adults + s.children} pers.</div>
+                    <div className="text-xs text-muted-foreground">{nightsCount(s.checkIn, s.checkOut)} {nightsCount(s.checkIn, s.checkOut) === 1 ? "noche" : "noches"} · {s.adults + s.children} pers.</div>
                   </TableCell>
                   <TableCell className="text-xs">{SOURCE_LABELS[s.source] ?? s.source}</TableCell>
                   <TableCell>

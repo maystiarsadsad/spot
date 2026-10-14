@@ -20,6 +20,15 @@ export interface CourierData {
   payment_status: string | null;
   customer_name: string | null;
   customer_phone: string | null;
+  /** Set when the delivery belongs to a courier/laundry service order */
+  service_kind?: "shipment" | "laundry" | null;
+  pickup_address?: string | null;
+  pickup_lat?: number | null;
+  pickup_lng?: number | null;
+  recipient_name?: string | null;
+  recipient_phone?: string | null;
+  package_description?: string | null;
+  service_notes?: string | null;
   business_name: string;
   currency: string | null;
 }
@@ -151,6 +160,13 @@ export function CourierPanel({ token, initial }: { token: string; initial: Couri
     : data.address
       ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(data.address)}`
       : null;
+  const isShipment = data.service_kind === "shipment";
+  const pickupUrl =
+    data.pickup_lat != null && data.pickup_lng != null
+      ? `https://www.google.com/maps/dir/?api=1&destination=${data.pickup_lat},${data.pickup_lng}`
+      : data.pickup_address
+        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(data.pickup_address)}`
+        : null;
   const wazeUrl = dest ? `https://waze.com/ul?ll=${dest.lat},${dest.lng}&navigate=yes` : null;
   const sentAgo = lastSentAt ? Math.round((Date.now() - lastSentAt) / 1000) : null;
 
@@ -158,21 +174,41 @@ export function CourierPanel({ token, initial }: { token: string; initial: Couri
     <div className="public-store courier">
       <header className="courier-header">
         <p>{data.business_name} · Repartidor</p>
-        <h1>Pedido {data.order_code ?? ""}</h1>
+        <h1>{isShipment ? "Envío" : "Pedido"} {data.order_code ?? ""}</h1>
       </header>
 
       <div ref={containerRef} className="courier-map" />
 
       <section className="courier-card">
+        {isShipment && data.pickup_address && (
+          <div className="courier-row">
+            <span className="route-dot route-dot-pickup">A</span>
+            <div>
+              <strong>Recoger con {data.customer_name || "el cliente"}</strong>
+              <p>{data.pickup_address}</p>
+              {pickupUrl && (
+                <a href={pickupUrl} target="_blank" rel="noopener noreferrer" className="courier-muted">
+                  Cómo llegar a la recogida
+                </a>
+              )}
+            </div>
+          </div>
+        )}
         <div className="courier-row">
-          <MapPin size={18} />
+          {isShipment ? <span className="route-dot route-dot-dropoff">B</span> : <MapPin size={18} />}
           <div>
-            <strong>{data.customer_name || "Cliente"}</strong>
+            <strong>{isShipment ? `Entregar a ${data.recipient_name || "destinatario"}` : data.customer_name || "Cliente"}</strong>
             <p>{data.address || "Sin dirección escrita"}</p>
             {!dest && <p className="courier-muted">El cliente no marcó el punto en el mapa.</p>}
           </div>
         </div>
-        {data.notes && <p className="courier-notes">{data.notes}</p>}
+        {data.service_kind ? (
+          (data.package_description || data.service_notes) && (
+            <p className="courier-notes">{[data.package_description, data.service_notes].filter(Boolean).join(" · ")}</p>
+          )
+        ) : (
+          data.notes && <p className="courier-notes">{data.notes}</p>
+        )}
         <div className="courier-row courier-total">
           <span>Total del pedido</span>
           <strong>
@@ -184,7 +220,12 @@ export function CourierPanel({ token, initial }: { token: string; initial: Couri
         <div className="courier-links">
           {data.customer_phone && (
             <a href={`tel:${data.customer_phone}`} className="courier-link">
-              <Phone size={16} /> Llamar
+              <Phone size={16} /> {isShipment ? "Llamar a quien envía" : "Llamar"}
+            </a>
+          )}
+          {isShipment && data.recipient_phone && (
+            <a href={`tel:${data.recipient_phone}`} className="courier-link">
+              <Phone size={16} /> Llamar a quien recibe
             </a>
           )}
           {navUrl && (

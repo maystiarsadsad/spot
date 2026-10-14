@@ -18,14 +18,23 @@ interface Msg {
   action?: string;
 }
 
-const SUGGESTIONS = ["¿Qué me recomiendas?", "¿Hacen domicilios?", "¿A qué hora abren?"];
+// What customers of each kind of business usually ask
+const SUGGESTIONS: Record<string, string[]> = {
+  orders: ["¿Qué me recomiendas?", "¿Hacen domicilios?", "¿A qué hora abren?"],
+  appointments: ["¿Cómo agendo una cita?", "¿Cuánto cuesta el corte?", "¿A qué hora abren?"],
+  memberships: ["¿Cómo me inscribo?", "¿A qué hora es spinning?", "¿Qué planes tienen?"],
+  stays: ["¿Tienen disponibilidad este fin de semana?", "¿A qué hora es el check-in?", "¿Puedo cancelar?"],
+  service_orders: ["¿Cuánto cuesta un envío?", "¿Recogen a domicilio?", "¿Cómo rastreo mi pedido?"],
+};
 
-export function Playground({ businessId, sampleItem }: { businessId: string; sampleItem: string | null }) {
+export function Playground({ businessId, sampleItem, vertical = "orders" }: { businessId: string; sampleItem: string | null; vertical?: string }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isPending, startTransition] = useTransition();
   const endRef = useRef<HTMLDivElement>(null);
-  const suggestions = sampleItem ? [`¿${sampleItem} se puede sin cebolla?`, ...SUGGESTIONS] : SUGGESTIONS;
+  const base = SUGGESTIONS[vertical] ?? SUGGESTIONS.orders;
+  // "¿X se puede sin cebolla?" only makes sense for food
+  const suggestions = sampleItem && vertical === "orders" ? [`¿${sampleItem} se puede sin cebolla?`, ...base] : base;
 
   const send = (text: string) => {
     const question = text.trim();

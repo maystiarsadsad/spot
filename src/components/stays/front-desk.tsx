@@ -77,7 +77,7 @@ export function FrontDesk({ stays, rooms, roomTypes, currency, today, onOpen }: 
                     <span className="text-destructive">debía llegar el {shortDate(s.checkIn)}</span>
                   ) : (
                     <>
-                      {nightsCount(s.checkIn, s.checkOut)} noches{s.arrivalTime ? ` · llega ${s.arrivalTime}` : ""}{s.status === "pending" ? " · por confirmar" : ""}
+                      {nightsCount(s.checkIn, s.checkOut)} {nightsCount(s.checkIn, s.checkOut) === 1 ? "noche" : "noches"}{s.arrivalTime ? ` · llega ${s.arrivalTime}` : ""}{s.status === "pending" ? " · por confirmar" : ""}
                     </>
                   )
               )

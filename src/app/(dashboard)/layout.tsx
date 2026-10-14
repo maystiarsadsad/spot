@@ -154,13 +154,13 @@ export default async function DashboardLayout({
           memberPermissions={memberPermissions}
           enabledModules={enabledModules}
         />
-        <SidebarInset>
+        <SidebarInset className="min-w-0">
           <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-dashed border-[var(--line)] bg-[var(--background)]/80 backdrop-blur-sm px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="h-6" />
             <div className="flex-1" />
           </header>
-          <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
+          <main className="min-w-0 flex-1 overflow-auto p-4 sm:p-6">{children}</main>
         </SidebarInset>
       </SidebarProvider>
       </div>

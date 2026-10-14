@@ -52,7 +52,7 @@ function OrderBody({ order, onClose, couriers, items, currency, timeZone, siteUr
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [detail, setDetail] = useState<Detail | null>(null);
-  const [courier, setCourier] = useState({ employeeId: order.assignedTo ?? "", name: "" });
+  const [courier, setCourier] = useState({ employeeId: order.assignedTo ?? couriers[0]?.id ?? "", name: "" });
   const [method, setMethod] = useState("cash");
   const [issue, setIssue] = useState("");
   const [lines, setLines] = useState<Record<string, string>>(() =>
