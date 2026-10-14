@@ -273,11 +273,12 @@
     "terms": "Términos y condiciones",
     "cookies": "Política de cookies",
     "whatsapp": "WhatsApp ventas",
-    "rights": "Todos los derechos reservados."
+    "rights": "Todos los derechos reservados.",
+    "dataProcessing": "Encargo de tratamiento de datos"
   },
   "legal": {
     "updatedLabel": "Última actualización",
-    "updated": "6 de octubre de 2026",
+    "updated": "14 de octubre de 2026",
     "placeholderNote": "Los campos entre corchetes se completarán con los datos del responsable del servicio.",
     "backHome": "Volver al inicio",
     "privacy": {
@@ -374,7 +375,8 @@
         {
           "title": "1. Quiénes somos",
           "paragraphs": [
-            "El servicio lo presta [RAZÓN SOCIAL], NIT [NIT], con domicilio en [DIRECCIÓN], [CIUDAD], Colombia (\"Spot\"). Contacto: [CORREO DE CONTACTO]."
+            "El servicio lo presta [RAZÓN SOCIAL], NIT [NIT], con domicilio en [DIRECCIÓN], [CIUDAD], Colombia (\"Spot\"). Contacto: [CORREO DE CONTACTO].",
+            "El tratamiento de los datos que el negocio registra sobre sus clientes, proveedores y empleados se rige además por el Acuerdo de encargo de tratamiento de datos personales, que hace parte de estos términos."
           ]
         },
         {
@@ -489,6 +491,85 @@
           "title": "5. Contacto",
           "paragraphs": [
             "Si tienes preguntas sobre esta política, escríbenos a [CORREO DE PRIVACIDAD]."
+          ]
+        }
+      ]
+    },
+    "dataProcessing": {
+      "title": "Acuerdo de encargo de tratamiento de datos personales",
+      "intro": "Este acuerdo regula cómo Spot trata, por cuenta de cada negocio, los datos personales que el negocio registra en la plataforma sobre sus clientes, proveedores y empleados. Hace parte de los Términos y condiciones y se acepta al crear la cuenta. Se rige por la Ley Estatutaria 1581 de 2012, el Decreto 1074 de 2015 (capítulo 25) y demás normas colombianas.",
+      "sections": [
+        {
+          "title": "1. Partes y roles",
+          "paragraphs": [
+            "El negocio que contrata Spot es el responsable del tratamiento de los datos personales de sus clientes, proveedores y empleados que registra o recibe a través de la plataforma.",
+            "[RAZÓN SOCIAL], NIT [NIT] (\"Spot\"), es el encargado del tratamiento: trata esos datos únicamente por cuenta del negocio y para prestarle el servicio contratado."
+          ]
+        },
+        {
+          "title": "2. Objeto y finalidades",
+          "paragraphs": [
+            "Spot trata los datos solo para: recibir y gestionar pedidos, reservas, citas, membresías, estadías y servicios; registrar ventas, pagos y créditos; mostrar el seguimiento de domicilios; enviar los enlaces y mensajes que el negocio decida; responder preguntas en el asistente de la página; generar reportes y exportaciones para el negocio; y mantener la seguridad y el respaldo de la información.",
+            "Spot no usa estos datos para fines propios, no los vende ni los comparte con terceros distintos de los subencargados indicados en este acuerdo."
+          ]
+        },
+        {
+          "title": "3. Datos tratados",
+          "list": [
+            "Identificación y contacto: nombre, teléfono, correo y, cuando el negocio lo pida, documento de identidad y nacionalidad (por ejemplo, para el registro de huéspedes).",
+            "Ubicación: dirección y punto en el mapa para domicilios, recogidas y entregas; ubicación en tiempo real del mensajero mientras hace un recorrido.",
+            "Operación: historial de compras, reservas, citas, membresías, asistencia, pagos, saldos y notas que registre el negocio.",
+            "Conversaciones con el asistente de la página del negocio."
+          ]
+        },
+        {
+          "title": "4. Obligaciones del negocio (responsable)",
+          "list": [
+            "Contar con la autorización previa, expresa e informada de los titulares cuando la ley la exija, e informarles las finalidades del tratamiento.",
+            "Tener y publicar su propia política de tratamiento de datos y atender las consultas y reclamos de sus titulares.",
+            "Registrar en Spot solo los datos necesarios para su operación y mantenerlos veraces y actualizados.",
+            "Dar instrucciones lícitas a Spot y avisarle cuando un titular revoque su autorización o pida corregir o suprimir sus datos.",
+            "Cuando registre datos de niñas, niños o adolescentes, contar con la autorización de sus representantes y respetar sus derechos prevalentes."
+          ]
+        },
+        {
+          "title": "5. Obligaciones de Spot (encargado)",
+          "list": [
+            "Tratar los datos solo según las instrucciones del negocio y las finalidades de este acuerdo.",
+            "Guardar confidencialidad y exigirla a las personas que accedan a los datos.",
+            "Aplicar medidas de seguridad razonables: acceso restringido por negocio, cifrado en tránsito, credenciales cifradas, copias de respaldo y registro de accesos administrativos.",
+            "Apoyar al negocio, dentro de lo que permita la plataforma, para responder consultas y reclamos de los titulares y para corregir, actualizar o suprimir datos.",
+            "Informar al negocio sin demora injustificada cualquier incidente de seguridad que afecte sus datos, con la información disponible para que el negocio pueda cumplir sus deberes ante la Superintendencia de Industria y Comercio y los titulares."
+          ]
+        },
+        {
+          "title": "6. Subencargados",
+          "paragraphs": [
+            "El negocio autoriza a Spot a usar los siguientes proveedores para prestar el servicio, con obligaciones de protección equivalentes a las de este acuerdo:"
+          ],
+          "list": [
+            "Supabase: base de datos, autenticación y almacenamiento.",
+            "Vercel: alojamiento y ejecución de la aplicación.",
+            "Anthropic: solo si el negocio activa el asistente con inteligencia artificial; recibe el contenido de las preguntas de los clientes y la información del negocio necesaria para responder.",
+            "Proveedores de correo, mapas, calendarios o facturación electrónica que el negocio active."
+          ]
+        },
+        {
+          "title": "7. Transferencia y transmisión internacional",
+          "paragraphs": [
+            "Algunos subencargados alojan información fuera de Colombia, en países con niveles adecuados de protección o bajo garantías contractuales. El negocio acepta esa transmisión, que se hace solo para prestar el servicio."
+          ]
+        },
+        {
+          "title": "8. Terminación, devolución y eliminación",
+          "paragraphs": [
+            "Al terminar el servicio, Spot entregará al negocio, si lo pide dentro de los treinta (30) días siguientes, una exportación de sus datos en un formato de uso común, y los eliminará dentro de los noventa (90) días siguientes a la terminación, salvo lo que la ley obligue a conservar."
+          ]
+        },
+        {
+          "title": "9. Vigencia",
+          "paragraphs": [
+            "Este acuerdo rige mientras el negocio use Spot y hasta que los datos sean devueltos o eliminados. Spot puede actualizarlo avisando con al menos treinta (30) días de anticipación; si el cambio afecta los derechos del negocio, se pedirá una nueva aceptación."
           ]
         }
       ]

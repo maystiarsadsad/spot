@@ -136,6 +136,18 @@ export function RegisterForm() {
           </div>
         </div>
 
+        {/* Legal acceptance (also enforced on the server) */}
+        <label className="auth-terms">
+          <input type="checkbox" name="accept_terms" required />
+          <span>
+            Acepto los{" "}
+            <Link href="/terminos" target="_blank" rel="noopener noreferrer">términos y condiciones</Link>, la{" "}
+            <Link href="/privacidad" target="_blank" rel="noopener noreferrer">política de privacidad</Link> y el{" "}
+            <Link href="/encargo-de-datos" target="_blank" rel="noopener noreferrer">acuerdo de tratamiento de datos</Link>{" "}
+            de los clientes de mi negocio.
+          </span>
+        </label>
+
         {/* Error */}
         {error && <div className="auth-error">{error}</div>}
 

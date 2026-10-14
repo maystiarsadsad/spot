@@ -54,6 +54,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <Link href="/privacidad">{t.footer.privacy}</Link>
             <Link href="/terminos">{t.footer.terms}</Link>
             <Link href="/cookies">{t.footer.cookies}</Link>
+            <Link href="/encargo-de-datos">{t.footer.dataProcessing}</Link>
           </div>
           <div>
             <h3>{t.footer.contact}</h3>
