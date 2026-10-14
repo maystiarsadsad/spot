@@ -13,10 +13,10 @@ export async function getAvailableSlots(businessId: string, serviceId: string, e
   if (!DATE.test(date)) return { error: "Fecha inválida" };
   if (!(await publicLimit("slots", businessId))) return { error: TOO_MANY };
   const business = await loadBookingBusiness(businessId);
-  if (!business) return { error: "Negocio no disponible" };
+  if (!business) return { error: "Esta página se actualizó. Recárgala e intenta de nuevo." };
   const [services, staff] = await Promise.all([loadServices(businessId), loadStaff(businessId)]);
   const service = services.find((s) => s.id === serviceId);
-  if (!service) return { error: "Servicio no disponible" };
+  if (!service) return { error: "Ese servicio ya no está disponible. Recarga la página." };
 
   const { slots } = await daySlots(business, service, staff, employeeId, date);
   return { slots: slots.map((s) => ({ start: s.start, label: s.label })) };
@@ -43,10 +43,10 @@ export async function bookAppointment(businessId: string, input: BookingInput) {
   if (!(await publicLimit("book", businessId, phone))) return { error: TOO_MANY };
 
   const business = await loadBookingBusiness(businessId);
-  if (!business) return { error: "Negocio no disponible" };
+  if (!business) return { error: "Esta página se actualizó. Recárgala e intenta de nuevo." };
   const [services, staff] = await Promise.all([loadServices(businessId), loadStaff(businessId)]);
   const service = services.find((s) => s.id === input.serviceId);
-  if (!service) return { error: "Servicio no disponible" };
+  if (!service) return { error: "Ese servicio ya no está disponible. Recarga la página." };
   if (input.employeeId && !staffForService(staff, service.id).some((s) => s.id === input.employeeId)) {
     return { error: "Ese profesional no realiza este servicio" };
   }

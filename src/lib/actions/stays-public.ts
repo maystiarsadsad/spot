@@ -14,7 +14,7 @@ import { canCancelOnline, depositFor, newStayCode, validateStayDates } from "@/l
 export async function searchStays(businessId: string, checkIn: string, checkOut: string, guests: number) {
   if (!(await publicLimit("slots", businessId))) return { error: TOO_MANY };
   const business = await loadStayBusiness(businessId);
-  if (!business) return { error: "Hotel no disponible" };
+  if (!business) return { error: "Esta página se actualizó. Recárgala e intenta de nuevo." };
   const invalid = validateStayDates(checkIn, checkOut, localDate(new Date(), business.timeZone), business.settings);
   if (invalid) return { error: invalid };
 
@@ -61,7 +61,7 @@ export async function bookStay(businessId: string, input: StayBookingInput) {
   if (!(await publicLimit("book", businessId, phone))) return { error: TOO_MANY };
 
   const business = await loadStayBusiness(businessId);
-  if (!business) return { error: "Hotel no disponible" };
+  if (!business) return { error: "Esta página se actualizó. Recárgala e intenta de nuevo." };
   const invalid = validateStayDates(input.checkIn, input.checkOut, localDate(new Date(), business.timeZone), business.settings);
   if (invalid) return { error: invalid };
 
@@ -71,7 +71,7 @@ export async function bookStay(businessId: string, input: StayBookingInput) {
 
   const admin = createAdminClient();
   const quote = (await quoteStay(businessId, business.settings, input.checkIn, input.checkOut, admin)).find((q) => q.type.id === input.itemId);
-  if (!quote) return { error: "Esa habitación no está disponible" };
+  if (!quote) return { error: "Esa habitación ya no está disponible. Recarga la página." };
   if (quote.nights.length < quote.minNights) return { error: `Para esas fechas la estadía mínima es de ${quote.minNights} noches` };
   if (adults + children > quote.type.capacity * rooms) {
     return { error: `${quote.type.name} es para máximo ${quote.type.capacity} ${quote.type.capacity === 1 ? "persona" : "personas"}. Agrega otra habitación.` };

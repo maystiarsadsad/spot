@@ -668,11 +668,12 @@ async function checkImages(demos) {
 
 /* ── seeding ─────────────────────────────────────────── */
 
-async function seedDemo(d, ownerId, broken) {
+async function seedDemo(d, ownerId, broken, keepId) {
   const safeImg = (id, w, h) => (broken.has(id) ? null : img(id, w, h));
   const hours = Object.fromEntries(["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((k) => [k, { open: d.hours[0], close: d.hours[1], closed: false }]));
 
   const business = await must(sb.from("businesses").insert({
+    ...(keepId ? { id: keepId } : {}),
     name: d.name, slug: d.slug, type: d.type, owner_id: ownerId,
     tagline: d.tagline, description: d.description,
     logo_url: safeImg(d.logo, 400, 400), cover_url: safeImg(d.cover, 1600, 700),
@@ -1356,11 +1357,15 @@ if (broken.size) console.warn(`⚠ ${broken.size} imágenes no disponibles (qued
 if (args["check-images"]) process.exit(broken.size ? 1 : 0);
 
 const slugs = demos.map((d) => d.slug);
+// Keep each demo's business id across re-seeds: open public pages and the
+// dashboard's selected business keep working after a refresh of the data.
+const previous = await must(sb.from("businesses").select("id, slug").in("slug", slugs), "previous ids");
+const idBySlug = new Map(previous.map((b) => [b.slug, b.id]));
 const removed = await must(sb.from("businesses").delete().in("slug", slugs).select("slug"), "cleanup");
 if (removed.length) console.log(`Eliminadas ${removed.length} demos anteriores`);
 
 for (const d of demos) {
-  const r = await seedDemo(d, owner.id, broken);
+  const r = await seedDemo(d, owner.id, broken, idBySlug.get(d.slug));
   console.log(`✓ ${d.name.padEnd(36)} /${d.slug.padEnd(24)} ${r.items} ítems · ${r.txns} transacciones · ${r.contacts} clientes`);
 }
 console.log(`\nListo: ${demos.length} demos asignadas a ${OWNER_EMAIL}`);

@@ -19,9 +19,9 @@ export async function requestMembership(businessId: string, input: { planId: str
   if (!(await publicLimit("signup", businessId))) return { error: TOO_MANY };
 
   const business = await loadBookingBusiness(businessId);
-  if (!business) return { error: "Gimnasio no disponible" };
+  if (!business) return { error: "Esta página se actualizó. Recárgala e intenta de nuevo." };
   const plan = (await loadPlans(businessId)).find((p) => p.id === input.planId);
-  if (!plan) return { error: "Plan no disponible" };
+  if (!plan) return { error: "Ese plan ya no está disponible. Recarga la página." };
 
   const admin = createAdminClient();
   const contact = await findOrCreateContact(admin, businessId, { name, phone, email: input.email?.trim() || null });
@@ -58,7 +58,7 @@ export async function bookClass(businessId: string, classId: string, date: strin
   if (!(await publicLimit("class", businessId))) return { error: TOO_MANY };
 
   const business = await loadBookingBusiness(businessId);
-  if (!business) return { error: "Gimnasio no disponible" };
+  if (!business) return { error: "Esta página se actualizó. Recárgala e intenta de nuevo." };
   const today = localDate(new Date(), business.timeZone);
   if (date < today || date > addDays(today, 14)) return { error: "Esa fecha no está disponible" };
 

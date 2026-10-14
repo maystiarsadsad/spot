@@ -130,7 +130,7 @@ export async function priceServiceRequest(client: Client, business: ServiceBusin
 
   if (business.kind === "shipment") {
     const service = input.serviceId ? byId.get(input.serviceId) : null;
-    if (!service) return { error: "Elige el tipo de servicio" };
+    if (!service) return { error: input.serviceId ? "Ese servicio ya no está disponible. Recarga la página." : "Elige el tipo de servicio" };
     const pickup = input.pickup, dropoff = input.dropoff;
     if (!clean(pickup?.address, 300) || !clean(dropoff?.address, 300)) return { error: "Escribe las direcciones de recogida y entrega" };
     if (!validPoint(pickup) || !validPoint(dropoff)) return { error: "Marca en el mapa los puntos de recogida y entrega" };

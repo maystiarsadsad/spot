@@ -14,7 +14,7 @@ export async function requestService(businessId: string, input: ServiceRequestIn
 
   const admin = createAdminClient();
   const business = await loadServiceBusiness(businessId, admin);
-  if (!business) return { error: "Negocio no disponible" };
+  if (!business) return { error: "Esta página se actualizó. Recárgala e intenta de nuevo." };
 
   const res = await createServiceOrder(admin, business, input, { source: "web" });
   if ("error" in res) return { error: res.error };
