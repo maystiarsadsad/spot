@@ -37,7 +37,8 @@ export function LoginForm() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="auth-form">
+      {/* method="post": if JS has not loaded yet, a native submit must never put the password in the URL */}
+      <form onSubmit={handleSubmit} method="post" className="auth-form">
         {/* Email */}
         <div className="auth-field">
           <label htmlFor="login-email" className="auth-label">

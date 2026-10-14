@@ -70,7 +70,7 @@ export function CreateUserDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+        <form onSubmit={handleSubmit} method="post" className="space-y-4 pt-2">
           <div className="space-y-2">
             <Label htmlFor="create-name">Nombre completo</Label>
             <Input

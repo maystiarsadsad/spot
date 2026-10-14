@@ -47,7 +47,8 @@ export function RegisterForm() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="auth-form">
+      {/* method="post": if JS has not loaded yet, a native submit must never put the password in the URL */}
+      <form onSubmit={handleSubmit} method="post" className="auth-form">
         {/* Display Name */}
         <div className="auth-field">
           <label htmlFor="register-name" className="auth-label">
