@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { syncBusinessCalendars } from "@/lib/stays/ical-sync";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { publicLimit, TOO_MANY } from "@/lib/rate-limit";
 import { localDate } from "@/lib/booking/availability";
@@ -16,6 +18,8 @@ export async function searchStays(businessId: string, checkIn: string, checkOut:
   const invalid = validateStayDates(checkIn, checkOut, localDate(new Date(), business.timeZone), business.settings);
   if (invalid) return { error: invalid };
 
+  // Airbnb/Booking calendars older than 10 min are refreshed after responding
+  after(() => syncBusinessCalendars(businessId, 10).catch((e) => console.error("[ical-sync]", e)));
   const people = Math.min(30, Math.max(1, Math.round(Number(guests) || 1)));
   const quotes = await quoteStay(businessId, business.settings, checkIn, checkOut);
   return {

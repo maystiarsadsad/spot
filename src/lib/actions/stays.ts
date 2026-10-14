@@ -7,6 +7,7 @@ import { updateDailyCashOnSale } from "@/lib/actions/finance";
 import { localDate } from "@/lib/booking/availability";
 import { findOrCreateContact, normalizePhone } from "@/lib/memberships/data";
 import { loadSeasons } from "@/lib/stays/data";
+import { channelFromUrl, isSafeFeedUrl } from "@/lib/stays/ical";
 import {
   DATE_RE,
   folio,
@@ -517,4 +518,61 @@ export async function saveStaySettings(businessId: string, raw: Partial<StaySett
   if (error) return { error: "No se pudo guardar" };
   revalidatePath(PATH);
   return { success: true };
+}
+
+/* ── channels (Airbnb / Booking.com iCal) ─────────────── */
+
+export async function addRoomCalendar(roomId: string, url: string, channel?: "airbnb" | "booking" | "other") {
+  const supabase = await requireUser();
+  if (!supabase) return { error: "No autorizado" };
+  const clean = (url ?? "").trim();
+  if (!isSafeFeedUrl(clean)) return { error: "Pega el enlace de exportación (https) que te da Airbnb o Booking.com" };
+  const { data: room } = await supabase.from("rooms").select("id, business_id").eq("id", roomId).single();
+  if (!room) return { error: "Habitación no encontrada" };
+  const { data: cal, error } = await supabase
+    .from("room_calendars")
+    .insert({ business_id: room.business_id, room_id: room.id, url: clean, channel: channel ?? channelFromUrl(clean) })
+    .select("id")
+    .single();
+  if (error) return { error: error.code === "23505" ? "Ese calendario ya está conectado a esta habitación" : "No se pudo conectar" };
+  // First import right away so the owner sees the result
+  const { syncBusinessCalendars } = await import("@/lib/stays/ical-sync");
+  const [result] = (await syncBusinessCalendars(room.business_id, 0)).filter((r) => r.calendarId === cal.id);
+  revalidatePath(PATH);
+  return { success: true, added: result?.added ?? 0, error: undefined, warning: result?.error ?? null };
+}
+
+export async function removeRoomCalendar(calendarId: string) {
+  const supabase = await requireUser();
+  if (!supabase) return { error: "No autorizado" };
+  const { data: cal } = await supabase.from("room_calendars").select("id, business_id").eq("id", calendarId).single();
+  if (!cal) return { error: "Calendario no encontrado" };
+  // Future imported nights are released; past ones stay as history
+  const { timeZone } = await businessInfo(supabase, cal.business_id);
+  await supabase
+    .from("stays")
+    .update({ status: "cancelled", notes: "Canal desconectado" })
+    .eq("calendar_id", calendarId)
+    .in("status", ["pending", "confirmed"])
+    .gte("check_in", localDate(new Date(), timeZone));
+  const { error } = await supabase.from("room_calendars").delete().eq("id", calendarId);
+  if (error) return { error: "No se pudo desconectar" };
+  revalidatePath(PATH);
+  return { success: true };
+}
+
+export async function syncChannelsNow(businessId: string) {
+  const supabase = await requireUser();
+  if (!supabase) return { error: "No autorizado" };
+  const { data: member } = await supabase.from("room_calendars").select("id").eq("business_id", businessId).limit(1);
+  if (!member?.length) return { error: "No hay canales conectados" };
+  const { syncBusinessCalendars } = await import("@/lib/stays/ical-sync");
+  const results = await syncBusinessCalendars(businessId, 0);
+  revalidatePath(PATH);
+  return {
+    success: true,
+    added: results.reduce((a, r) => a + r.added, 0),
+    cancelled: results.reduce((a, r) => a + r.cancelled, 0),
+    problems: results.filter((r) => r.error).length,
+  };
 }

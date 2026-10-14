@@ -12,7 +12,7 @@ import { RoomsPanel } from "./rooms-panel";
 import { RatesPanel } from "./rates-panel";
 import { StayDialog } from "./stay-dialog";
 import { NewStayDialog, type NewStayPrefill } from "./new-stay-dialog";
-import type { RoomRow, RoomTypeRow, SeasonRow, ServiceOption, StayRow } from "./types";
+import type { CalendarLink, RoomRow, RoomTypeRow, SeasonRow, ServiceOption, StayRow } from "./types";
 
 interface Props {
   businessId: string;
@@ -29,6 +29,7 @@ interface Props {
   seasons: SeasonRow[];
   services: ServiceOption[];
   settings: StaySettings;
+  calendars: CalendarLink[];
 }
 
 const TABS = ["hoy", "calendario", "reservas", "habitaciones", "tarifas"];
@@ -66,7 +67,7 @@ export function StaysBoard(props: Props) {
           <StaysList stays={stays} rooms={rooms} roomTypes={roomTypes} currency={currency} today={today} onOpen={open} />
         </TabsContent>
         <TabsContent value="habitaciones" className="pt-4">
-          <RoomsPanel businessId={businessId} roomTypes={roomTypes} rooms={rooms} isHostel={props.isHostel} />
+          <RoomsPanel businessId={businessId} roomTypes={roomTypes} rooms={rooms} isHostel={props.isHostel} calendars={props.calendars} siteUrl={props.siteUrl} />
         </TabsContent>
         <TabsContent value="tarifas" className="pt-4">
           <RatesPanel businessId={businessId} settings={props.settings} seasons={props.seasons} roomTypes={roomTypes} />

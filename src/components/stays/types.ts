@@ -12,6 +12,17 @@ export interface RoomRow {
   floor: string | null;
   housekeeping: string;
   active: boolean;
+  /** Secret token of the room's public iCal feed (/api/ical/<token>) */
+  icalToken: string;
+}
+
+export interface CalendarLink {
+  id: string;
+  roomId: string;
+  channel: string;
+  url: string;
+  lastSyncedAt: string | null;
+  lastError: string | null;
 }
 
 export interface StayRow {
@@ -34,6 +45,8 @@ export interface StayRow {
   extras: number;
   paid: number;
   source: string;
+  /** airbnb | booking | other when the stay was imported from a channel calendar */
+  channel: string | null;
   notes: string | null;
   token: string;
 }

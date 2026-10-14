@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/utils";
 import { nightsCount, STAY_STATUS_LABELS } from "@/lib/stays/pricing";
+import { CHANNEL_LABELS } from "@/lib/stays/ical";
 import {
   addStayCharge,
   addStayPayment,
@@ -115,7 +116,7 @@ function StayBody({ stay, onClose, stays, rooms, roomTypes, services, currency, 
             </Badge>
           </DialogTitle>
           <DialogDescription>
-            {stay.code} · {typeName}{roomName ? ` · ${roomName}` : ""} · {SOURCE_LABELS[stay.source] ?? stay.source}
+            {stay.code} · {typeName}{roomName ? ` · ${roomName}` : ""} · {stay.channel ? `Sincronizada desde ${CHANNEL_LABELS[stay.channel]}` : SOURCE_LABELS[stay.source] ?? stay.source}
           </DialogDescription>
         </DialogHeader>
 

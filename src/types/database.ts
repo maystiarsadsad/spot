@@ -1847,6 +1847,57 @@ export type Database = {
           },
         ]
       }
+      room_calendars: {
+        Row: {
+          active: boolean
+          business_id: string
+          channel: string
+          created_at: string | null
+          id: string
+          last_error: string | null
+          last_synced_at: string | null
+          room_id: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          channel?: string
+          created_at?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          room_id: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          channel?: string
+          created_at?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          room_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_calendars_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_calendars_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rooms: {
         Row: {
           active: boolean
@@ -1854,6 +1905,7 @@ export type Database = {
           created_at: string | null
           floor: string | null
           housekeeping: string
+          ical_token: string
           id: string
           item_id: string
           name: string
@@ -1866,6 +1918,7 @@ export type Database = {
           created_at?: string | null
           floor?: string | null
           housekeeping?: string
+          ical_token?: string
           id?: string
           item_id: string
           name: string
@@ -1878,6 +1931,7 @@ export type Database = {
           created_at?: string | null
           floor?: string | null
           housekeeping?: string
+          ical_token?: string
           id?: string
           item_id?: string
           name?: string
@@ -2321,6 +2375,8 @@ export type Database = {
           adults: number
           arrival_time: string | null
           business_id: string
+          calendar_id: string | null
+          channel: string | null
           check_in: string
           check_out: string
           checked_in_at: string | null
@@ -2329,6 +2385,7 @@ export type Database = {
           code: string
           contact_id: string | null
           created_at: string | null
+          external_uid: string | null
           guest_document: string | null
           guest_email: string | null
           guest_name: string
@@ -2349,6 +2406,8 @@ export type Database = {
           adults?: number
           arrival_time?: string | null
           business_id: string
+          calendar_id?: string | null
+          channel?: string | null
           check_in: string
           check_out: string
           checked_in_at?: string | null
@@ -2357,6 +2416,7 @@ export type Database = {
           code: string
           contact_id?: string | null
           created_at?: string | null
+          external_uid?: string | null
           guest_document?: string | null
           guest_email?: string | null
           guest_name: string
@@ -2377,6 +2437,8 @@ export type Database = {
           adults?: number
           arrival_time?: string | null
           business_id?: string
+          calendar_id?: string | null
+          channel?: string | null
           check_in?: string
           check_out?: string
           checked_in_at?: string | null
@@ -2385,6 +2447,7 @@ export type Database = {
           code?: string
           contact_id?: string | null
           created_at?: string | null
+          external_uid?: string | null
           guest_document?: string | null
           guest_email?: string | null
           guest_name?: string
@@ -2407,6 +2470,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stays_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "room_calendars"
             referencedColumns: ["id"]
           },
           {

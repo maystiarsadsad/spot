@@ -13,6 +13,8 @@ import { DATE_RE, occupancyPct, parseStaySettings } from "@/lib/stays/pricing";
 import { formatCurrency } from "@/lib/utils";
 import { requestOrigin } from "@/lib/site-url";
 import { verticalOf } from "@/lib/verticals";
+import { after } from "next/server";
+import { syncBusinessCalendars } from "@/lib/stays/ical-sync";
 
 export const metadata: Metadata = {
   title: "Estadías",
@@ -38,6 +40,7 @@ export default async function StaysPage({ searchParams }: PageProps) {
   }
 
   const { tab = "hoy", desde } = await searchParams;
+  after(() => syncBusinessCalendars(business.id, 10).catch((e) => console.error("[ical-sync]", e)));
   const timeZone = business.timezone || "America/Bogota";
   const today = localDate(now(), timeZone);
   const from = desde && DATE_RE.test(desde) ? desde : addDays(today, -1);
@@ -57,11 +60,12 @@ export default async function StaysPage({ searchParams }: PageProps) {
     { data: seasonsRaw },
     { data: servicesRaw },
     { data: monthPayments },
+    { data: calendarsRaw },
   ] = await Promise.all([
     supabase.from("businesses").select("slug, stay_settings").eq("id", business.id).single(),
     supabase
       .from("stays")
-      .select("id, code, item_id, room_id, guest_name, guest_phone, guest_email, guest_document, guest_nationality, adults, children, check_in, check_out, arrival_time, status, room_total, source, notes, manage_token")
+      .select("id, code, item_id, room_id, guest_name, guest_phone, guest_email, guest_document, guest_nationality, adults, children, check_in, check_out, arrival_time, status, room_total, source, channel, notes, manage_token")
       .eq("business_id", business.id)
       .lt("check_in", hi)
       .gt("check_out", lo)
@@ -69,11 +73,12 @@ export default async function StaysPage({ searchParams }: PageProps) {
       .limit(5000),
     supabase.from("stay_charges").select("stay_id, amount, stays!inner(check_in, check_out)").eq("business_id", business.id).lt("stays.check_in", hi).gt("stays.check_out", lo).limit(20000),
     supabase.from("stay_payments").select("stay_id, amount, stays!inner(check_in, check_out)").eq("business_id", business.id).lt("stays.check_in", hi).gt("stays.check_out", lo).limit(20000),
-    supabase.from("rooms").select("id, item_id, name, floor, housekeeping, active, sort_order").eq("business_id", business.id).order("sort_order").order("name"),
+    supabase.from("rooms").select("id, item_id, name, floor, housekeeping, active, sort_order, ical_token").eq("business_id", business.id).order("sort_order").order("name"),
     supabase.from("catalog_items").select("id, name, price, capacity").eq("business_id", business.id).eq("type", "room").eq("active", true).order("sort_order"),
     supabase.from("rate_seasons").select("id, name, item_id, starts_on, ends_on, adjustment_pct, min_nights").eq("business_id", business.id).order("starts_on"),
     supabase.from("catalog_items").select("id, name, price").eq("business_id", business.id).eq("type", "service").eq("active", true).order("sort_order"),
     supabase.from("stay_payments").select("amount").eq("business_id", business.id).gte("created_at", monthStart),
+    supabase.from("room_calendars").select("id, room_id, channel, url, last_synced_at, last_error").eq("business_id", business.id).order("created_at"),
   ]);
 
   const sums = (rows: { stay_id: string; amount: number }[] | null) => {
@@ -104,10 +109,12 @@ export default async function StaysPage({ searchParams }: PageProps) {
     extras: extras.get(s.id) ?? 0,
     paid: paid.get(s.id) ?? 0,
     source: s.source,
+    channel: s.channel,
     notes: s.notes,
     token: s.manage_token,
   }));
-  const rooms = (roomsRaw ?? []).map((r) => ({ id: r.id, itemId: r.item_id, name: r.name, floor: r.floor, housekeeping: r.housekeeping, active: r.active }));
+  const rooms = (roomsRaw ?? []).map((r) => ({ id: r.id, itemId: r.item_id, name: r.name, floor: r.floor, housekeeping: r.housekeeping, active: r.active, icalToken: r.ical_token }));
+  const calendars = (calendarsRaw ?? []).map((c) => ({ id: c.id, roomId: c.room_id, channel: c.channel, url: c.url, lastSyncedAt: c.last_synced_at, lastError: c.last_error }));
   const roomTypes = (typesRaw ?? []).map((t) => ({ id: t.id, name: t.name, price: Number(t.price), capacity: Number(t.capacity) > 0 ? Number(t.capacity) : 2 }));
 
   // Tonight
@@ -158,6 +165,7 @@ export default async function StaysPage({ searchParams }: PageProps) {
         seasons={(seasonsRaw ?? []).map((x) => ({ id: x.id, name: x.name, itemId: x.item_id, startsOn: x.starts_on, endsOn: x.ends_on, adjustmentPct: x.adjustment_pct, minNights: x.min_nights }))}
         services={(servicesRaw ?? []).map((x) => ({ id: x.id, name: x.name, price: Number(x.price) }))}
         settings={parseStaySettings(biz?.stay_settings)}
+        calendars={calendars}
       />
     </div>
   );

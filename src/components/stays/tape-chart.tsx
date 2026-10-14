@@ -26,6 +26,13 @@ const BAR: Record<string, string> = {
   checked_out: "bg-muted text-muted-foreground",
 };
 
+// Bookings synced from a channel calendar keep that channel's color
+const CHANNEL_BAR: Record<string, string> = {
+  airbnb: "bg-[#ff5a5f] text-white",
+  booking: "bg-[#003580] text-white",
+  other: "bg-violet-600 text-white",
+};
+
 const SHOWN = ["pending", "confirmed", "checked_in", "checked_out"];
 const DOW = { mon: "lun", tue: "mar", wed: "mié", thu: "jue", fri: "vie", sat: "sáb", sun: "dom" } as const;
 
@@ -53,6 +60,8 @@ export function TapeChart({ stays, rooms, roomTypes, from, days, today, onOpen, 
           <span className="rounded px-2 py-0.5 bg-primary/85 text-primary-foreground">Confirmada</span>
           <span className="rounded border border-dashed border-amber-500 px-2 py-0.5">Por confirmar</span>
           <span className="rounded bg-muted px-2 py-0.5">Salió</span>
+          <span className="rounded bg-[#ff5a5f] px-2 py-0.5 text-white">Airbnb</span>
+          <span className="rounded bg-[#003580] px-2 py-0.5 text-white">Booking</span>
         </span>
       </div>
 
@@ -114,7 +123,7 @@ export function TapeChart({ stays, rooms, roomTypes, from, days, today, onOpen, 
                             type="button"
                             onClick={() => onOpen(s)}
                             title={`${s.guestName} · ${s.checkIn} → ${s.checkOut}`}
-                            className={`z-[1] m-[3px] flex items-center gap-1 overflow-hidden rounded px-1.5 text-left font-medium ${BAR[s.status] ?? ""} ${s.checkIn < from ? "rounded-l-none" : ""} ${s.checkOut > end ? "rounded-r-none" : ""}`}
+                            className={`z-[1] m-[3px] flex items-center gap-1 overflow-hidden rounded px-1.5 text-left font-medium ${s.channel && s.status !== "checked_out" ? CHANNEL_BAR[s.channel] : BAR[s.status] ?? ""} ${s.checkIn < from ? "rounded-l-none" : ""} ${s.checkOut > end ? "rounded-r-none" : ""}`}
                             style={{ gridRow: 1, gridColumn: `${startIdx + 2} / span ${span}` }}
                           >
                             <span className="truncate">{s.guestName}</span>
