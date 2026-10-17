@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBusinessAccess, MANAGE_ROLES } from "@/lib/auth-guard";
 
 export async function getInventory(businessId: string) {
   const supabase = await createClient();
@@ -85,6 +86,16 @@ export async function createInventoryItem(data: {
   return { success: true, id: newItem.id };
 }
 
+/** Resolves the item's business and checks the caller may manage it. */
+async function requireInventoryItemAccess(itemId: string) {
+  const supabase = await createClient();
+  const { data: item } = await supabase.from("inventory").select("business_id").eq("id", itemId).maybeSingle();
+  if (!item) return { error: "Producto de inventario no encontrado" as const };
+  const auth = await requireBusinessAccess(item.business_id, MANAGE_ROLES);
+  if ("error" in auth) return { error: auth.error };
+  return { auth, businessId: item.business_id as string };
+}
+
 export async function updateInventoryItem(
   itemId: string,
   data: {
@@ -99,12 +110,14 @@ export async function updateInventoryItem(
     notes?: string;
   }
 ) {
-  const supabase = await createClient();
+  const guard = await requireInventoryItemAccess(itemId);
+  if ("error" in guard) return { success: false, error: guard.error };
 
-  const { error } = await supabase
+  const { error } = await guard.auth.supabase
     .from("inventory")
     .update(data)
-    .eq("id", itemId);
+    .eq("id", itemId)
+    .eq("business_id", guard.businessId);
 
   if (error) {
     console.error("Error updating inventory item:", error);
@@ -116,12 +129,14 @@ export async function updateInventoryItem(
 }
 
 export async function deleteInventoryItem(itemId: string) {
-  const supabase = await createClient();
+  const guard = await requireInventoryItemAccess(itemId);
+  if ("error" in guard) return { success: false, error: guard.error };
 
-  const { error } = await supabase
+  const { error } = await guard.auth.supabase
     .from("inventory")
     .delete()
-    .eq("id", itemId);
+    .eq("id", itemId)
+    .eq("business_id", guard.businessId);
 
   if (error) {
     console.error("Error deleting inventory item:", error);

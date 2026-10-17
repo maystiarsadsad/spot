@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBusinessAccess } from "@/lib/auth-guard";
 
 export async function getContacts(businessId: string) {
   const supabase = await createClient();
@@ -36,9 +37,10 @@ function sanitizeContactData(data: any) {
 }
 
 export async function createContact(contactData: any) {
-  const supabase = await createClient();
+  const auth = await requireBusinessAccess(contactData?.business_id);
+  if ("error" in auth) return { success: false, error: auth.error };
 
-  const { data, error } = await supabase
+  const { data, error } = await auth.supabase
     .from("contacts")
     .insert([sanitizeContactData(contactData)])
     .select()
@@ -46,26 +48,40 @@ export async function createContact(contactData: any) {
 
   if (error) {
     console.error("Error creating contact:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "No se pudo crear el contacto" };
   }
 
   revalidatePath("/d/contacts");
   return { success: true, data };
 }
 
-export async function updateContact(id: string, contactData: any) {
+/** Business that owns a contact, read through RLS (null if not visible). */
+async function contactBusinessId(id: string) {
   const supabase = await createClient();
+  const { data } = await supabase.from("contacts").select("business_id").eq("id", id).maybeSingle();
+  return data?.business_id ?? "";
+}
 
-  const { data, error } = await supabase
+export async function updateContact(id: string, contactData: any) {
+  const businessId = await contactBusinessId(id);
+  const auth = await requireBusinessAccess(businessId);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  // Never let the client move a contact to another business or change its id.
+  const { business_id: _b, id: _i, ...fields } = sanitizeContactData(contactData);
+  void _b; void _i;
+
+  const { data, error } = await auth.supabase
     .from("contacts")
-    .update(sanitizeContactData(contactData))
+    .update(fields)
     .eq("id", id)
+    .eq("business_id", businessId)
     .select()
     .single();
 
   if (error) {
     console.error("Error updating contact:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "No se pudo actualizar el contacto" };
   }
 
   revalidatePath("/d/contacts");
@@ -73,16 +89,19 @@ export async function updateContact(id: string, contactData: any) {
 }
 
 export async function deleteContact(id: string) {
-  const supabase = await createClient();
+  const businessId = await contactBusinessId(id);
+  const auth = await requireBusinessAccess(businessId);
+  if ("error" in auth) return { success: false, error: auth.error };
 
-  const { error } = await supabase
+  const { error } = await auth.supabase
     .from("contacts")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .eq("business_id", businessId);
 
   if (error) {
     console.error("Error deleting contact:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "No se pudo eliminar el contacto" };
   }
 
   revalidatePath("/d/contacts");

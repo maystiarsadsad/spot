@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBusinessAccess, MANAGE_ROLES } from "@/lib/auth-guard";
 
 // ─── READ ───────────────────────────────────────────
 
@@ -72,7 +73,9 @@ export async function createCreditAccount(data: {
   guarantor_relationship?: string;
   notes?: string;
 }) {
-  const supabase = await createClient();
+  const auth = await requireBusinessAccess(data.business_id, MANAGE_ROLES);
+  if ("error" in auth) return { success: false, error: auth.error };
+  const supabase = auth.supabase;
 
   const { error } = await supabase.from("credit_accounts").insert({
     business_id: data.business_id,
@@ -114,11 +117,16 @@ export async function updateCreditAccount(
   }
 ) {
   const supabase = await createClient();
+  const { data: account } = await supabase.from("credit_accounts").select("business_id").eq("id", accountId).maybeSingle();
+  if (!account) return { success: false, error: "Cuenta no encontrada" };
+  const auth = await requireBusinessAccess(account.business_id, MANAGE_ROLES);
+  if ("error" in auth) return { success: false, error: auth.error };
 
   const { error } = await supabase
     .from("credit_accounts")
     .update({ ...data, updated_at: new Date().toISOString() })
-    .eq("id", accountId);
+    .eq("id", accountId)
+    .eq("business_id", account.business_id);
 
   if (error) return { success: false, error: error.message };
 

@@ -1,10 +1,12 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBusinessAccess, MANAGE_ROLES } from "@/lib/auth-guard";
 
 export async function updateBusinessSettings(businessId: string, formData: FormData) {
-  const supabase = await createClient();
+  const auth = await requireBusinessAccess(businessId, MANAGE_ROLES);
+  if ("error" in auth) return { error: auth.error };
+  const supabase = auth.supabase;
 
   // Get existing theme to preserve other fields
   const { data: existing } = await supabase

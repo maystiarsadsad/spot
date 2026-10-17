@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBusinessAccess, ADMIN_ROLES } from "@/lib/auth-guard";
 
 // ── BUSINESS MEMBERS (User Access) ──────────────────────
 
@@ -105,17 +106,48 @@ export async function inviteMember(
   return { success: true };
 }
 
-export async function updateMemberRole(memberId: string, role: string) {
+/** Loads a member row and checks the caller may manage that business's team. */
+async function requireTeamAdmin(memberId: string) {
   const supabase = await createClient();
+  const { data: target } = await supabase
+    .from("business_members")
+    .select("business_id, role")
+    .eq("id", memberId)
+    .maybeSingle();
+  if (!target) return { error: "Miembro no encontrado" as const };
 
+  const auth = await requireBusinessAccess(target.business_id, ADMIN_ROLES);
+  if ("error" in auth) return { error: auth.error };
+  // Only the owner (or a superadmin) may touch another admin.
+  if (target.role === "admin" && auth.role !== "owner" && !auth.isSuperadmin) {
+    return { error: "Solo el propietario puede cambiar a un administrador" as const };
+  }
+  return { auth, target };
+}
+
+const ASSIGNABLE_ROLES = ["admin", "manager", "cashier", "employee", "viewer"];
+
+export async function updateMemberRole(memberId: string, role: string) {
   if (role === "owner") {
     return { success: false, error: "No puedes asignar el rol de propietario" };
   }
+  if (!ASSIGNABLE_ROLES.includes(role)) {
+    return { success: false, error: "Rol no válido" };
+  }
+  const guard = await requireTeamAdmin(memberId);
+  if ("error" in guard) return { success: false, error: guard.error };
+  if (guard.target.role === "owner") {
+    return { success: false, error: "No puedes cambiar el rol del propietario" };
+  }
+  if (role === "admin" && guard.auth.role !== "owner" && !guard.auth.isSuperadmin) {
+    return { success: false, error: "Solo el propietario puede nombrar administradores" };
+  }
 
-  const { error } = await supabase
+  const { error } = await guard.auth.supabase
     .from("business_members")
     .update({ role })
-    .eq("id", memberId);
+    .eq("id", memberId)
+    .eq("business_id", guard.target.business_id);
 
   if (error) return { success: false, error: error.message };
 
@@ -124,12 +156,17 @@ export async function updateMemberRole(memberId: string, role: string) {
 }
 
 export async function updateMemberModules(memberId: string, modules: string[]) {
-  const supabase = await createClient();
+  const guard = await requireTeamAdmin(memberId);
+  if ("error" in guard) return { success: false, error: guard.error };
+  if (!Array.isArray(modules) || modules.some((m) => typeof m !== "string")) {
+    return { success: false, error: "Módulos no válidos" };
+  }
 
-  const { error } = await supabase
+  const { error } = await guard.auth.supabase
     .from("business_members")
     .update({ permissions: { modules } })
-    .eq("id", memberId);
+    .eq("id", memberId)
+    .eq("business_id", guard.target.business_id);
 
   if (error) return { success: false, error: error.message };
 
@@ -138,23 +175,19 @@ export async function updateMemberModules(memberId: string, modules: string[]) {
 }
 
 export async function removeMember(memberId: string) {
-  const supabase = await createClient();
+  const guard = await requireTeamAdmin(memberId);
+  if ("error" in guard) return { success: false, error: guard.error };
 
   // Prevent removing owners
-  const { data: member } = await supabase
-    .from("business_members")
-    .select("role")
-    .eq("id", memberId)
-    .single();
-
-  if (member?.role === "owner") {
+  if (guard.target.role === "owner") {
     return { success: false, error: "No puedes eliminar al propietario del negocio" };
   }
 
-  const { error } = await supabase
+  const { error } = await guard.auth.supabase
     .from("business_members")
     .delete()
-    .eq("id", memberId);
+    .eq("id", memberId)
+    .eq("business_id", guard.target.business_id);
 
   if (error) return { success: false, error: error.message };
 

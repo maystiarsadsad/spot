@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireBusinessAccess, MANAGE_ROLES, WRITE_ROLES } from "@/lib/auth-guard";
 import { format } from "date-fns";
 
 // ── Expenses ────────────────────────────────────────────
@@ -61,14 +62,17 @@ export async function createExpense(data: {
 }
 
 export async function deleteExpense(expenseId: string) {
+  // Fetch expense first so we can reverse daily_cash (and know whose it is)
   const supabase = await createClient();
-
-  // Fetch expense first so we can reverse daily_cash
   const { data: expense } = await supabase
     .from("expenses")
     .select("business_id, amount, date")
     .eq("id", expenseId)
-    .single();
+    .maybeSingle();
+  if (!expense) return { success: false, error: "Gasto no encontrado" };
+
+  const auth = await requireBusinessAccess(expense.business_id, MANAGE_ROLES);
+  if ("error" in auth) return { success: false, error: auth.error };
 
   const { error } = await supabase
     .from("expenses")
@@ -140,7 +144,9 @@ export async function openDailyCash(data: {
   date: string;
   opening_balance: number;
 }) {
-  const supabase = await createClient();
+  const auth = await requireBusinessAccess(data.business_id, WRITE_ROLES);
+  if ("error" in auth) return { success: false, error: auth.error };
+  const supabase = auth.supabase;
 
   // Check if a cash register already exists for this date
   const { data: existing } = await supabase
