@@ -380,6 +380,163 @@ export async function sellVehicle(vehicleId: string, input: SaleInput) {
   return { success: true };
 }
 
+const PHOTO_BUCKET = "catalog-images";
+const MAX_PHOTOS = 8;
+const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
+
+/** Image type from the file's own bytes (the browser-declared type can be forged). */
+function sniffImage(bytes: Uint8Array): { ext: string; mime: string } | null {
+  const at = (i: number) => bytes[i];
+  if (at(0) === 0xff && at(1) === 0xd8 && at(2) === 0xff) return { ext: "jpg", mime: "image/jpeg" };
+  if (at(0) === 0x89 && at(1) === 0x50 && at(2) === 0x4e && at(3) === 0x47) return { ext: "png", mime: "image/png" };
+  if (at(0) === 0x52 && at(1) === 0x49 && at(2) === 0x46 && at(3) === 0x46 && at(8) === 0x57 && at(9) === 0x45 && at(10) === 0x42 && at(11) === 0x50) {
+    return { ext: "webp", mime: "image/webp" };
+  }
+  return null;
+}
+
+/**
+ * Uploads a photo of a vehicle and appends it to its gallery.
+ * Uses the admin client for Storage after the role check, so access depends on
+ * this guard and not on the bucket's broad "any signed-in user" policies.
+ */
+export async function uploadVehiclePhoto(vehicleId: string, formData: FormData) {
+  const businessId = await vehicleBusinessId(vehicleId);
+  const auth = await requireBusinessAccess(businessId, WRITE_ROLES);
+  if ("error" in auth) return { error: auth.error };
+
+  const file = formData.get("photo");
+  if (!(file instanceof File) || file.size === 0) return { error: "No se seleccionó ninguna foto" };
+  if (file.size > MAX_PHOTO_BYTES) return { error: "La foto no puede superar 4 MB" };
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const kind = sniffImage(bytes);
+  if (!kind) return { error: "Formato no soportado. Usa JPG, PNG o WebP." };
+
+  const { data: v } = await auth.supabase.from("vehicles").select("photos").eq("id", vehicleId).eq("business_id", businessId).single();
+  if (!v) return { error: "Vehículo no encontrado" };
+  if ((v.photos ?? []).length >= MAX_PHOTOS) return { error: `Máximo ${MAX_PHOTOS} fotos por vehículo` };
+
+  const admin = createAdminClient();
+  const path = `${businessId}/vehicles/${vehicleId}/${Date.now()}.${kind.ext}`;
+  const { error: upError } = await admin.storage.from(PHOTO_BUCKET).upload(path, bytes, { contentType: kind.mime, cacheControl: "3600", upsert: false });
+  if (upError) return { error: "No se pudo subir la foto" };
+  const url = admin.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
+
+  const { error } = await auth.supabase
+    .from("vehicles")
+    .update({ photos: [...(v.photos ?? []), url] })
+    .eq("id", vehicleId)
+    .eq("business_id", businessId);
+  if (error) {
+    await admin.storage.from(PHOTO_BUCKET).remove([path]);
+    return { error: "La foto se subió pero no se pudo guardar" };
+  }
+  revalidatePath(PATH);
+  return { success: true, url };
+}
+
+export async function removeVehiclePhoto(vehicleId: string, url: string) {
+  const businessId = await vehicleBusinessId(vehicleId);
+  const auth = await requireBusinessAccess(businessId, WRITE_ROLES);
+  if ("error" in auth) return { error: auth.error };
+
+  const { data: v } = await auth.supabase.from("vehicles").select("photos").eq("id", vehicleId).eq("business_id", businessId).single();
+  if (!v || !(v.photos ?? []).includes(url)) return { error: "Foto no encontrada" };
+
+  const { error } = await auth.supabase
+    .from("vehicles")
+    .update({ photos: (v.photos ?? []).filter((p) => p !== url) })
+    .eq("id", vehicleId)
+    .eq("business_id", businessId);
+  if (error) return { error: "No se pudo quitar la foto" };
+
+  // Delete the file only if it lives in this vehicle's own folder (seed/demo photos are external URLs)
+  const prefix = `/storage/v1/object/public/${PHOTO_BUCKET}/`;
+  const idx = url.indexOf(prefix);
+  const path = idx >= 0 ? decodeURIComponent(url.slice(idx + prefix.length).split("?")[0]) : "";
+  if (path.startsWith(`${businessId}/vehicles/${vehicleId}/`)) {
+    await createAdminClient().storage.from(PHOTO_BUCKET).remove([path]);
+  }
+  revalidatePath(PATH);
+  return { success: true };
+}
+
+export interface RepurchaseInput {
+  purchasePrice: number | string;
+  acquiredOn?: string;
+  sellerName?: string;
+  sellerPhone?: string;
+  listPrice?: number | string;
+  docLocation?: string;
+}
+
+/**
+ * A sold vehicle comes back (permuta, retoma, compra a su comprador): the same
+ * row — and plate — starts a new cycle. The previous sale stays in Finanzas as a
+ * transaction; the cost basis restarts, so the old reconditioning costs and
+ * paperwork are cleared. Managers only because it deletes cost history.
+ */
+export async function repurchaseVehicle(vehicleId: string, input: RepurchaseInput) {
+  const businessId = await vehicleBusinessId(vehicleId);
+  const auth = await requireBusinessAccess(businessId, MANAGE_ROLES);
+  if ("error" in auth) return { error: auth.error };
+
+  const purchase = money(input.purchasePrice);
+  if (purchase == null) return { error: "El valor de compra no es válido" };
+  const { data: v } = await auth.supabase.from("vehicles").select("status, plate").eq("id", vehicleId).eq("business_id", businessId).single();
+  if (!v) return { error: "Vehículo no encontrado" };
+  if (v.status !== "sold") return { error: "Solo se puede recomprar un vehículo vendido" };
+
+  let sellerId: string | null = null;
+  const sellerName = text(input.sellerName, 120);
+  if (sellerName) {
+    try {
+      const c = await findOrCreateContact(createAdminClient(), businessId, { name: sellerName, phone: normalizePhone(input.sellerPhone ?? "") });
+      sellerId = c.id;
+    } catch {
+      return { error: "No se pudo registrar al vendedor" };
+    }
+  }
+
+  const today = await businessToday(businessId);
+  const list = input.listPrice === "" || input.listPrice == null ? null : money(input.listPrice);
+  const { error } = await auth.supabase
+    .from("vehicles")
+    .update({
+      status: "in_stock",
+      published: true,
+      acquired_on: input.acquiredOn && DATE_RE.test(input.acquiredOn) ? input.acquiredOn : today,
+      purchase_price: purchase,
+      seller_contact_id: sellerId,
+      purchase_notes: null,
+      list_price: list,
+      min_price: null,
+      doc_location: text(input.docLocation, 120),
+      documents: {} as unknown as Json,
+      sold_on: null,
+      sold_price: null,
+      buyer_contact_id: null,
+      sale_transaction_id: null,
+    })
+    .eq("id", vehicleId)
+    .eq("business_id", businessId);
+  if (error) return { error: "No se pudo recomprar el vehículo" };
+
+  await auth.supabase.from("vehicle_costs").delete().eq("vehicle_id", vehicleId).eq("business_id", businessId);
+  if (list != null) {
+    await auth.supabase.from("vehicle_price_changes").insert({
+      business_id: businessId,
+      vehicle_id: vehicleId,
+      old_price: null,
+      new_price: list,
+      reason: "Recompra",
+      changed_by: auth.userId,
+    });
+  }
+  revalidatePath(PATH);
+  return { success: true };
+}
+
 export async function saveDealerSettings(businessId: string, input: Partial<DealerSettings>) {
   const auth = await requireBusinessAccess(businessId, MANAGE_ROLES);
   if ("error" in auth) return { error: auth.error };

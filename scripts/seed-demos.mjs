@@ -1355,10 +1355,30 @@ async function seedServiceOrders(bid, type, items, contacts, employees) {
 
 /* ── vehicle dealership: inventory with aging, costs, price history, paperwork and sales ── */
 
-const VEHICLE_PHOTOS = {
-  moto: ["1558981806-ec527fa84c39", "1568772585407-9361f9bf3a87", "1609630875171-b1321377ee65", "1449426468159-d96dbf08f19f"],
-  carro: ["1494976388531-d1058494cdd8", "1552519507-da3b142c6e3d", "1533473359331-0135ef1b58bf", "1503376780353-7e6692767b70"],
-  camioneta: ["1519641471654-76ce0107ad1b", "1533473359331-0135ef1b58bf"],
+// Stock photos picked by body style (no real brand matches exist, so they are illustrative)
+const PHOTO = {
+  retro: "1558981806-ec527fa84c39",      // retro/adventure bike on a road
+  sportRed: "1568772585407-9361f9bf3a87",
+  sportOrange: "1609630875171-b1321377ee65",
+  sportWhite: "1449426468159-d96dbf08f19f",
+  naked: "1591637333184-19aa84b3e01f",
+  nakedDark: "1547549082-6bc09f2049ae",
+  sportGreen: "1580310614729-ccd69652491d",
+  classic: "1622185135505-2d795003994a",
+  sedanBlack: "1619767886558-efdc259cde1a",
+  sedanWhite: "1560958089-b8a1929cea89",
+  suvWhite: "1606611013016-969c19ba27bb",
+  hatchBlue: "1549317661-bd32c8ce0db2",
+  pickupSnow: "1519641471654-76ce0107ad1b",
+};
+const VEHICLE_PHOTOS = { all: Object.values(PHOTO) };
+const PHOTO_BY_MODEL = {
+  "Yamaha FZ 2.0": PHOTO.naked, "Honda CB 190R": PHOTO.nakedDark, "Suzuki Gixxer 150": PHOTO.sportWhite,
+  "Bajaj Pulsar NS 200": PHOTO.sportGreen, "AKT NKD 125": PHOTO.classic, "Honda XRE 300": PHOTO.retro,
+  "Yamaha XTZ 250": PHOTO.retro, "Honda Wave 110": PHOTO.classic, "KTM Duke 200": PHOTO.sportOrange,
+  "Mazda 3 Touring": PHOTO.sedanBlack, "Renault Duster Dynamique": PHOTO.suvWhite, "Chevrolet Onix LT": PHOTO.sedanWhite,
+  "Kia Picanto Ion": PHOTO.hatchBlue, "Toyota Hilux 4x4": PHOTO.pickupSnow,
+  "Yamaha MT-03": PHOTO.naked, "Suzuki DR 650": PHOTO.retro, "Renault Sandero Stepway": PHOTO.sedanWhite, "AKT TT 150": PHOTO.classic,
 };
 
 // [type, brand, model, year, color, km, cc, purchase, list, daysInStock, status, extra costs [[concept, category, amount]], docs profile, folder]
@@ -1417,7 +1437,8 @@ function docsFor(profile) {
 async function seedDealership(bid, contacts, photoOk) {
   const used = new Set();
   const rows = FLEET.map(([type, brand, model, year, color, km, cc, purchase, list, days, status, costs, docProfile, folder]) => {
-    const photos = (VEHICLE_PHOTOS[type] ?? []).filter(photoOk);
+    const photoId = PHOTO_BY_MODEL[`${brand} ${model}`];
+    const photos = photoId && photoOk(photoId) ? [photoId] : [];
     return {
       meta: { costs, days, status, list },
       row: {
@@ -1426,7 +1447,7 @@ async function seedDealership(bid, contacts, photoOk) {
         engine_number: `MT${int(1e6, 9e6)}`, status: "in_stock", published: status !== "sold",
         acquired_on: dateOf(daysAgo(days)), purchase_price: purchase, seller_contact_id: pick(contacts).id,
         list_price: list, doc_location: folder, documents: docsFor(docProfile),
-        photos: photos.length ? [img(pick(photos), 900, 675)] : [],
+        photos: photos.length ? [img(photos[0], 900, 675)] : [],
         description: pick(["Único dueño, mantenimientos al día.", "Excelente estado, lista para traspaso.", "Papeles al día y revisión técnico-mecánica vigente.", "Recibimos tu usado como parte de pago."]),
       },
     };

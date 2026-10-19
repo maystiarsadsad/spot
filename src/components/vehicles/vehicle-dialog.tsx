@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Trash2 } from "lucide-react";
+import { Camera, Loader2, Star, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
-import { addVehicleCost, deleteVehicleCost, setListPrice, setVehicleStatus, updateVehicle } from "@/lib/actions/vehicles";
+import { addVehicleCost, deleteVehicleCost, removeVehiclePhoto, repurchaseVehicle, setListPrice, setVehicleStatus, updateVehicle, uploadVehiclePhoto } from "@/lib/actions/vehicles";
+import { compressImage } from "./compress-image";
 import { DOCUMENT_KEYS, type VehicleDocuments } from "@/lib/dealership/documents";
 import { COST_CATEGORY_LABELS, selectClass, STATUS_LABELS, vehicleTitle, type VehicleRow } from "./types";
 
@@ -20,7 +21,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   currency: string;
   /** Tab to open first. */
-  initialTab?: "data" | "documents" | "costs" | "price";
+  initialTab?: "data" | "photos" | "documents" | "costs" | "price";
 }
 
 export function VehicleDialog({ vehicle, onOpenChange, currency, initialTab = "data" }: Props) {
@@ -58,6 +59,32 @@ function VehicleForm({ vehicle, onOpenChange, currency, initialTab }: { vehicle:
   const [docs, setDocs] = useState<VehicleDocuments>(vehicle.documents);
   // ── costs ──
   const [cost, setCost] = useState({ concept: "", category: "repair", amount: "" });
+  // ── photos ──
+  const [uploading, setUploading] = useState(false);
+  const onPickPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (!files.length) return;
+    setUploading(true);
+    let uploaded = 0;
+    for (const f of files) {
+      const body = new FormData();
+      body.set("photo", await compressImage(f));
+      const res = await uploadVehiclePhoto(vehicle.id, body);
+      if ("error" in res && res.error) {
+        toast.error(res.error);
+        break;
+      }
+      uploaded++;
+    }
+    setUploading(false);
+    if (uploaded) {
+      toast.success(uploaded === 1 ? "Foto agregada" : `${uploaded} fotos agregadas`);
+      router.refresh();
+    }
+  };
+  // ── repurchase (sold vehicles only) ──
+  const [re, setRe] = useState({ purchasePrice: "", sellerName: "", sellerPhone: "", listPrice: "", docLocation: "" });
   // ── price ──
   const [price, setPrice] = useState(String(vehicle.advice.suggestedPrice ?? vehicle.listPrice ?? ""));
   const [reason, setReason] = useState("");
@@ -89,6 +116,7 @@ function VehicleForm({ vehicle, onOpenChange, currency, initialTab }: { vehicle:
         <Tabs defaultValue={initialTab}>
           <TabsList>
             <TabsTrigger value="data">Datos</TabsTrigger>
+            <TabsTrigger value="photos">Fotos</TabsTrigger>
             <TabsTrigger value="documents">Documentos</TabsTrigger>
             <TabsTrigger value="costs">Costos</TabsTrigger>
             <TabsTrigger value="price">Precio</TabsTrigger>
@@ -117,6 +145,73 @@ function VehicleForm({ vehicle, onOpenChange, currency, initialTab }: { vehicle:
             <Button disabled={isPending || !d.brand.trim()} onClick={() => run(() => updateVehicle(vehicle.id, d), "Datos guardados")}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Guardar datos
             </Button>
+            {sold && (
+              <div className="space-y-3 rounded-md border border-dashed p-3">
+                <div>
+                  <div className="text-sm font-medium">Recomprar este vehículo</div>
+                  <p className="text-xs text-muted-foreground">
+                    Vuelve al inventario con la misma placa y un ciclo nuevo: el costo y los documentos empiezan de cero. La venta anterior queda en Finanzas.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="rp-price">Valor de compra</Label>
+                    <Input id="rp-price" type="number" value={re.purchasePrice} onChange={(e) => setRe({ ...re, purchasePrice: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="rp-list">Precio de venta (opcional)</Label>
+                    <Input id="rp-list" type="number" value={re.listPrice} onChange={(e) => setRe({ ...re, listPrice: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="rp-seller">A quién se compra</Label>
+                    <Input id="rp-seller" value={re.sellerName} onChange={(e) => setRe({ ...re, sellerName: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="rp-phone">Celular</Label>
+                    <Input id="rp-phone" type="tel" value={re.sellerPhone} onChange={(e) => setRe({ ...re, sellerPhone: e.target.value })} />
+                  </div>
+                  <div className="col-span-2 space-y-1.5">
+                    <Label htmlFor="rp-loc">Ubicación de la carpeta física</Label>
+                    <Input id="rp-loc" value={re.docLocation} onChange={(e) => setRe({ ...re, docLocation: e.target.value })} />
+                  </div>
+                </div>
+                <Button variant="outline" disabled={isPending || re.purchasePrice === ""} onClick={() => run(() => repurchaseVehicle(vehicle.id, re), "Vehículo recomprado: vuelve al inventario")}>
+                  Recomprar
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="photos" className="space-y-3 pt-3">
+            <p className="text-xs text-muted-foreground">La primera foto es la portada del catálogo público. Máximo 8; se reducen automáticamente antes de subirlas.</p>
+            <div className="grid grid-cols-3 gap-3">
+              {vehicle.photos.map((url, i) => (
+                <div key={url} className="group relative aspect-[4/3] overflow-hidden rounded-md border bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Foto ${i + 1} de ${vehicle.plate}`} className="h-full w-full object-cover" />
+                  {i === 0 && <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">Portada</span>}
+                  <div className="absolute inset-x-0 bottom-0 flex justify-end gap-1 bg-gradient-to-t from-black/60 to-transparent p-1">
+                    {i > 0 && (
+                      <Button type="button" size="icon" variant="secondary" className="h-7 w-7" aria-label="Usar como portada" disabled={isPending}
+                        onClick={() => run(() => updateVehicle(vehicle.id, { photos: [url, ...vehicle.photos.filter((p) => p !== url)] }), "Portada actualizada")}>
+                        <Star className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    <Button type="button" size="icon" variant="destructive" className="h-7 w-7" aria-label="Quitar foto" disabled={isPending}
+                      onClick={() => run(() => removeVehiclePhoto(vehicle.id, url), "Foto eliminada")}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              {vehicle.photos.length < 8 && (
+                <label className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed text-xs text-muted-foreground hover:bg-muted/50">
+                  {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+                  {uploading ? "Subiendo…" : "Agregar fotos"}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={uploading} onChange={onPickPhotos} />
+                </label>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-3 pt-3">
