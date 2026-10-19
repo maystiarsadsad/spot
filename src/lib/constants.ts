@@ -14,6 +14,7 @@ export type BusinessType =
   | 'veterinary'
   | 'logistics'
   | 'hardware_store'
+  | 'vehicle_dealer'
   | 'custom';
 
 export const APP_NAME = 'Spot'
@@ -43,6 +44,7 @@ export const BUSINESS_TYPES: Record<BusinessType, { label: string; icon: string;
   veterinary: { label: 'Veterinaria', icon: '🐕', color: '#84cc16' },
   logistics: { label: 'Logística y Envíos', icon: '🚚', color: '#f59e0b' },
   hardware_store: { label: 'Ferretería', icon: '🔧', color: '#64748b' },
+  vehicle_dealer: { label: 'Compraventa de Vehículos', icon: '🏍️', color: '#0f766e' },
   custom: { label: 'Personalizado', icon: '📱', color: '#6366f1' },
 }
 
@@ -74,6 +76,7 @@ export const DEFAULT_MODULES_BY_TYPE: Record<BusinessType, string[]> = {
   veterinary: ['catalog', 'transactions', 'reservations', 'inventory', 'finance', 'team', 'contacts', 'reports'],
   logistics: ['catalog', 'transactions', 'finance', 'team', 'contacts', 'reports'],
   hardware_store: ['catalog', 'transactions', 'inventory', 'finance', 'team', 'contacts', 'reports'],
+  vehicle_dealer: ['transactions', 'finance', 'team', 'contacts', 'reports'],
   custom: ['catalog', 'transactions', 'reservations', 'finance', 'team', 'contacts', 'reports'],
 }
 
@@ -94,6 +97,7 @@ export const ROLES_BY_TYPE: Record<BusinessType, string[]> = {
   veterinary: ['Veterinario(a)', 'Auxiliar Veterinario(a)', 'Peluquero(a) Canino', 'Recepcionista', 'Administrador(a)'],
   logistics: ['Mensajero(a)', 'Conductor(a)', 'Coordinador(a) de Despachos', 'Auxiliar de Bodega', 'Servicio al Cliente', 'Administrador(a)'],
   hardware_store: ['Vendedor(a) de Mostrador', 'Cajero(a)', 'Bodeguero(a)', 'Asesor(a) Técnico(a)', 'Repartidor(a)', 'Administrador(a)'],
+  vehicle_dealer: ['Asesor(a) Comercial', 'Mecánico(a)', 'Gestor(a) de Trámites', 'Peritaje y Avalúo', 'Cajero(a)', 'Administrador(a)'],
   custom: ['Administrador(a)', 'Asistente', 'Operario(a)', 'Vendedor(a)', 'Cajero(a)', 'Recepcionista', 'Repartidor(a)', 'Gerente'],
 }
 
@@ -114,6 +118,7 @@ export const DEPARTMENTS_BY_TYPE: Record<BusinessType, string[]> = {
   veterinary: ['Consulta', 'Cirugía', 'Peluquería', 'Recepción', 'Administración'],
   logistics: ['Operaciones', 'Flota', 'Bodega', 'Servicio al Cliente', 'Administración'],
   hardware_store: ['Mostrador', 'Caja', 'Bodega', 'Domicilios', 'Administración'],
+  vehicle_dealer: ['Ventas', 'Taller', 'Trámites', 'Caja', 'Administración'],
   custom: ['Operaciones', 'Ventas', 'Administración', 'Recepción', 'Logística'],
 }
 

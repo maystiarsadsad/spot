@@ -450,6 +450,14 @@ const DEMOS = [
     staff: [["Vendedor(a) de Mostrador", "Mostrador"], ["Vendedor(a) de Mostrador", "Mostrador"], ["Cajero(a)", "Caja"], ["Bodeguero(a)", "Bodega"], ["Asesor(a) Técnico(a)", "Mostrador"]],
   },
   {
+    type: "vehicle_dealer", slug: "demo-vehiculos", name: "Motos y Autos El Camino",
+    tagline: "Compramos y vendemos con respaldo", color: "#0f766e",
+    description: "Compraventa de motos, carros y camionetas usados con revisión, papeles al día y financiación. Recibimos tu vehículo como parte de pago.",
+    cover: "1558981806-ec527fa84c39", logo: "1568772585407-9361f9bf3a87", barrio: "Siete de Agosto", hours: ["08:00", "18:00"],
+    itemType: "product", skipSales: true, categories: [],
+    staff: [["Asesor(a) Comercial", "Ventas"], ["Asesor(a) Comercial", "Ventas"], ["Mecánico(a)", "Taller"], ["Gestor(a) de Trámites", "Trámites"], ["Cajero(a)", "Caja"]],
+  },
+  {
     type: "custom", slug: "demo-estudio-creativo", name: "Lumen Estudio Creativo",
     tagline: "Fotografía, diseño y contenido para marcas que quieren brillar", color: "#4f46e5",
     description: "Estudio creativo con set fotográfico, producción de contenido para redes, diseño de marca y alquiler de estudio por horas.",
@@ -643,6 +651,7 @@ const MODULES_BY_TYPE = {
   veterinary: ["catalog", "transactions", "reservations", "inventory", "finance", "team", "contacts", "reports"],
   logistics: ["catalog", "transactions", "finance", "team", "contacts", "reports"],
   hardware_store: ["catalog", "transactions", "inventory", "finance", "team", "contacts", "reports"],
+  vehicle_dealer: ["transactions", "finance", "team", "contacts", "reports"],
   custom: ["catalog", "transactions", "reservations", "finance", "team", "contacts", "reports"],
 };
 
@@ -652,6 +661,7 @@ async function checkImages(demos) {
   const ids = new Set();
   for (const d of demos) {
     ids.add(d.cover); ids.add(d.logo);
+    if (d.type === "vehicle_dealer") for (const list of Object.values(VEHICLE_PHOTOS)) for (const id of list) ids.add(id);
     for (const c of d.categories) for (const it of c.items) ids.add(it[3]);
   }
   const broken = new Set();
@@ -798,7 +808,7 @@ async function seedDemo(d, ownerId, broken, keepId) {
     return out;
   }
 
-  for (let day = 29; day >= 0; day--) {
+  for (let day = 29; day >= 0 && !d.skipSales; day--) {
     const weekend = [0, 5, 6].includes(daysAgo(day).getDay());
     const count = day === 0 ? int(4, 6) : int(weekend ? 5 : 3, weekend ? 9 : 6);
     for (let k = 0; k < count; k++) {
@@ -976,6 +986,8 @@ async function seedDemo(d, ownerId, broken, keepId) {
   if (d.type === "gym") await seedGym(bid, items, employees, contacts);
   // ── hotels / hostels: rooms, stays, folio, seasons
   if (d.type === "hotel" || d.type === "hostel") await seedStays(bid, d.type, items, contacts);
+  // ── vehicle dealerships: fleet with aging, costs, paperwork and sales
+  if (d.type === "vehicle_dealer") await seedDealership(bid, contacts, (id) => !broken.has(id));
   // ── couriers / laundries: service orders through every stage
   if (d.type === "logistics" || d.type === "laundry") await seedServiceOrders(bid, d.type, items, contacts, employees);
 
@@ -1339,6 +1351,130 @@ async function seedServiceOrders(bid, type, items, contacts, employees) {
     })), "service deliveries");
   }
   console.log(`   ${saved.length} órdenes de servicio, ${events.length} eventos, ${live.length} con mensajero`);
+}
+
+/* ── vehicle dealership: inventory with aging, costs, price history, paperwork and sales ── */
+
+const VEHICLE_PHOTOS = {
+  moto: ["1558981806-ec527fa84c39", "1568772585407-9361f9bf3a87", "1609630875171-b1321377ee65", "1449426468159-d96dbf08f19f"],
+  carro: ["1494976388531-d1058494cdd8", "1552519507-da3b142c6e3d", "1533473359331-0135ef1b58bf", "1503376780353-7e6692767b70"],
+  camioneta: ["1519641471654-76ce0107ad1b", "1533473359331-0135ef1b58bf"],
+};
+
+// [type, brand, model, year, color, km, cc, purchase, list, daysInStock, status, extra costs [[concept, category, amount]], docs profile, folder]
+const FLEET = [
+  ["moto", "Yamaha", "FZ 2.0", 2021, "Negro", 18500, 149, 7_400_000, 9_300_000, 12, "in_stock", [["Cambio de llanta trasera", "repair", 180_000]], "ok", "Archivador 1 · Carpeta M-21"],
+  ["moto", "Honda", "CB 190R", 2022, "Rojo", 9800, 184, 9_800_000, 12_200_000, 20, "in_stock", [["Alistamiento y polichado", "cleaning", 120_000]], "ok", "Archivador 1 · Carpeta M-22"],
+  ["moto", "Suzuki", "Gixxer 150", 2019, "Azul", 32100, 155, 5_600_000, 7_400_000, 38, "in_stock", [["Kit de arrastre", "repair", 260_000]], "ok", "Archivador 1 · Carpeta M-17"],
+  ["moto", "Bajaj", "Pulsar NS 200", 2020, "Negro", 27400, 199, 6_900_000, 8_900_000, 54, "in_stock", [["Revisión de motor", "repair", 350_000], ["Trámite de traspaso previo", "paperwork", 180_000]], "soat_soon", "Archivador 1 · Carpeta M-14"],
+  ["moto", "AKT", "NKD 125", 2018, "Blanco", 41200, 125, 2_900_000, 3_900_000, 76, "in_stock", [["Cambio de frenos", "repair", 140_000]], "ok", "Archivador 2 · Carpeta M-09"],
+  ["moto", "Honda", "XRE 300", 2017, "Rojo", 52800, 291, 9_200_000, 11_800_000, 103, "in_stock", [["Suspensión delantera", "repair", 620_000], ["Pintura de tanque", "repair", 280_000]], "soat_expired", "Archivador 2 · Carpeta M-03"],
+  ["moto", "Yamaha", "XTZ 250", 2016, "Azul", 61400, 249, 8_100_000, 10_500_000, 128, "in_stock", [["Cambio de batería", "repair", 190_000]], "missing_traspaso", "Archivador 2 · Carpeta M-01"],
+  ["moto", "Honda", "Wave 110", 2015, "Negro", 68900, 110, 1_700_000, 2_500_000, 154, "in_stock", [], "ok", null],
+  ["moto", "KTM", "Duke 200", 2021, "Naranja", 15300, 200, 10_500_000, 13_200_000, 29, "reserved", [["Alistamiento", "cleaning", 90_000]], "ok", "Archivador 1 · Carpeta M-23"],
+  ["carro", "Mazda", "3 Touring", 2018, "Gris", 64200, 2000, 52_000_000, 62_500_000, 33, "in_stock", [["Latonería y pintura puerta", "repair", 780_000], ["Alistamiento", "cleaning", 200_000]], "ok", "Archivador 3 · Carpeta C-05"],
+  ["carro", "Renault", "Duster Dynamique", 2017, "Blanco", 88100, 2000, 41_000_000, 49_500_000, 71, "in_stock", [["Sincronización y frenos", "repair", 1_150_000]], "soat_soon", "Archivador 3 · Carpeta C-02"],
+  ["carro", "Chevrolet", "Onix LT", 2019, "Rojo", 52300, 1200, 38_000_000, 45_800_000, 96, "in_stock", [["Cambio de amortiguadores", "repair", 920_000]], "ok", "Archivador 3 · Carpeta C-04"],
+  ["carro", "Kia", "Picanto Ion", 2016, "Plata", 97600, 1250, 23_500_000, 28_900_000, 141, "in_stock", [["Embrague", "repair", 1_300_000]], "missing_traspaso", null],
+  ["camioneta", "Toyota", "Hilux 4x4", 2015, "Blanco", 142000, 2800, 82_000_000, 96_000_000, 47, "in_stock", [["Revisión de tren motriz", "repair", 2_100_000], ["Trámites y peritaje", "paperwork", 350_000]], "ok", "Archivador 3 · Carpeta C-01"],
+  // Sold
+  ["moto", "Yamaha", "MT-03", 2020, "Negro", 21700, 321, 18_500_000, 22_300_000, 40, "sold", [["Alistamiento", "cleaning", 150_000]], "ok", "Archivador 4 · Vendidas"],
+  ["moto", "Suzuki", "DR 650", 2014, "Blanco", 39800, 644, 11_900_000, 13_400_000, 88, "sold", [["Kit de arrastre", "repair", 310_000]], "ok", "Archivador 4 · Vendidas"],
+  ["carro", "Renault", "Sandero Stepway", 2016, "Gris", 91000, 1600, 29_500_000, 33_800_000, 62, "sold", [["Latonería", "repair", 640_000]], "ok", "Archivador 4 · Vendidas"],
+  ["moto", "AKT", "TT 150", 2019, "Rojo", 29300, 150, 4_200_000, 4_700_000, 118, "sold", [["Revisión general", "repair", 160_000]], "ok", "Archivador 4 · Vendidas"],
+];
+
+const PLATE_LETTERS = "ABCDEFGHJKLMNPRSTUVWXYZ";
+const plateFor = (type, used) => {
+  for (;;) {
+    const l = () => PLATE_LETTERS[int(0, PLATE_LETTERS.length - 1)];
+    const p = type === "moto"
+      ? `${l()}${l()}${l()}${int(10, 99)}${l()}`
+      : `${l()}${l()}${l()}${int(100, 999)}`;
+    if (!used.has(p)) { used.add(p); return p; }
+  }
+};
+
+const dateOf = (d) => d.toISOString().slice(0, 10);
+const plusDaysISO = (n) => dateOf(new Date(Date.now() + n * 86_400_000));
+
+function docsFor(profile) {
+  const base = {
+    tarjeta_propiedad: { has: true },
+    traspaso: { has: true },
+    contrato: { has: true },
+    cedula_vendedor: { has: true },
+    paz_y_salvo: { has: rand() < 0.8 },
+    soat: { has: true, expires: plusDaysISO(int(60, 300)) },
+    tecnomecanica: { has: true, expires: plusDaysISO(int(40, 330)) },
+  };
+  if (profile === "soat_soon") base.soat.expires = plusDaysISO(int(5, 25));
+  if (profile === "soat_expired") base.soat.expires = plusDaysISO(-int(10, 60));
+  if (profile === "missing_traspaso") { base.traspaso = { has: false }; base.contrato = { has: false }; }
+  return base;
+}
+
+async function seedDealership(bid, contacts, photoOk) {
+  const used = new Set();
+  const rows = FLEET.map(([type, brand, model, year, color, km, cc, purchase, list, days, status, costs, docProfile, folder]) => {
+    const photos = (VEHICLE_PHOTOS[type] ?? []).filter(photoOk);
+    return {
+      meta: { costs, days, status, list },
+      row: {
+        business_id: bid, vehicle_type: type, plate: plateFor(type, used), brand, model, year, color,
+        mileage_km: km, displacement_cc: cc, vin: `9FB${int(1e7, 9e7)}${int(1e3, 9e3)}`.slice(0, 17),
+        engine_number: `MT${int(1e6, 9e6)}`, status: "in_stock", published: status !== "sold",
+        acquired_on: dateOf(daysAgo(days)), purchase_price: purchase, seller_contact_id: pick(contacts).id,
+        list_price: list, doc_location: folder, documents: docsFor(docProfile),
+        photos: photos.length ? [img(pick(photos), 900, 675)] : [],
+        description: pick(["Único dueño, mantenimientos al día.", "Excelente estado, lista para traspaso.", "Papeles al día y revisión técnico-mecánica vigente.", "Recibimos tu usado como parte de pago."]),
+      },
+    };
+  });
+  // Reserved ones are flagged after insert (the sold ones are closed below with their sale)
+  const saved = await must(sb.from("vehicles").insert(rows.map((r) => r.row)).select("id, plate, brand, model, year"), "vehicles");
+
+  const costRows = [];
+  const changeRows = [];
+  saved.forEach((v, i) => {
+    const { costs, days, list } = rows[i].meta;
+    for (const [concept, category, amount] of costs) {
+      costRows.push({ business_id: bid, vehicle_id: v.id, concept, category, amount, spent_on: dateOf(daysAgo(Math.max(1, days - int(1, Math.max(1, days - 1))))) });
+    }
+    const initial = Math.round((list * 1.04) / 50_000) * 50_000;
+    changeRows.push({ business_id: bid, vehicle_id: v.id, old_price: null, new_price: initial, reason: "Precio inicial", created_at: daysAgo(days).toISOString() });
+    // Old units already had a markdown applied
+    if (days > 45) changeRows.push({ business_id: bid, vehicle_id: v.id, old_price: initial, new_price: list, reason: "Rebaja por tiempo en inventario", created_at: daysAgo(Math.max(1, days - 40)).toISOString() });
+  });
+  await must(sb.from("vehicle_costs").insert(costRows), "vehicle_costs");
+  await must(sb.from("vehicle_price_changes").insert(changeRows), "vehicle_price_changes");
+
+  let sales = 0;
+  for (const [i, v] of saved.entries()) {
+    const { days, list, status } = rows[i].meta;
+    if (status === "reserved") {
+      await must(sb.from("vehicles").update({ status: "reserved" }).eq("id", v.id), "reserve vehicle");
+      continue;
+    }
+    if (status !== "sold") continue;
+    // Sold: a completed transaction so Finanzas/Reportes have real income
+    const soldDaysAgo = int(3, 24);
+    const price = Math.round((list * (0.95 + rand() * 0.04)) / 50_000) * 50_000;
+    const buyer = pick(contacts);
+    const tx = await must(sb.from("transactions").insert({
+      business_id: bid, type: "sale", status: "completed", payment_method: pick(["transfer", "cash", "transfer"]), payment_status: "paid",
+      subtotal: price, total: price, contact_id: buyer.id, customer_name: buyer.full_name, customer_phone: buyer.phone,
+      code: `VEH-${String(100000 + sales * 137).slice(-6)}`, notes: `Venta de vehículo ${v.plate} · ${v.brand} ${v.model} ${v.year}`,
+      created_at: daysAgo(soldDaysAgo).toISOString(), completed_at: daysAgo(soldDaysAgo).toISOString(),
+    }).select("id").single(), "vehicle sale");
+    await must(sb.from("transaction_items").insert({ transaction_id: tx.id, name: `${v.brand} ${v.model} ${v.year} · ${v.plate}`, quantity: 1, unit_price: price, total_price: price }), "vehicle sale item");
+    await must(sb.from("vehicles").update({
+      status: "sold", sold_on: dateOf(daysAgo(soldDaysAgo)), sold_price: price, buyer_contact_id: buyer.id,
+      sale_transaction_id: tx.id, acquired_on: dateOf(daysAgo(soldDaysAgo + days)),
+    }).eq("id", v.id), "close vehicle");
+    sales++;
+  }
+  console.log(`   ${saved.length} vehículos (${saved.length - sales} en inventario, ${sales} vendidos), ${costRows.length} gastos de alistamiento`);
 }
 
 /* ── main ────────────────────────────────────────────── */

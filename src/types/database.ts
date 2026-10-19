@@ -325,6 +325,7 @@ export type Database = {
           created_at: string | null
           currency: string | null
           custom_domain: string | null
+          dealer_settings: Json
           description: string | null
           email: string | null
           favicon_url: string | null
@@ -373,6 +374,7 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           custom_domain?: string | null
+          dealer_settings?: Json
           description?: string | null
           email?: string | null
           favicon_url?: string | null
@@ -421,6 +423,7 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           custom_domain?: string | null
+          dealer_settings?: Json
           description?: string | null
           email?: string | null
           favicon_url?: string | null
@@ -2688,6 +2691,230 @@ export type Database = {
           },
         ]
       }
+      vehicle_costs: {
+        Row: {
+          amount: number
+          business_id: string
+          category: string
+          concept: string
+          created_at: string | null
+          id: string
+          spent_on: string
+          vehicle_id: string
+        }
+        Insert: {
+          amount: number
+          business_id: string
+          category?: string
+          concept: string
+          created_at?: string | null
+          id?: string
+          spent_on?: string
+          vehicle_id: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          category?: string
+          concept?: string
+          created_at?: string | null
+          id?: string
+          spent_on?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_costs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_costs_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_price_changes: {
+        Row: {
+          business_id: string
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          new_price: number
+          old_price: number | null
+          reason: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          business_id: string
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_price: number
+          old_price?: number | null
+          reason?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          business_id?: string
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_price?: number
+          old_price?: number | null
+          reason?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_price_changes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_price_changes_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          acquired_on: string
+          brand: string
+          business_id: string
+          buyer_contact_id: string | null
+          color: string | null
+          created_at: string | null
+          description: string | null
+          displacement_cc: number | null
+          doc_location: string | null
+          documents: Json
+          engine_number: string | null
+          id: string
+          list_price: number | null
+          mileage_km: number | null
+          min_price: number | null
+          model: string | null
+          photos: string[]
+          plate: string
+          published: boolean
+          purchase_notes: string | null
+          purchase_price: number
+          sale_transaction_id: string | null
+          seller_contact_id: string | null
+          sold_on: string | null
+          sold_price: number | null
+          status: string
+          updated_at: string | null
+          vehicle_type: string
+          vin: string | null
+          year: number | null
+        }
+        Insert: {
+          acquired_on?: string
+          brand: string
+          business_id: string
+          buyer_contact_id?: string | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          displacement_cc?: number | null
+          doc_location?: string | null
+          documents?: Json
+          engine_number?: string | null
+          id?: string
+          list_price?: number | null
+          mileage_km?: number | null
+          min_price?: number | null
+          model?: string | null
+          photos?: string[]
+          plate: string
+          published?: boolean
+          purchase_notes?: string | null
+          purchase_price?: number
+          sale_transaction_id?: string | null
+          seller_contact_id?: string | null
+          sold_on?: string | null
+          sold_price?: number | null
+          status?: string
+          updated_at?: string | null
+          vehicle_type?: string
+          vin?: string | null
+          year?: number | null
+        }
+        Update: {
+          acquired_on?: string
+          brand?: string
+          business_id?: string
+          buyer_contact_id?: string | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          displacement_cc?: number | null
+          doc_location?: string | null
+          documents?: Json
+          engine_number?: string | null
+          id?: string
+          list_price?: number | null
+          mileage_km?: number | null
+          min_price?: number | null
+          model?: string | null
+          photos?: string[]
+          plate?: string
+          published?: boolean
+          purchase_notes?: string | null
+          purchase_price?: number
+          sale_transaction_id?: string | null
+          seller_contact_id?: string | null
+          sold_on?: string | null
+          sold_price?: number | null
+          status?: string
+          updated_at?: string | null
+          vehicle_type?: string
+          vin?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_buyer_contact_id_fkey"
+            columns: ["buyer_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_sale_transaction_id_fkey"
+            columns: ["sale_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_seller_contact_id_fkey"
+            columns: ["seller_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webpage_proposals: {
         Row: {
           approved_at: string | null
@@ -2889,6 +3116,7 @@ export type Database = {
           created_at: string | null
           currency: string | null
           custom_domain: string | null
+          dealer_settings: Json
           description: string | null
           email: string | null
           favicon_url: string | null
@@ -2931,6 +3159,10 @@ export type Database = {
       }
       get_courier_delivery: { Args: { p_token: string }; Returns: Json }
       get_delivery_tracking: { Args: { p_token: string }; Returns: Json }
+      has_business_role: {
+        Args: { allowed: string[]; b_id: string }
+        Returns: boolean
+      }
       is_business_member: { Args: { b_id: string }; Returns: boolean }
       is_business_owner_or_admin: { Args: { b_id: string }; Returns: boolean }
       is_superadmin: { Args: never; Returns: boolean }

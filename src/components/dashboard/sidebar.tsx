@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Bike,
   LayoutDashboard,
   ShoppingCart,
   CreditCard,
@@ -66,9 +67,10 @@ const navItems = [
   { label: "Socios", href: "/d/socios", icon: IdCard, onlyFor: ['memberships'] },
   { label: "Estadías", href: "/d/estadias", icon: BedDouble, moduleKey: 'reservations', onlyFor: ['stays'] },
   { label: "Servicios", href: "/d/servicios", icon: Truck, onlyFor: ['service_orders'] },
+  { label: "Vehículos", href: "/d/vehiculos", icon: Bike, onlyFor: ['dealership'] },
   { label: "Reservas", href: "/d/reservations", icon: CalendarDays, moduleKey: 'reservations', hideFor: ['appointments', 'memberships', 'stays'] },
-  { label: "Pedidos", href: "/d/orders", icon: ShoppingCart, moduleKey: 'transactions', hideFor: ['service_orders'] },
-  { label: "Caja (POS)", href: "/d/pos", icon: CreditCard, moduleKey: 'transactions' },
+  { label: "Pedidos", href: "/d/orders", icon: ShoppingCart, moduleKey: 'transactions', hideFor: ['service_orders', 'dealership'] },
+  { label: "Caja (POS)", href: "/d/pos", icon: CreditCard, moduleKey: 'transactions', hideFor: ['dealership'] },
   { label: "Catálogo", href: "/d/catalog", icon: Package, moduleKey: 'catalog' },
   { label: "Inventario", href: "/d/inventory", icon: Warehouse, moduleKey: 'inventory' },
   { label: "Finanzas", href: "/d/finance", icon: DollarSign, moduleKey: 'finance' },

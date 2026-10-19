@@ -13,6 +13,8 @@ import { ServiceRequest } from "@/components/public/service-request";
 import { loadServiceBusiness, loadServiceItems } from "@/lib/service-orders/data";
 import { loadRoomTypes, loadStayBusiness } from "@/lib/stays/data";
 import { addDays, localDate } from "@/lib/booking/availability";
+import { VehicleCatalog } from "@/components/public/vehicle-catalog";
+import { loadPublicVehicles } from "@/lib/dealership/data";
 
 const todayIn = (timeZone: string) => localDate(new Date(), timeZone);
 
@@ -164,6 +166,17 @@ export default async function PublicBusinessPage({ params }: PageProps) {
         />
       );
     }
+  }
+
+  // Vehicle dealerships: public stock instead of a cart
+  if (verticalOf(business.type) === "dealership") {
+    const vehicles = await loadPublicVehicles(business.id);
+    booking = (
+      <VehicleCatalog
+        business={{ name: business.name, currency: business.currency || "COP", whatsapp: business.whatsapp || business.phone || null }}
+        vehicles={vehicles}
+      />
+    );
   }
 
   return (

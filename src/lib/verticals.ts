@@ -4,7 +4,7 @@ import type { BusinessType } from "@/lib/constants";
  * Operating engine ("vertical") of each business type. Every vertical has its
  * own public page and its own way of running the business in the dashboard.
  */
-export type Vertical = "orders" | "appointments" | "stays" | "memberships" | "service_orders";
+export type Vertical = "orders" | "appointments" | "stays" | "memberships" | "service_orders" | "dealership";
 
 export const VERTICAL_BY_TYPE: Record<BusinessType, Vertical> = {
   restaurant: "orders",
@@ -23,6 +23,7 @@ export const VERTICAL_BY_TYPE: Record<BusinessType, Vertical> = {
   gym: "memberships",
   logistics: "service_orders",
   laundry: "service_orders",
+  vehicle_dealer: "dealership",
 };
 
 export const verticalOf = (type: string | null | undefined): Vertical =>
