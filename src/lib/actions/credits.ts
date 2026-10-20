@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { requireBusinessAccess, MANAGE_ROLES } from "@/lib/auth-guard";
+import { requireBusinessAccess, MANAGE_ROLES, WRITE_ROLES } from "@/lib/auth-guard";
 
 // ─── READ ───────────────────────────────────────────
 
@@ -137,60 +137,46 @@ export async function updateCreditAccount(
 
 // ─── CHARGE (venta a crédito) ───────────────────────
 
+/** Business that owns a credit account, read through RLS ("" if not visible). */
+async function creditAccountBusinessId(accountId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("credit_accounts").select("business_id").eq("id", accountId).maybeSingle();
+  return data?.business_id ?? "";
+}
+
+/** Charge or payment, applied atomically in SQL (row lock + limit/balance checks + movement + balance). */
+async function applyCreditMovement(
+  type: "charge" | "payment",
+  data: { credit_account_id: string; amount: number; payment_method?: string; notes?: string; transaction_id?: string }
+) {
+  const businessId = await creditAccountBusinessId(data.credit_account_id);
+  const auth = await requireBusinessAccess(businessId, WRITE_ROLES);
+  if ("error" in auth) return { success: false, error: auth.error };
+
+  const { error } = await auth.supabase.rpc("apply_credit_movement", {
+    p_account_id: data.credit_account_id,
+    p_type: type,
+    p_amount: Number(data.amount),
+    p_payment_method: data.payment_method,
+    p_notes: data.notes?.trim().slice(0, 300) || undefined,
+    p_transaction_id: data.transaction_id,
+  });
+  if (error) {
+    return { success: false, error: error.code === "P0001" ? error.message : "No se pudo registrar el movimiento" };
+  }
+
+  revalidatePath("/d/contacts");
+  revalidatePath("/d/finance");
+  return { success: true };
+}
+
 export async function chargeToCredit(data: {
   credit_account_id: string;
   transaction_id?: string;
   amount: number;
   notes?: string;
 }) {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Get current account
-  const { data: account } = await supabase
-    .from("credit_accounts")
-    .select("current_balance, credit_limit, status")
-    .eq("id", data.credit_account_id)
-    .single();
-
-  if (!account) return { success: false, error: "Cuenta de crédito no encontrada" };
-  if (account.status !== "active") return { success: false, error: "La cuenta de crédito no está activa" };
-
-  const newBalance = (account.current_balance || 0) + data.amount;
-  if (account.credit_limit > 0 && newBalance > account.credit_limit) {
-    return {
-      success: false,
-      error: `Excede el límite de crédito. Disponible: ${account.credit_limit - account.current_balance}`,
-    };
-  }
-
-  // Record the charge
-  const { error: paymentError } = await supabase.from("credit_payments").insert({
-    credit_account_id: data.credit_account_id,
-    transaction_id: data.transaction_id || null,
-    type: "charge",
-    amount: data.amount,
-    notes: data.notes || "Venta a crédito",
-    recorded_by: user?.id,
-  });
-
-  if (paymentError) return { success: false, error: paymentError.message };
-
-  // Update balance
-  const { error: updateError } = await supabase
-    .from("credit_accounts")
-    .update({
-      current_balance: newBalance,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", data.credit_account_id);
-
-  if (updateError) return { success: false, error: updateError.message };
-
-  revalidatePath("/d/contacts");
-  revalidatePath("/d/finance");
-  return { success: true };
+  return applyCreditMovement("charge", data);
 }
 
 // ─── PAYMENT (abono) ────────────────────────────────
@@ -201,51 +187,7 @@ export async function recordCreditPayment(data: {
   payment_method: string;
   notes?: string;
 }) {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Get current balance
-  const { data: account } = await supabase
-    .from("credit_accounts")
-    .select("current_balance")
-    .eq("id", data.credit_account_id)
-    .single();
-
-  if (!account) return { success: false, error: "Cuenta no encontrada" };
-
-  if (data.amount <= 0) return { success: false, error: "El monto debe ser mayor a 0" };
-  if (data.amount > (account.current_balance || 0)) {
-    return { success: false, error: "El abono no puede ser mayor al saldo pendiente" };
-  }
-
-  // Record payment
-  const { error: paymentError } = await supabase.from("credit_payments").insert({
-    credit_account_id: data.credit_account_id,
-    type: "payment",
-    amount: data.amount,
-    payment_method: data.payment_method,
-    notes: data.notes || "Abono",
-    recorded_by: user?.id,
-  });
-
-  if (paymentError) return { success: false, error: paymentError.message };
-
-  // Update balance
-  const newBalance = (account.current_balance || 0) - data.amount;
-  const { error: updateError } = await supabase
-    .from("credit_accounts")
-    .update({
-      current_balance: newBalance,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", data.credit_account_id);
-
-  if (updateError) return { success: false, error: updateError.message };
-
-  revalidatePath("/d/contacts");
-  revalidatePath("/d/finance");
-  return { success: true };
+  return applyCreditMovement("payment", data);
 }
 
 // ─── STATS ──────────────────────────────────────────

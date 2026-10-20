@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useMemo } from "react";
+import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 import { updateOrderStatus } from "@/lib/actions/orders";
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +83,11 @@ interface Props {
   transactions: Transaction[];
   currency: string;
   businessSlug: string;
+  /** History window shown (days) and the options to widen it. */
+  windowDays?: number;
+  windowOptions?: number[];
+  /** True when the row cap was hit, so older orders exist inside the window. */
+  truncated?: boolean;
 }
 
 /* ── Status config ──────────────────────────────────── */
@@ -137,7 +143,7 @@ type Tab = "active" | "history" | "all";
 
 /* ── Component ──────────────────────────────────────── */
 
-export function OrdersTable({ transactions, currency, businessSlug }: Props) {
+export function OrdersTable({ transactions, currency, businessSlug, windowDays, windowOptions, truncated }: Props) {
   const [isPending, startTransition] = useTransition();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("active");
@@ -228,6 +234,15 @@ export function OrdersTable({ transactions, currency, businessSlug }: Props) {
           <span className="orders-tab-count">{transactions.length}</span>
         </button>
       </div>
+
+      {windowDays && windowOptions && (
+        <p className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          Mostrando los últimos {windowDays} días{truncated ? " (se alcanzó el máximo de 500 pedidos; usa un rango menor para ver todo)" : ""}.
+          {windowOptions.filter((d) => d !== windowDays).map((d) => (
+            <Link key={d} href={`?days=${d}`} className="underline">Ver {d} días</Link>
+          ))}
+        </p>
+      )}
 
       {/* Filters bar */}
       <div className="orders-filters">

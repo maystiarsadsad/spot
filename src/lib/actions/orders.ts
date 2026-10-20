@@ -172,7 +172,7 @@ export async function createOrder(businessId: string, payload: CreateOrderPayloa
 
   // POS sales are completed immediately → deduct inventory + update daily cash + update contact stats
   if (payload.type === 'sale') {
-    await deductInventoryForTransaction(supabase, businessId, pricing.lines);
+    await deductInventoryForTransaction(supabase, businessId, pricing.lines, transaction.id);
     await updateDailyCashOnSale(businessId, total, payload.payment_method || 'cash');
     if (contactId) {
       await updateContactStats(supabase, contactId, total);
@@ -348,7 +348,7 @@ export async function updateOrderStatus(orderId: string, status: string, payment
             options: ti.options,
           }));
         if (orderItems.length > 0) {
-          await deductInventoryForTransaction(supabase, transaction.business_id, orderItems);
+          await deductInventoryForTransaction(supabase, transaction.business_id, orderItems, orderId);
         }
       }
 
@@ -386,7 +386,8 @@ export async function updateOrderStatus(orderId: string, status: string, payment
 async function deductInventoryForTransaction(
   supabase: any,
   businessId: string,
-  items: SoldLine[]
+  items: SoldLine[],
+  referenceId?: string | null
 ) {
   const catalogItemIds = [...new Set(items.map((i) => i.catalog_item_id).filter(Boolean))];
   if (catalogItemIds.length === 0) return;
@@ -457,36 +458,16 @@ async function deductInventoryForTransaction(
     }
   }
 
-  // Apply deductions
-  for (const [inventoryId, qty] of deductions) {
-    // Fetch current stock
-    const { data: invItem } = await supabase
-      .from("inventory")
-      .select("current_stock")
-      .eq("id", inventoryId)
-      .single();
+  if (deductions.size === 0) return;
 
-    if (!invItem) continue;
-
-    const newStock = Math.max(0, (invItem.current_stock || 0) - qty);
-
-    // Update stock
-    await supabase
-      .from("inventory")
-      .update({ current_stock: newStock })
-      .eq("id", inventoryId);
-
-    // Record movement
-    await supabase.from("inventory_movements").insert({
-      business_id: businessId,
-      inventory_id: inventoryId,
-      type: "out",
-      quantity: qty,
-      unit_cost: 0,
-      total_cost: 0,
-      notes: "Descuento automático por venta",
-    });
-  }
+  // One atomic call: each stock decrement is a single UPDATE (no read-modify-write),
+  // the movements are recorded with it, and stock floors at 0 like before.
+  const { error } = await supabase.rpc("deduct_sale_inventory", {
+    p_business_id: businessId,
+    p_items: [...deductions].map(([inventory_id, quantity]) => ({ inventory_id, quantity })),
+    p_reference_id: referenceId ?? null,
+  });
+  if (error) console.error("Error deducting inventory for sale:", error.message);
 }
 
 /* ── Contact resolution ───────────────────────────────── */

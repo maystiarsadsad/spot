@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { requireBusinessAccess, MANAGE_ROLES } from "@/lib/auth-guard";
+import { requireBusinessAccess, MANAGE_ROLES, WRITE_ROLES } from "@/lib/auth-guard";
 
 export async function getInventory(businessId: string) {
   const supabase = await createClient();
@@ -147,6 +147,8 @@ export async function deleteInventoryItem(itemId: string) {
   return { success: true };
 }
 
+const MOVEMENT_TYPES = ["in", "out", "adjust"];
+
 export async function recordMovement(data: {
   business_id: string;
   inventory_id: string;
@@ -155,67 +157,23 @@ export async function recordMovement(data: {
   unit_cost?: number;
   notes?: string;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = await requireBusinessAccess(data.business_id, WRITE_ROLES);
+  if ("error" in auth) return { success: false, error: auth.error };
+  if (!MOVEMENT_TYPES.includes(data.type)) return { success: false, error: "Tipo de movimiento no válido" };
 
-  // First get current stock to validate and adjust
-  const { data: item, error: fetchError } = await supabase
-    .from("inventory")
-    .select("current_stock")
-    .eq("id", data.inventory_id)
-    .single();
-
-  if (fetchError || !item) {
-    return { success: false, error: "Producto no encontrado" };
-  }
-
-  const currentStock = item.current_stock || 0;
-  
-  // For 'out' operations, quantity is logically subtracted, but we may store it as positive or negative.
-  // We'll store quantity as positive and determine math by type
-  let newStock = currentStock;
-  if (data.type === 'in') {
-    newStock = currentStock + data.quantity;
-  } else if (data.type === 'out') {
-    if (currentStock < data.quantity) {
-      return { success: false, error: "Stock insuficiente" };
-    }
-    newStock = currentStock - data.quantity;
-  } else if (data.type === 'adjust') {
-    // If it's an adjustment, quantity might be the absolute new stock, or differene.
-    // Let's assume 'adjust' means we are passing the DIFFERENCE (can be negative)
-    // Actually, safer if UI passes absolute diff. We will add the quantity to currentStock.
-    newStock = currentStock + data.quantity;
-  }
-
-  // Record movement
-  const { error: moveError } = await supabase.from("inventory_movements").insert({
-    business_id: data.business_id,
-    inventory_id: data.inventory_id,
-    type: data.type,
-    quantity: data.quantity, // Storing delta
-    unit_cost: data.unit_cost || 0,
-    total_cost: (data.unit_cost || 0) * Math.abs(data.quantity),
-    notes: data.notes,
-    registered_by: user?.id,
+  // quantity: positive for in/out, signed delta for adjust. The stock change and the
+  // movement are written together in one SQL function (no read-modify-write race).
+  const { error } = await auth.supabase.rpc("apply_inventory_movement", {
+    p_business_id: data.business_id,
+    p_inventory_id: data.inventory_id,
+    p_type: data.type,
+    p_quantity: Number(data.quantity),
+    p_unit_cost: Number(data.unit_cost) || 0,
+    p_notes: data.notes?.trim().slice(0, 300) || undefined,
   });
-
-  if (moveError) {
-    return { success: false, error: moveError.message };
-  }
-
-  // Update item 
-  const { error: updateError } = await supabase
-    .from("inventory")
-    .update({ 
-      current_stock: newStock,
-      last_restock_at: data.type === 'in' ? new Date().toISOString() : undefined 
-    })
-    .eq("id", data.inventory_id);
-
-  if (updateError) {
-    // Note: In a real system, you'd use a postgres function for atomicity, but this is ok for now
-    return { success: false, error: updateError.message };
+  if (error) {
+    // P0001 = business-rule message written for the user ("Stock insuficiente", …)
+    return { success: false, error: error.code === "P0001" ? error.message : "No se pudo registrar el movimiento" };
   }
 
   revalidatePath("/d/inventory");

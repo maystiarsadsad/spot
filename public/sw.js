@@ -1,11 +1,14 @@
 /// Service Worker for Spot PWA
 /// Provides offline caching and app shell strategy
 
-const CACHE_NAME = 'spot-v2';
+// v3: v2 also stored HTML of signed-in pages (/d/*) on the device; bumping the name makes
+// `activate` delete that cache.
+const CACHE_NAME = 'spot-v3';
 const OFFLINE_URL = '/offline';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [
+  OFFLINE_URL,
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
   '/branding/spot-logo.png',
@@ -45,22 +48,12 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http schemes
   if (!request.url.startsWith('http')) return;
 
-  // For navigation requests (HTML pages): network-first
+  // Navigations (HTML): network only. Pages are personalised (the dashboard shows a
+  // business's sales, customers and staff), so they are never written to the shared
+  // device cache. Offline, show the static fallback page instead.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Cache the latest version
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        })
-        .catch(() => {
-          // Try cache, then offline page
-          return caches.match(request).then((cached) => {
-            return cached || caches.match(OFFLINE_URL);
-          });
-        })
+      fetch(request).catch(() => caches.match(OFFLINE_URL).then((cached) => cached || Response.error()))
     );
     return;
   }

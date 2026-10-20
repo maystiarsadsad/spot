@@ -3060,6 +3060,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_credit_movement: {
+        Args: {
+          p_account_id: string
+          p_amount: number
+          p_notes?: string
+          p_payment_method?: string
+          p_transaction_id?: string
+          p_type: string
+        }
+        Returns: number
+      }
+      apply_inventory_movement: {
+        Args: {
+          p_business_id: string
+          p_clamp?: boolean
+          p_inventory_id: string
+          p_notes?: string
+          p_quantity: number
+          p_reference_id?: string
+          p_type: string
+          p_unit_cost?: number
+        }
+        Returns: number
+      }
       book_class_spot: {
         Args: {
           p_business_id: string
@@ -3093,6 +3117,10 @@ export type Database = {
           p_token: string
         }
         Returns: boolean
+      }
+      deduct_sale_inventory: {
+        Args: { p_business_id: string; p_items: Json; p_reference_id?: string }
+        Returns: number
       }
       delivery_public_payload: {
         Args: { d: Database["public"]["Tables"]["deliveries"]["Row"] }
