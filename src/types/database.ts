@@ -258,6 +258,38 @@ export type Database = {
           },
         ]
       }
+      business_platform_notes: {
+        Row: {
+          assigned_to: string | null
+          business_id: string
+          internal_notes: string | null
+          suspended_reason: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          business_id: string
+          internal_notes?: string | null
+          suspended_reason?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          business_id?: string
+          internal_notes?: string | null
+          suspended_reason?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_platform_notes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_templates: {
         Row: {
           active: boolean | null
@@ -316,7 +348,6 @@ export type Database = {
           ai_agent_enabled: boolean | null
           ai_agent_greeting: string | null
           ai_agent_prompt: string | null
-          assigned_to: string | null
           booking_settings: Json
           business_hours: Json | null
           city: string | null
@@ -330,7 +361,6 @@ export type Database = {
           email: string | null
           favicon_url: string | null
           id: string
-          internal_notes: string | null
           layout: Json | null
           legal_name: string | null
           locale: string | null
@@ -348,7 +378,6 @@ export type Database = {
           subscription_started_at: string | null
           subscription_status: string | null
           suspended: boolean | null
-          suspended_reason: string | null
           tagline: string | null
           tax_id: string | null
           theme: Json | null
@@ -365,7 +394,6 @@ export type Database = {
           ai_agent_enabled?: boolean | null
           ai_agent_greeting?: string | null
           ai_agent_prompt?: string | null
-          assigned_to?: string | null
           booking_settings?: Json
           business_hours?: Json | null
           city?: string | null
@@ -379,7 +407,6 @@ export type Database = {
           email?: string | null
           favicon_url?: string | null
           id?: string
-          internal_notes?: string | null
           layout?: Json | null
           legal_name?: string | null
           locale?: string | null
@@ -397,7 +424,6 @@ export type Database = {
           subscription_started_at?: string | null
           subscription_status?: string | null
           suspended?: boolean | null
-          suspended_reason?: string | null
           tagline?: string | null
           tax_id?: string | null
           theme?: Json | null
@@ -414,7 +440,6 @@ export type Database = {
           ai_agent_enabled?: boolean | null
           ai_agent_greeting?: string | null
           ai_agent_prompt?: string | null
-          assigned_to?: string | null
           booking_settings?: Json
           business_hours?: Json | null
           city?: string | null
@@ -428,7 +453,6 @@ export type Database = {
           email?: string | null
           favicon_url?: string | null
           id?: string
-          internal_notes?: string | null
           layout?: Json | null
           legal_name?: string | null
           locale?: string | null
@@ -446,7 +470,6 @@ export type Database = {
           subscription_started_at?: string | null
           subscription_status?: string | null
           suspended?: boolean | null
-          suspended_reason?: string | null
           tagline?: string | null
           tax_id?: string | null
           theme?: Json | null
@@ -3135,7 +3158,6 @@ export type Database = {
           ai_agent_enabled: boolean | null
           ai_agent_greeting: string | null
           ai_agent_prompt: string | null
-          assigned_to: string | null
           booking_settings: Json
           business_hours: Json | null
           city: string | null
@@ -3149,7 +3171,6 @@ export type Database = {
           email: string | null
           favicon_url: string | null
           id: string
-          internal_notes: string | null
           layout: Json | null
           legal_name: string | null
           locale: string | null
@@ -3167,7 +3188,6 @@ export type Database = {
           subscription_started_at: string | null
           subscription_status: string | null
           suspended: boolean | null
-          suspended_reason: string | null
           tagline: string | null
           tax_id: string | null
           theme: Json | null
@@ -3202,6 +3222,7 @@ export type Database = {
         Args: { p_business_id: string; p_key: string }
         Returns: undefined
       }
+      shares_business_with: { Args: { p_user: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

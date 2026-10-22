@@ -98,3 +98,20 @@ Una de las revisiones afirmó que el asistente es solo de palabras clave. Es inc
 
 **Fase 4 — Crecimiento**
 Analytics del SuperAdmin (MRR, churn, uso por vertical), turnos de empleados, login con Google, decidir el destino del builder (EPIC 11) y de plantillas/propuestas, i18n completo del panel.
+
+---
+
+## Estado al 2026-10-21
+
+**Resuelto (en producción y en `main`)**
+- Críticos 1 y 2: autoascenso a superadmin y política de `business_members` (el 2 ya estaba corregido en producción, ahora también en el repo).
+- Altos 3, 4, 5, 6: columnas de plataforma de `businesses`, lectura anónima de `businesses`/`webpage_proposals`, guards de rol en acciones, RLS por rol en caja, gastos, fiado e inventario.
+- Alto 7 y 8: stock y fiado atómicos (funciones SQL), `/d/orders` con ventana de 30/90/365 días e índice `transactions(business_id, created_at)`.
+- Alto 9: `error.tsx`, `global-error.tsx`, `not-found.tsx`. Sin Sentry por decisión del dueño; los errores quedan en los logs de Vercel con su `digest`.
+- Medios: service worker v3 (no guarda HTML autenticado, `/offline` existe), `profiles` ya no es legible por todos, Storage `catalog-images` solo escribible por operadores del negocio dueño de la carpeta.
+- Hallazgo nuevo: `inventory_movements` nunca registró un movimiento porque su CHECK no coincidía con lo que escribe la app; corregido.
+
+**Pendiente**
+- `owner_id`, estado de suscripción y `ai_agent_prompt` siguen visibles en cualquier negocio publicado (bajo riesgo; requeriría una vista pública con columnas explícitas).
+- Cabeceras de seguridad (CSP, HSTS), rate limit en login, tests de acciones y de aislamiento RLS, limpieza de los 109 errores de lint, DIAN, pasarela de pagos, notificaciones.
+- Backups: confirmar PITR en el plan de Supabase.

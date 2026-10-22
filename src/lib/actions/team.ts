@@ -62,8 +62,11 @@ export async function inviteMember(
     return { success: false, error: "No tienes permisos para invitar usuarios" };
   }
 
-  // Find the user by email in profiles
-  const { data: targetProfile } = await supabase
+  // Find the user by email in profiles. Profiles of people outside your business are not
+  // readable under RLS, so this lookup (already behind the owner/admin check above) uses
+  // the admin client.
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const { data: targetProfile } = await createAdminClient()
     .from("profiles")
     .select("id, display_name, email")
     .eq("email", email.toLowerCase().trim())
@@ -266,7 +269,7 @@ export async function createMember(
   if (createError) {
     if (createError.message.includes("already been registered")) {
       // User already exists — try to add as member
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile } = await adminClient
         .from("profiles")
         .select("id")
         .eq("email", data.email.toLowerCase().trim())

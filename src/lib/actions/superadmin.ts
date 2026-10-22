@@ -102,7 +102,6 @@ export async function suspendBusiness(businessId: string, reason: string) {
     .from("businesses")
     .update({
       suspended: true,
-      suspended_reason: reason,
       updated_at: new Date().toISOString(),
     })
     .eq("id", businessId);
@@ -110,6 +109,10 @@ export async function suspendBusiness(businessId: string, reason: string) {
   if (error) {
     return { error: `Error al suspender: ${error.message}` };
   }
+  // The reason is platform-internal: it lives in a superadmin-only table
+  await supabase
+    .from("business_platform_notes")
+    .upsert({ business_id: businessId, suspended_reason: reason, updated_at: new Date().toISOString() }, { onConflict: "business_id" });
 
   await logAudit({
     action: "suspend_business",
@@ -152,7 +155,6 @@ export async function reactivateBusiness(businessId: string) {
     .from("businesses")
     .update({
       suspended: false,
-      suspended_reason: null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", businessId);
@@ -160,6 +162,9 @@ export async function reactivateBusiness(businessId: string) {
   if (error) {
     return { error: `Error al reactivar: ${error.message}` };
   }
+  await supabase
+    .from("business_platform_notes")
+    .upsert({ business_id: businessId, suspended_reason: null, updated_at: new Date().toISOString() }, { onConflict: "business_id" });
 
   await logAudit({
     action: "reactivate_business",

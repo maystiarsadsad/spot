@@ -695,9 +695,9 @@ async function seedDemo(d, ownerId, broken, keepId) {
     social_links: { instagram: "", facebook: "", tiktok: "", twitter: "", website: "" },
     webpage_published: true, active: true, onboarding_completed: true,
     subscription_plan: "pro", subscription_status: "active",
-    internal_notes: "Negocio DEMO generado por scripts/seed-demos.mjs — se recrea al volver a correr el script.",
   }).select().single(), `business ${d.slug}`);
   const bid = business.id;
+  await must(sb.from("business_platform_notes").insert({ business_id: bid, internal_notes: "Negocio DEMO generado por scripts/seed-demos.mjs — se recrea al volver a correr el script." }), "platform notes");
 
   await must(sb.from("business_members").insert({ business_id: bid, user_id: ownerId, role: "owner", status: "active" }), "member");
   await must(sb.from("business_modules").insert(MODULES_BY_TYPE[d.type].map((m) => ({ business_id: bid, module_key: m, enabled: true }))), "modules");
