@@ -208,7 +208,7 @@ const DEMOS = [
     staff: [["Tatuador(a)", "Tatuaje"], ["Tatuador(a)", "Tatuaje"], ["Piercer", "Piercing"], ["Recepcionista", "Recepción"]],
   },
   {
-    type: "bar", slug: "demo-bar", name: "Bar La Terraza 93",
+    type: "bar", slug: "demo-bar", name: "Bar La Terraza Provenza",
     tagline: "Cócteles de autor y la mejor vista del parque", color: "#9333ea",
     description: "Bar de cócteles con terraza, DJ en vivo jueves a sábado y happy hour de 5 a 8 p.m. Reserva tu mesa para cumpleaños y eventos.",
     cover: "1572116469696-31de0f17cc34", logo: "1514362545857-3bc16c4c7d1b", barrio: "Provenza", hours: ["16:00", "02:00"],
