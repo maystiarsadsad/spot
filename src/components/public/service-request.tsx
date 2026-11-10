@@ -174,11 +174,11 @@ export function ServiceRequest({ business, items, settings }: Props) {
             <div className="stay-form-grid">
               <div className="store-checkout-field">
                 <label htmlFor="sv-from"><span className="route-dot route-dot-pickup">A</span> Dirección de recogida *</label>
-                <input id="sv-from" required value={pickup.address} onChange={(e) => setPickup({ ...pickup, address: e.target.value })} placeholder="Cra 7 # 72-41, Of. 302" />
+                <input id="sv-from" required value={pickup.address} onChange={(e) => setPickup({ ...pickup, address: e.target.value })} placeholder="Cra 43A # 7-50, Of. 302" />
               </div>
               <div className="store-checkout-field">
                 <label htmlFor="sv-to"><span className="route-dot route-dot-dropoff">B</span> Dirección de entrega *</label>
-                <input id="sv-to" required value={dropoff.address} onChange={(e) => setDropoff({ ...dropoff, address: e.target.value })} placeholder="Calle 140 # 11-35, Apto 501" />
+                <input id="sv-to" required value={dropoff.address} onChange={(e) => setDropoff({ ...dropoff, address: e.target.value })} placeholder="Calle 10 # 40-20, Apto 501" />
               </div>
             </div>
             <RoutePicker
@@ -270,7 +270,7 @@ export function ServiceRequest({ business, items, settings }: Props) {
               <>
                 <div className="store-checkout-field">
                   <label htmlFor="sv-home">Dirección *</label>
-                  <input id="sv-home" value={home.address} onChange={(e) => setHome({ ...home, address: e.target.value })} placeholder="Calle 127 # 45-90, Torre 2 Apto 803" />
+                  <input id="sv-home" value={home.address} onChange={(e) => setHome({ ...home, address: e.target.value })} placeholder="Cra 70 # 44-30, Torre 2 Apto 803" />
                 </div>
                 <LocationPicker value={home.point} onChange={(p) => setHome((h) => ({ ...h, point: p }))} />
               </>

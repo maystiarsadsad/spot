@@ -6,8 +6,8 @@ import "leaflet/dist/leaflet.css";
 
 export type LatLng = { lat: number; lng: number };
 
-/** Bogotá — fallback center when we have no coordinates yet. */
-export const DEFAULT_CENTER: LatLng = { lat: 4.711, lng: -74.0721 };
+/** Medellín — fallback center when we have no coordinates yet. */
+export const DEFAULT_CENTER: LatLng = { lat: 6.2442, lng: -75.5812 };
 
 /**
  * Loads Leaflet on the client only (it touches `window` at import time),

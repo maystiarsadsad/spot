@@ -65,12 +65,12 @@ async function must(promise, label) {
 
 const FIRST = ["Valentina", "Santiago", "Camila", "Mateo", "Mariana", "Sebastián", "Daniela", "Juan Pablo", "Laura", "Andrés", "Isabella", "Felipe", "Sofía", "Nicolás", "Paula", "Carlos", "Natalia", "Julián", "Gabriela", "David", "Luisa", "Alejandro", "Manuela", "Esteban"];
 const LAST = ["Gómez", "Rodríguez", "Martínez", "López", "García", "Hernández", "Ramírez", "Torres", "Díaz", "Moreno", "Castro", "Rojas", "Vargas", "Ortiz", "Suárez", "Jiménez", "Restrepo", "Ospina", "Cárdenas", "Parra"];
-const STREETS = ["Cra 7 # 45-12", "Calle 85 # 15-30", "Cra 15 # 93-60", "Calle 53 # 24-18", "Av. Suba # 115-40", "Cra 11 # 82-71", "Calle 26 # 68-35", "Cra 30 # 19-22", "Calle 72 # 10-07", "Cra 68 # 23-15", "Calle 127 # 45-90", "Cra 50 # 2-31"];
-const BARRIOS = ["Chapinero", "Usaquén", "Teusaquillo", "Cedritos", "Galerías", "Modelia", "Suba", "Kennedy", "Santa Bárbara", "Salitre", "Niza", "La Soledad"];
+const STREETS = ["Cra 43A # 7-50", "Calle 10 # 40-20", "Cra 70 # 44-30", "Circular 4 # 70-15", "Calle 33 # 74-10", "Av. 33 # 65D-20", "Cra 48 # 10-45", "Calle 50 # 46-36", "Cra 80 # 34-12", "Cra 37 # 10-20", "Av. Oriental # 52-30", "Calle 30A # 82-01"];
+const BARRIOS = ["El Poblado", "Laureles", "Envigado", "Belén", "Robledo", "Castilla", "Buenos Aires", "La América", "Estadio", "Manrique", "Sabaneta", "Itagüí"];
 const fullName = () => `${pick(FIRST)} ${pick(LAST)}`;
 
-// Bogotá bounding box for delivery pins
-const bogotaPoint = () => ({ lat: 4.6 + rand() * 0.15, lng: -74.15 + rand() * 0.1 });
+// Medellín bounding box for delivery pins
+const medellinPoint = () => ({ lat: 6.20 + rand() * 0.10, lng: -75.62 + rand() * 0.08 });
 
 /* ── per-type demo definitions ───────────────────────── */
 // items: [name, price, description, unsplashId, extra?]
@@ -81,7 +81,7 @@ const DEMOS = [
     type: "restaurant", slug: "demo-restaurante", name: "La Mesa de Doña Rosa",
     tagline: "Cocina casera con sabor de hogar", color: "#c2410c",
     description: "Restaurante familiar de cocina casera e internacional: carnes a la parrilla, pastas, ensaladas y postres de la casa. Almuerzos ejecutivos de lunes a viernes.",
-    cover: "1517248135467-4c7edcad34c4", logo: "1547592166-23ac45744acd", barrio: "La Candelaria", hours: ["11:30", "22:00"],
+    cover: "1517248135467-4c7edcad34c4", logo: "1547592166-23ac45744acd", barrio: "Laureles", hours: ["11:30", "22:00"],
     itemType: "product", reservations: true, deliveries: true,
     categories: [
       { name: "Platos fuertes", icon: "🍲", items: [
@@ -111,8 +111,8 @@ const DEMOS = [
   {
     type: "fast_food", slug: "demo-comidas-rapidas", name: "Burger Brothers",
     tagline: "Hamburguesas a la parrilla y papas que enamoran", color: "#ea580c",
-    description: "Hamburguesas artesanales con carne 100% res a la parrilla, perros calientes y papas rústicas. Domicilios en todo el norte de Bogotá.",
-    cover: "1550547660-d9450f859349", logo: "1568901346375-23c9450c58cd", barrio: "Cedritos", hours: ["12:00", "23:00"],
+    description: "Hamburguesas artesanales con carne 100% res a la parrilla, perros calientes y papas rústicas. Domicilios en El Poblado, Laureles y alrededores.",
+    cover: "1550547660-d9450f859349", logo: "1568901346375-23c9450c58cd", barrio: "Belén", hours: ["12:00", "23:00"],
     itemType: "product", deliveries: true,
     categories: [
       { name: "Hamburguesas", icon: "🍔", items: [
@@ -142,7 +142,7 @@ const DEMOS = [
     type: "supermarket", slug: "demo-supermercado", name: "Mercado Fresco La 80",
     tagline: "Todo para tu hogar, fresco y a buen precio", color: "#16a34a",
     description: "Supermercado de barrio con frutas y verduras frescas todos los días, despensa, lácteos y aseo. Domicilio gratis por compras superiores a $80.000.",
-    cover: "1542838132-92c53300491e", logo: "1610832958506-aa56368176cf", barrio: "Modelia", hours: ["07:00", "21:00"],
+    cover: "1542838132-92c53300491e", logo: "1610832958506-aa56368176cf", barrio: "Laureles", hours: ["07:00", "21:00"],
     itemType: "product", linkInventory: true,
     categories: [
       { name: "Frutas y verduras", icon: "🥑", items: [
@@ -167,7 +167,7 @@ const DEMOS = [
     type: "barbershop", slug: "demo-barberia", name: "Navaja & Tijera Barber Club",
     tagline: "Cortes clásicos y modernos, con cerveza de cortesía", color: "#1d4ed8",
     description: "Barbería premium con barberos expertos en fades, diseño de barba y afeitado con toalla caliente. Agenda tu cita en línea.",
-    cover: "1503951914875-452162b0f3f1", logo: "1585747860715-2ba37e788b70", barrio: "Chapinero Alto", hours: ["09:00", "20:00"],
+    cover: "1503951914875-452162b0f3f1", logo: "1585747860715-2ba37e788b70", barrio: "Buenos Aires", hours: ["09:00", "20:00"],
     itemType: "service", reservations: true,
     categories: [
       { name: "Cortes", icon: "✂️", items: [
@@ -191,7 +191,7 @@ const DEMOS = [
     type: "tattoo", slug: "demo-tattoo", name: "Tinta Negra Studio",
     tagline: "Arte en tu piel, con bioseguridad certificada", color: "#7c3aed",
     description: "Estudio de tatuajes y piercing con artistas especializados en fine line, realismo y tradicional. Diseños personalizados y valoración gratuita.",
-    cover: "1611501275019-9b5cda994e8d", logo: "1565058379802-bbe93b2f703a", barrio: "Chapinero", hours: ["11:00", "20:00"],
+    cover: "1611501275019-9b5cda994e8d", logo: "1565058379802-bbe93b2f703a", barrio: "Estadio", hours: ["11:00", "20:00"],
     itemType: "service", reservations: true,
     categories: [
       { name: "Tatuajes", icon: "🖋️", items: [
@@ -211,7 +211,7 @@ const DEMOS = [
     type: "bar", slug: "demo-bar", name: "Bar La Terraza 93",
     tagline: "Cócteles de autor y la mejor vista del parque", color: "#9333ea",
     description: "Bar de cócteles con terraza, DJ en vivo jueves a sábado y happy hour de 5 a 8 p.m. Reserva tu mesa para cumpleaños y eventos.",
-    cover: "1572116469696-31de0f17cc34", logo: "1514362545857-3bc16c4c7d1b", barrio: "Parque de la 93", hours: ["16:00", "02:00"],
+    cover: "1572116469696-31de0f17cc34", logo: "1514362545857-3bc16c4c7d1b", barrio: "Provenza", hours: ["16:00", "02:00"],
     itemType: "product", reservations: true,
     categories: [
       { name: "Cócteles", icon: "🍸", items: [
@@ -235,9 +235,9 @@ const DEMOS = [
   },
   {
     type: "hotel", slug: "demo-hotel", name: "Hotel Mirador Andino",
-    tagline: "Descanso boutique en el corazón de Bogotá", color: "#0891b2",
-    description: "Hotel boutique de 24 habitaciones con desayuno incluido, spa, gimnasio y terraza con vista a los cerros orientales. A 10 minutos de la Zona T.",
-    cover: "1566073771259-6a8506099945", logo: "1611892440504-42a792e24d32", barrio: "Rosales", hours: ["00:00", "23:59"],
+    tagline: "Descanso boutique en el corazón de Medellín", color: "#0891b2",
+    description: "Hotel boutique de 24 habitaciones con desayuno incluido, spa, gimnasio y terraza con vista a las montañas del Valle de Aburrá. A 10 minutos del Parque Lleras.",
+    cover: "1566073771259-6a8506099945", logo: "1611892440504-42a792e24d32", barrio: "El Poblado", hours: ["00:00", "23:59"],
     itemType: "room", reservations: true,
     categories: [
       { name: "Habitaciones", icon: "🛏️", items: [
@@ -257,9 +257,9 @@ const DEMOS = [
   },
   {
     type: "hostel", slug: "demo-hostal", name: "Casa Viajera Hostel",
-    tagline: "Tu casa en La Candelaria, para mochileros del mundo", color: "#0d9488",
+    tagline: "Tu casa en Provenza, para mochileros del mundo", color: "#0d9488",
     description: "Hostal en una casa colonial restaurada con dormitorios compartidos y privados, cocina común, tours a pie y noches de juegos.",
-    cover: "1555854877-bab0e564b8d5", logo: "1596394516093-501ba68a0ba6", barrio: "La Candelaria", hours: ["00:00", "23:59"],
+    cover: "1555854877-bab0e564b8d5", logo: "1596394516093-501ba68a0ba6", barrio: "Provenza", hours: ["00:00", "23:59"],
     itemType: "room", reservations: true,
     categories: [
       { name: "Alojamiento", icon: "🛏️", items: [
@@ -279,7 +279,7 @@ const DEMOS = [
     type: "cafe", slug: "demo-cafe", name: "Origen Café de Especialidad",
     tagline: "Café colombiano de origen, tostado aquí mismo", color: "#78350f",
     description: "Tostadores de café de especialidad de Huila, Nariño y Sierra Nevada. Métodos filtrados, repostería artesanal y espacio para trabajar.",
-    cover: "1554118811-1e0d58224f24", logo: "1495474472287-4d71bcdd2085", barrio: "Quinta Camacho", hours: ["07:00", "19:00"],
+    cover: "1554118811-1e0d58224f24", logo: "1495474472287-4d71bcdd2085", barrio: "Laureles", hours: ["07:00", "19:00"],
     itemType: "product",
     categories: [
       { name: "Café", icon: "☕", items: [
@@ -306,7 +306,7 @@ const DEMOS = [
     type: "gym", slug: "demo-gimnasio", name: "Iron Fit Gym",
     tagline: "Entrena fuerte, vive mejor", color: "#dc2626",
     description: "Gimnasio con zona de pesas, cardio, clases grupales de spinning, funcional y yoga. Planes mensuales sin matrícula y entrenador personal.",
-    cover: "1534438327276-14e5300c3a48", logo: "1517836357463-d25dfeac3438", barrio: "Galerías", hours: ["05:00", "22:00"],
+    cover: "1534438327276-14e5300c3a48", logo: "1517836357463-d25dfeac3438", barrio: "Envigado", hours: ["05:00", "22:00"],
     itemType: "membership", reservations: true,
     categories: [
       { name: "Planes", icon: "🏋️", items: [
@@ -330,7 +330,7 @@ const DEMOS = [
     type: "laundry", slug: "demo-lavanderia", name: "Lavandería Burbujas",
     tagline: "Tu ropa limpia en 24 horas, la recogemos en tu casa", color: "#0284c7",
     description: "Lavado por kilo, lavado en seco, planchado y lavado de edredones. Servicio de recogida y entrega a domicilio sin costo adicional.",
-    cover: "1545173168-9f1947eebb7f", logo: "1582735689369-4fe89db7114c", barrio: "Niza", hours: ["07:00", "19:00"],
+    cover: "1545173168-9f1947eebb7f", logo: "1582735689369-4fe89db7114c", barrio: "Belén", hours: ["07:00", "19:00"],
     itemType: "service",
     categories: [
       { name: "Lavado", icon: "🧺", items: [
@@ -353,7 +353,7 @@ const DEMOS = [
     type: "clothing", slug: "demo-tienda-ropa", name: "Urbana Concept Store",
     tagline: "Moda urbana hecha en Colombia", color: "#db2777",
     description: "Tienda de ropa urbana de marcas colombianas independientes. Camisetas, jeans, chaquetas y tenis. Envíos a todo el país.",
-    cover: "1441986300917-64674bd600d8", logo: "1556821840-3a63f95609a7", barrio: "Zona T", hours: ["10:00", "20:00"],
+    cover: "1441986300917-64674bd600d8", logo: "1556821840-3a63f95609a7", barrio: "El Poblado", hours: ["10:00", "20:00"],
     itemType: "product", linkInventory: true,
     categories: [
       { name: "Camisetas y buzos", icon: "👕", items: [
@@ -378,7 +378,7 @@ const DEMOS = [
     type: "veterinary", slug: "demo-veterinaria", name: "Clínica Veterinaria Huellitas",
     tagline: "Cuidamos a tu mejor amigo como parte de nuestra familia", color: "#65a30d",
     description: "Clínica veterinaria con consulta general, vacunación, cirugía, laboratorio y peluquería canina y felina. Urgencias 24 horas.",
-    cover: "1628009368231-7bb7cfcb0def", logo: "1583337130417-3346a1be7dee", barrio: "Pasadena", hours: ["08:00", "20:00"],
+    cover: "1628009368231-7bb7cfcb0def", logo: "1583337130417-3346a1be7dee", barrio: "La América", hours: ["08:00", "20:00"],
     itemType: "service", reservations: true,
     categories: [
       { name: "Consultas", icon: "🩺", items: [
@@ -400,13 +400,13 @@ const DEMOS = [
   },
   {
     type: "logistics", slug: "demo-logistica", name: "Rápido Express Mensajería",
-    tagline: "Tus envíos en Bogotá, rápidos y rastreables en tiempo real", color: "#d97706",
+    tagline: "Tus envíos en Medellín, rápidos y rastreables en tiempo real", color: "#d97706",
     description: "Mensajería urbana y envíos nacionales con seguimiento en vivo. Domicilios para negocios, documentos, paquetes y pequeñas mudanzas.",
-    cover: "1586528116311-ad8dd3c8310d", logo: "1566576721346-d4a3b4eaeb55", barrio: "Puente Aranda", hours: ["06:00", "21:00"],
+    cover: "1586528116311-ad8dd3c8310d", logo: "1566576721346-d4a3b4eaeb55", barrio: "Guayabal", hours: ["06:00", "21:00"],
     itemType: "service",
     categories: [
       { name: "Envíos urbanos", icon: "🛵", items: [
-        ["Envío urbano estándar (hasta 5 kg)", 12000, "Entrega el mismo día en Bogotá.", "1566576721346-d4a3b4eaeb55"],
+        ["Envío urbano estándar (hasta 5 kg)", 12000, "Entrega el mismo día en Medellín y el Valle de Aburrá.", "1566576721346-d4a3b4eaeb55"],
         ["Envío express (90 min)", 18000, "Recogida inmediata y entrega en 90 minutos.", "1558981806-ec527fa84c39"],
         ["Documentos", 8000, "Sobres y documentos con firma de recibido.", "1586528116311-ad8dd3c8310d"],
         ["Mensajero por hora", 25000, "Diligencias, pagos y trámites.", "1617347454431-f49d7ff5c3b1"],
@@ -426,7 +426,7 @@ const DEMOS = [
     type: "hardware_store", slug: "demo-ferreteria", name: "Ferretería El Tornillo",
     tagline: "Todo para construir, reparar y mejorar tu hogar", color: "#475569",
     description: "Ferretería con herramientas eléctricas y manuales, pinturas, tornillería, plomería y electricidad. Asesoría técnica y domicilios en la localidad.",
-    cover: "1581783898377-1c85bf937427", logo: "1530124566582-a618bc2615dc", barrio: "Siete de Agosto", hours: ["07:00", "18:30"],
+    cover: "1581783898377-1c85bf937427", logo: "1530124566582-a618bc2615dc", barrio: "Robledo", hours: ["07:00", "18:30"],
     itemType: "product", linkInventory: true, deliveries: true,
     categories: [
       { name: "Herramientas eléctricas", icon: "🔌", items: [
@@ -453,7 +453,7 @@ const DEMOS = [
     type: "vehicle_dealer", slug: "demo-vehiculos", name: "Motos y Autos El Camino",
     tagline: "Compramos y vendemos con respaldo", color: "#0f766e",
     description: "Compraventa de motos, carros y camionetas usados con revisión, papeles al día y financiación. Recibimos tu vehículo como parte de pago.",
-    cover: "1558981806-ec527fa84c39", logo: "1568772585407-9361f9bf3a87", barrio: "Siete de Agosto", hours: ["08:00", "18:00"],
+    cover: "1558981806-ec527fa84c39", logo: "1568772585407-9361f9bf3a87", barrio: "Guayabal", hours: ["08:00", "18:00"],
     itemType: "product", skipSales: true, categories: [],
     staff: [["Asesor(a) Comercial", "Ventas"], ["Asesor(a) Comercial", "Ventas"], ["Mecánico(a)", "Taller"], ["Gestor(a) de Trámites", "Trámites"], ["Cajero(a)", "Caja"]],
   },
@@ -461,7 +461,7 @@ const DEMOS = [
     type: "custom", slug: "demo-estudio-creativo", name: "Lumen Estudio Creativo",
     tagline: "Fotografía, diseño y contenido para marcas que quieren brillar", color: "#4f46e5",
     description: "Estudio creativo con set fotográfico, producción de contenido para redes, diseño de marca y alquiler de estudio por horas.",
-    cover: "1497366216548-37526070297c", logo: "1516035069371-29a1b244cc32", barrio: "San Felipe", hours: ["09:00", "19:00"],
+    cover: "1497366216548-37526070297c", logo: "1516035069371-29a1b244cc32", barrio: "Estadio", hours: ["09:00", "19:00"],
     itemType: "service", reservations: true,
     categories: [
       { name: "Fotografía", icon: "📸", items: [
@@ -509,8 +509,8 @@ function proSchedule(hours, shift) {
   return Object.fromEntries(days.map((d, i) => [d, shift > 0 && i === shift % 6 ? [] : ranges]));
 }
 
-/** Bogotá wall-clock (UTC-5, no DST) for a day offset from today + minutes after midnight. */
-function atBogota(offsetDays, minutes) {
+/** Colombia wall-clock (UTC-5, no DST) for a day offset from today + minutes after midnight. */
+function atColombia(offsetDays, minutes) {
   const local = new Date(Date.now() - 5 * 3600e3);
   local.setUTCDate(local.getUTCDate() + offsetDays);
   return new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate()) + (minutes + 300) * 60000);
@@ -533,8 +533,8 @@ const GYM_CLASSES = [
   ["Funcional", [1, 2, 3, 4, 5], "19:30", 50, 20, null, "Entrenador(a) Personal"],
   ["Glúteo y pierna", [2, 4], "18:00", 50, 16, null, "Entrenador(a) Personal"],
 ];
-/** Bogotá calendar date ("YYYY-MM-DD") shifted by offset days */
-function bogotaDay(offset) {
+/** Colombia calendar date ("YYYY-MM-DD") shifted by offset days */
+function colombiaDay(offset) {
   const d = new Date(Date.now() - 5 * 3600e3);
   d.setUTCDate(d.getUTCDate() + offset);
   return d.toISOString().slice(0, 10);
@@ -687,7 +687,7 @@ async function seedDemo(d, ownerId, broken, keepId) {
     name: d.name, slug: d.slug, type: d.type, owner_id: ownerId,
     tagline: d.tagline, description: d.description,
     logo_url: safeImg(d.logo, 400, 400), cover_url: safeImg(d.cover, 1600, 700),
-    address: `${pick(STREETS)}, ${d.barrio}`, city: "Bogotá", country: "CO",
+    address: `${pick(STREETS)}, ${d.barrio}`, city: "Medellín", country: "CO",
     email: `hola@${d.slug}.demo`,
     whatsapp: DEMO_WHATSAPP,
     business_hours: hours, currency: "COP", timezone: "America/Bogota", locale: "es",
@@ -864,7 +864,7 @@ async function seedDemo(d, ownerId, broken, keepId) {
   if (d.deliveries) {
     const recent = inserted.filter((t) => t.isWeb && t.row.status !== "cancelled" && new Date(t.row.created_at) > daysAgo(3, 0, 0));
     const rows = recent.map((t) => {
-      const dest = bogotaPoint();
+      const dest = medellinPoint();
       const enRoute = t.open && t.row.status === "in_progress";
       const done = t.row.status === "completed";
       return {
@@ -908,7 +908,7 @@ async function seedDemo(d, ownerId, broken, keepId) {
     const appts = [];
     const now = Date.now();
     for (let day = -7; day <= 14; day++) {
-      const dow = DAY_KEY[atBogota(day, 12 * 60).getUTCDay()];
+      const dow = DAY_KEY[atColombia(day, 12 * 60).getUTCDay()];
       for (const e of employees.filter((x) => x.bookable)) {
         const mine = proServices.get(e.id) ?? [];
         if (!mine.length) continue;
@@ -921,7 +921,7 @@ async function seedDemo(d, ownerId, broken, keepId) {
             if (cursor + dur > close) break;
             // ~55% occupancy, a little busier on weekends
             if (rand() < (dow === "fri" || dow === "sat" ? 0.7 : 0.5)) {
-              const start = atBogota(day, cursor);
+              const start = atColombia(day, cursor);
               const end = new Date(start.getTime() + dur * 60000);
               const past = end.getTime() < now;
               const contact = pick(contacts);
@@ -988,6 +988,8 @@ async function seedDemo(d, ownerId, broken, keepId) {
   if (d.type === "hotel" || d.type === "hostel") await seedStays(bid, d.type, items, contacts);
   // ── vehicle dealerships: fleet with aging, costs, paperwork and sales
   if (d.type === "vehicle_dealer") await seedDealership(bid, contacts, (id) => !broken.has(id));
+  // ── hardware stores: contractors buying on account (fiado)
+  if (d.type === "hardware_store") await seedCredit(bid, contacts);
   // ── couriers / laundries: service orders through every stage
   if (d.type === "logistics" || d.type === "laundry") await seedServiceOrders(bid, d.type, items, contacts, employees);
 
@@ -1005,7 +1007,7 @@ async function seedGym(bid, items, employees, baseContacts) {
     created_at: daysAgo(int(10, 200)).toISOString(),
   }))).select(), "gym contacts");
   const people = [...baseContacts, ...extra];
-  const today = bogotaDay(0);
+  const today = colombiaDay(0);
 
   const codes = new Set();
   const memberships = [];
@@ -1059,10 +1061,10 @@ async function seedGym(bid, items, employees, baseContacts) {
   const checkIns = [];
   for (const m of savedMemberships.filter((x) => x.status === "active")) {
     for (let day = -30; day <= 0; day++) {
-      const date = bogotaDay(day);
+      const date = colombiaDay(day);
       if (date < m.starts_on || date > m.ends_on || rand() > 0.42) continue;
       const minutes = pick([5 * 60 + 30, 6 * 60, 6 * 60 + 30, 12 * 60, 17 * 60 + 30, 18 * 60, 18 * 60 + 30, 19 * 60, 20 * 60]) + int(0, 25);
-      const at = atBogota(day, minutes);
+      const at = atColombia(day, minutes);
       if (at.getTime() > Date.now()) continue;
       checkIns.push({ business_id: bid, contact_id: m.contact_id, membership_id: m.id, checked_at: at.toISOString() });
     }
@@ -1083,7 +1085,7 @@ async function seedGym(bid, items, employees, baseContacts) {
   // Bookings for the coming week from members covered on that date
   const bookings = [];
   for (let day = 0; day <= 6; day++) {
-    const date = bogotaDay(day);
+    const date = colombiaDay(day);
     const weekday = ((new Date(`${date}T12:00:00Z`).getUTCDay() + 6) % 7) + 1;
     const covered = [...new Set(savedMemberships.filter((m) => m.status === "active" && m.starts_on <= date && date <= m.ends_on).map((m) => m.contact_id))];
     for (const c of classes.filter((x) => x.weekday === weekday)) {
@@ -1098,7 +1100,7 @@ async function seedGym(bid, items, employees, baseContacts) {
 async function seedStays(bid, type, items, contacts) {
   const settings = STAY_SETTINGS[type];
   await must(sb.from("businesses").update({ stay_settings: settings }).eq("id", bid), "stay settings");
-  const year = Number(bogotaDay(0).slice(0, 4));
+  const year = Number(colombiaDay(0).slice(0, 4));
   await must(sb.from("rate_seasons").insert([
     { business_id: bid, name: "Temporada alta de fin de año", starts_on: `${year}-12-15`, ends_on: `${year + 1}-01-15`, adjustment_pct: 25, min_nights: 2 },
     { business_id: bid, name: "Semana Santa", starts_on: `${year + 1}-03-21`, ends_on: `${year + 1}-03-28`, adjustment_pct: 20, min_nights: null },
@@ -1116,7 +1118,7 @@ async function seedStays(bid, type, items, contacts) {
   const rooms = await must(sb.from("rooms").insert(roomRows).select("id, item_id, name"), "rooms");
   const typeById = Object.fromEntries(types.map((t) => [t.id, t]));
   const services = items.filter((it) => it.type === "service");
-  const today = bogotaDay(0);
+  const today = colombiaDay(0);
   const maintenanceRoom = type === "hotel" ? rooms.find((r) => r.name === "208") : null;
 
   const guest = () => (rand() < 0.4 ? pick(contacts) : { id: null, full_name: fullName(), phone: `3${int(10, 23)}${int(1000000, 9999999)}`, email: null });
@@ -1131,7 +1133,7 @@ async function seedStays(bid, type, items, contacts) {
       const start = day;
       day += nights;
       if (day > until + 5) break;
-      const checkIn = bogotaDay(start), checkOut = bogotaDay(day);
+      const checkIn = colombiaDay(start), checkOut = colombiaDay(day);
       const g = guest();
       const nightly = Array.from({ length: nights }, (_, i) => {
         const date = plusDays(checkIn, i);
@@ -1158,9 +1160,9 @@ async function seedStays(bid, type, items, contacts) {
         check_in: checkIn, check_out: checkOut, status, nightly, room_total: roomTotal, source,
         arrival_time: source === "web" && rand() < 0.6 ? pick(["12:00 – 15:00", "15:00 – 18:00", "18:00 – 21:00", "Después de las 21:00"]) : null,
         notes: rand() < 0.15 ? pick(["Aniversario 💐", "Piso alto, por favor", "Llega en vuelo nocturno", "Cliente frecuente", "Viaje de negocios: factura a empresa"]) : null,
-        checked_in_at: arrived ? atBogota(Math.min(0, start), hm("15:00") + int(0, 300)).toISOString() : null,
-        checked_out_at: status === "checked_out" ? atBogota(Math.min(0, day), hm("09:00") + int(0, 150)).toISOString() : null,
-        created_at: atBogota(Math.min(0, start) - int(1, 25), int(480, 1260)).toISOString(),
+        checked_in_at: arrived ? atColombia(Math.min(0, start), hm("15:00") + int(0, 300)).toISOString() : null,
+        checked_out_at: status === "checked_out" ? atColombia(Math.min(0, day), hm("09:00") + int(0, 150)).toISOString() : null,
+        created_at: atColombia(Math.min(0, start) - int(1, 25), int(480, 1260)).toISOString(),
       });
     }
   }
@@ -1170,9 +1172,9 @@ async function seedStays(bid, type, items, contacts) {
     stays.push({
       business_id: bid, code: STAY_CODE(), item_id: t.id, room_id: null, contact_id: g.id, guest_name: g.full_name, guest_phone: g.phone,
       guest_email: null, guest_document: null, guest_nationality: null, adults: 1, children: 0,
-      check_in: bogotaDay(offset), check_out: bogotaDay(offset + nights), status: "cancelled",
+      check_in: colombiaDay(offset), check_out: colombiaDay(offset + nights), status: "cancelled",
       nightly: [], room_total: t.price * nights, source: pick(["web", "phone"]), arrival_time: null, notes: "Cancelada por el huésped",
-      checked_in_at: null, checked_out_at: null, created_at: atBogota(Math.min(0, offset) - 5, 600).toISOString(),
+      checked_in_at: null, checked_out_at: null, created_at: atColombia(Math.min(0, offset) - 5, 600).toISOString(),
     });
   }
   const saved = [];
@@ -1223,7 +1225,7 @@ const kmBetween = (a, b) => {
   const h = Math.sin(r(b.lat - a.lat) / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(r(b.lng - a.lng) / 2) ** 2;
   return 2 * 6371 * Math.asin(Math.sqrt(h));
 };
-const place = () => ({ address: `${pick(STREETS)}, ${pick(BARRIOS)}`, ...bogotaPoint() });
+const place = () => ({ address: `${pick(STREETS)}, ${pick(BARRIOS)}`, ...medellinPoint() });
 
 async function seedServiceOrders(bid, type, items, contacts, employees) {
   const kind = type === "laundry" ? "laundry" : "shipment";
@@ -1337,7 +1339,7 @@ async function seedServiceOrders(bid, type, items, contacts, employees) {
   if (live.length) {
     await must(sb.from("deliveries").insert(live.map((o) => {
       const moving = o.status !== "assigned";
-      const from = o.pickup_lat != null ? { lat: o.pickup_lat, lng: o.pickup_lng } : { lat: 4.705, lng: -74.07 };
+      const from = o.pickup_lat != null ? { lat: o.pickup_lat, lng: o.pickup_lng } : { lat: 6.2442, lng: -75.5812 };
       const f = 0.3 + rand() * 0.5;
       return {
         business_id: bid, transaction_id: o.transaction_id, dest_lat: o.dropoff_lat, dest_lng: o.dropoff_lng,
@@ -1496,6 +1498,36 @@ async function seedDealership(bid, contacts, photoOk) {
     sales++;
   }
   console.log(`   ${saved.length} vehículos (${saved.length - sales} en inventario, ${sales} vendidos), ${costRows.length} gastos de alistamiento`);
+}
+
+/* ── fiado (store credit): contractors who buy materials on account ── */
+
+async function seedCredit(bid, contacts) {
+  const people = contacts.slice(0, 4);
+  // [credit limit, charges [[daysAgo, amount, note]], payments [[daysAgo, amount, method]]]
+  const plans = [
+    [2_000_000, [[26, 640_000, "Materiales obra Laureles"], [14, 485_000, "Pintura y herramienta"], [5, 312_000, "Tornillería y fijación"]], [[18, 400_000, "transfer"]]],
+    [1_000_000, [[21, 289_000, "Taladro percutor"], [9, 128_000, "Brochas y vinilo"]], [[12, 150_000, "cash"]]],
+    [500_000, [[30, 245_000, "Juego de llaves y flexómetros"], [3, 98_000, "Chazos y tornillos"]], []],
+    [1_500_000, [[40, 760_000, "Remodelación apartamento"]], [[28, 760_000, "transfer"]]],
+  ];
+  let accounts = 0;
+  for (const [i, [limit, charges, payments]] of plans.entries()) {
+    const c = people[i];
+    if (!c) break;
+    const balance = charges.reduce((t, x) => t + x[1], 0) - payments.reduce((t, x) => t + x[1], 0);
+    const acc = await must(sb.from("credit_accounts").insert({
+      business_id: bid, contact_id: c.id, credit_limit: limit, current_balance: balance, status: "active",
+      notes: "Cliente de obra, paga por quincena", created_at: daysAgo(45).toISOString(),
+    }).select("id").single(), "credit account");
+    const rows = [
+      ...charges.map(([d, amount, notes]) => ({ credit_account_id: acc.id, type: "charge", amount, payment_method: null, notes, created_at: daysAgo(d).toISOString() })),
+      ...payments.map(([d, amount, payment_method]) => ({ credit_account_id: acc.id, type: "payment", amount, payment_method, notes: "Abono", created_at: daysAgo(d).toISOString() })),
+    ];
+    await must(sb.from("credit_payments").insert(rows), "credit movements");
+    accounts++;
+  }
+  console.log(`   ${accounts} cuentas de fiado`);
 }
 
 /* ── main ────────────────────────────────────────────── */
